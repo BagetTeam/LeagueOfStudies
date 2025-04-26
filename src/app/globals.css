@@ -1,29 +1,49 @@
-@import "@radix-ui/themes/styles.css";
-
-@import "tailwindcss"; /* Or the specific layers: @import 'tailwindcss/theme'; @import 'tailwindcss/utilities'; etc. */
+@import "tailwindcss";
 
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
+
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-secondary: hsl(var(--secondary));
+
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
+
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
+
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
+
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
+
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-theme-purple: hsl(var(--theme-purple));
+  --color-theme-purple-light: hsl(var(--theme-purple-light));
+  --color-theme-purple-dark: hsl(var(--theme-purple-dark));
+
+  --color-theme-orange: hsl(var(--theme-orange));
+  --color-theme-blue: hsl(var(--theme-blue));
 }
 :root {
+  --theme-purple-light: 251, 85%, 75%;
+  --theme-purple: 259, 28%, 54%;
+  --theme-purple-dark: 258, 26%, 39%;
+
+  --theme-orange: 25, 95%, 53%;
+  --theme-blue: 194, 86%, 57%;
+
   --background: 258 100% 98%;
   --foreground: 260 10% 20%;
 
@@ -53,127 +73,38 @@
   --ring: 258 80% 74%;
 }
 
-.dark {
-  --background: 260 30% 8%;
-  --foreground: 260 10% 90%;
-
-  --card: 260 30% 10%;
-  --card-foreground: 260 10% 90%;
-
-  --popover: 260 30% 10%;
-  --popover-foreground: 260 10% 90%;
-
-  --primary: 258 80% 74%;
-  --primary-foreground: 0 0% 100%;
-
-  --secondary: 260 28% 54%;
-  --secondary-foreground: 0 0% 100%;
-
-  --muted: 260 20% 20%;
-  --muted-foreground: 260 10% 70%;
-
-  --accent: 24 94% 53%;
-  --accent-foreground: 0 0% 100%;
-
-  --destructive: 0 62% 50%;
-  --destructive-foreground: 260 10% 90%;
-
-  --border: 260 20% 26%;
-  --input: 260 20% 26%;
-  --ring: 258 80% 74%;
+.game-card {
+  @apply bg-card relative overflow-hidden rounded-xl border p-6 shadow-md transition-all hover:shadow-lg;
 }
-/* 2. Configure Tailwind using @theme */
-/* @theme { */
-/*   /* Container Settings */
 
-/*   container: { */
-/*     center: true, */
-/*     padding: '2rem', */
-/*     screens: { */
-/*       '2xl': '1400px', */
-/*     }, */
-/*   }, */
-/**/
-/*   /* Map CSS Variables to Tailwind Color Names */
-/*   colors: { */
-/*     border: 'hsl(var(--border))', */
-/*     input: 'hsl(var(--input))', */
-/*     ring: 'hsl(var(--ring))', */
-/*     background: 'hsl(var(--background))', */
-/*     foreground: 'hsl(var(--foreground))', */
-/*     primary: { */
-/*       DEFAULT: 'hsl(var(--primary))', */
-/*       foreground: 'hsl(var(--primary-foreground))', */
-/*     }, */
-/*     secondary: { */
-/*       DEFAULT: 'hsl(var(--secondary))', */
-/*       foreground: 'hsl(var(--secondary-foreground))', */
-/*     }, */
-/*     destructive: { */
-/*       DEFAULT: 'hsl(var(--destructive))', */
-/*       foreground: 'hsl(var(--destructive-foreground))', */
-/*     }, */
-/*     muted: { */
-/*       DEFAULT: 'hsl(var(--muted))', */
-/*       foreground: 'hsl(var(--muted-foreground))', */
-/*     }, */
-/*     accent: { */
-/*       DEFAULT: 'hsl(var(--accent))', */
-/*       foreground: 'hsl(var(--accent-foreground))', */
-/*     }, */
-/*     popover: { */
-/*       DEFAULT: 'hsl(var(--popover))', */
-/*       foreground: 'hsl(var(--popover-foreground))', */
-/*     }, */
-/*     card: { */
-/*       DEFAULT: 'hsl(var(--card))', */
-/*       foreground: 'hsl(var(--card-foreground))', */
-/*     }, */
-/*     sidebar: { */
-/*       DEFAULT: 'hsl(var(--sidebar-background))', */
-/*       foreground: 'hsl(var(--sidebar-foreground))', */
-/*       primary: 'hsl(var(--sidebar-primary))', */
-/*       'primary-foreground': 'hsl(var(--sidebar-primary-foreground))', */
-/*       accent: 'hsl(var(--sidebar-accent))', */
-/*       'accent-foreground': 'hsl(var(--sidebar-accent-foreground))', */
-/*       border: 'hsl(var(--sidebar-border))', */
-/*       ring: 'hsl(var(--sidebar-ring))', */
-/*     }, */
-/*     // Custom theme colors mapping */
-/*     theme: { */
-/*       purple: { */
-/*         light: 'var(--theme-purple-light)', */
-/*         DEFAULT: 'var(--theme-purple)', */
-/*         dark: 'var(--theme-purple-dark)', */
-/*       }, */
-/*       orange: 'var(--theme-orange)', // Use DEFAULT automatically if only one value */
-/*       blue: 'var(--theme-blue)', // Use DEFAULT automatically if only one value */
-/*     } */
-/*   }, */
-/**/
-/*   /* Map CSS Variables to Tailwind Border Radius Names */
+.game-card::before {
+  content: "";
+  @apply bg-theme-purple-light/30 absolute -top-10 -right-10 h-24 w-24 rounded-full blur-xl;
+}
 
-/*   borderRadius: { */
-/*     lg: 'var(--radius)', */
-/*     md: 'var(--radius-md)', */
-/*     sm: 'var(--radius-sm)', */
-/*   }, */
-/**/
-/*   /* Map Animation Names (if not handled by tailwindcss-animate) */
-/*   /* tailwindcss-animate might automatically create these based on the @keyframes */
-/*   /* Check the plugin's v4 docs. You might not need this block if the plugin works correctly. */
-/*   animation: { */
-/*     'accordion-down': 'accordion-down 0.2s ease-out', */
-/*     'accordion-up': 'accordion-up 0.2s ease-out', */
-/*     'pulse-subtle': 'pulse-subtle 2s infinite', */
-/*     'float': 'float 6s ease-in-out infinite', */
-/*     'bounce-subtle': 'bounce-subtle 2s ease-in-out infinite', */
-/*     'slide-in': 'slide-in 0.3s ease-out', */
-/*     'fade-in': 'fade-in 0.3s ease-out', */
-/*     'scale-in': 'scale-in 0.2s ease-out', */
-/*   } */
-/* } */
+.game-button {
+  @apply bg-theme-purple hover:bg-theme-purple-dark flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all;
+}
 
+.orange-highlight {
+  @apply text-theme-orange font-bold;
+}
+
+.blue-highlight {
+  @apply text-theme-blue font-bold;
+}
+
+.health-bar {
+  @apply h-2.5 rounded-full bg-gray-200;
+}
+
+.health-bar-fill {
+  @apply bg-theme-purple h-2.5 rounded-full transition-all duration-300;
+}
+
+.health-bar-fill-orange {
+  @apply bg-theme-orange h-2.5 rounded-full transition-all duration-300;
+}
 /* 3. Define Keyframes directly in CSS */
 @keyframes accordion-down {
   from {
