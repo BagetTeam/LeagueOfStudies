@@ -1,4 +1,4 @@
-import { Player, GameMode, PublicLobby } from "./types/types";
+import { Player, GameMode, PublicLobby } from "../types/types";
 
 export type GameState = {
   //   currentPlayer: Player;
@@ -58,7 +58,7 @@ export type GameStateActions =
 
 export function gameStatereducer(
   state: GameState,
-  action: GameStateActions
+  action: GameStateActions,
 ): GameState {
   switch (action.type) {
     case "addPlayer":

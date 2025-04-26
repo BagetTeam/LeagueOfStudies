@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import PageLayout from "@/components/layout/PageLayout";
+import { useSearchParams } from "next/navigation";
 import { GameHeader } from "@/components/GameHeader";
 import { BossStatus } from "@/components/BossStatus";
-import { TeamStatus } from "@/components/game/TeamStatus";
-import { GameTimer } from "@/components/game/GameTimer";
-import { GameQuestion } from "@/components/game/GameQuestion";
-import { GameOver } from "@/components/game/GameOver";
+import { TeamStatus } from "@/components/TeamStatus";
+import { GameTimer } from "@/components/GameTimer";
+import { GameQuestion } from "@/components/GameQuestions";
+import { GameOver } from "@/components/GameOver";
 import { mockGameData, mockPlayers } from "@/data/mockGameData";
 
 const BossFightGame = () => {
-  const { subjectId } = useParams();
+  const searchParams = useSearchParams();
+  const subjectId = searchParams.get("subjectId") ?? "";
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -22,7 +22,7 @@ const BossFightGame = () => {
   const [isTeamVictory, setIsTeamVictory] = useState(false);
   const [bossAttacking, setBossAttacking] = useState(false);
   const [targetPlayerIndex, setTargetPlayerIndex] = useState<number | null>(
-    null
+    null,
   );
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -161,64 +161,57 @@ const BossFightGame = () => {
   };
 
   return (
-    <PageLayout hideFooter>
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-        <div className="container py-4 px-4">
-          <GameHeader
-            subject={mockGameData.subject}
-            topic={mockGameData.topic}
-            roundNumber={currentQuestionIndex + 1}
+    <div className="from-background to-muted min-h-screen bg-gradient-to-b">
+      <div className="container px-4 py-4">
+        <GameHeader
+          subject={mockGameData.subject}
+          topic={mockGameData.topic}
+          roundNumber={currentQuestionIndex + 1}
+        />
+
+        <div className="mb-8">
+          <BossStatus
+            bossName={mockGameData.bossName}
+            bossHealth={bossHealth}
+            maxHealth={mockGameData.bossHealth}
+            isAttacking={bossAttacking}
+            feedback={feedbackMessage}
+            showFeedback={showFeedback}
           />
-
-          <div className="mb-8">
-            <BossStatus
-              bossName={mockGameData.bossName}
-              bossHealth={bossHealth}
-              maxHealth={mockGameData.bossHealth}
-              isAttacking={bossAttacking}
-              feedback={feedbackMessage}
-              showFeedback={showFeedback}
-            />
-          </div>
-
-          <TeamStatus
-            players={players}
-            getBossAttackClass={getBossAttackClass}
-          />
-
-          {!isGameOver ? (
-            <div className="max-w-3xl mx-auto">
-              <GameTimer timeLeft={timeLeft} />
-
-              <GameQuestion
-                question={currentQuestion}
-                isAnswered={isAnswered}
-                selectedOption={selectedOption}
-                canAnswer={
-                  players[0].health > 0 && !isAnswered && !bossAttacking
-                }
-                onAnswer={handleAnswer}
-              />
-
-              {players[0].health <= 0 && (
-                <div className="mt-6 p-3 bg-muted rounded-md text-center">
-                  <p className="text-muted-foreground">
-                    You've been defeated! Wait for your teammates.
-                  </p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <GameOver
-              isVictory={isTeamVictory}
-              bossHealth={bossHealth}
-              maxBossHealth={mockGameData.bossHealth}
-              players={players}
-            />
-          )}
         </div>
+
+        <TeamStatus players={players} getBossAttackClass={getBossAttackClass} />
+
+        {!isGameOver ? (
+          <div className="mx-auto max-w-3xl">
+            <GameTimer timeLeft={timeLeft} />
+
+            <GameQuestion
+              question={currentQuestion}
+              isAnswered={isAnswered}
+              selectedOption={selectedOption}
+              canAnswer={players[0].health > 0 && !isAnswered && !bossAttacking}
+              onAnswer={handleAnswer}
+            />
+
+            {players[0].health <= 0 && (
+              <div className="bg-muted mt-6 rounded-md p-3 text-center">
+                <p className="text-muted-foreground">
+                  You've been defeated! Wait for your teammates.
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <GameOver
+            isVictory={isTeamVictory}
+            bossHealth={bossHealth}
+            maxBossHealth={mockGameData.bossHealth}
+            players={players}
+          />
+        )}
       </div>
-    </PageLayout>
+    </div>
   );
 };
 
