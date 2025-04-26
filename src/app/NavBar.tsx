@@ -2,11 +2,11 @@
 
 import { Button } from "@/ui";
 import { useAuth0 } from "@auth0/auth0-react";
-import { GraduationCap, LogIn } from "lucide-react";
+import { GraduationCap, LogIn, User } from "lucide-react";
 import Link from "next/link";
 
 export default function NavBar() {
-  const { loginWithRedirect } = useAuth0();
+  const { loginWithRedirect, user } = useAuth0();
 
   return (
     <div className="flex w-full shrink-0 items-center justify-between p-5">
@@ -29,16 +29,28 @@ export default function NavBar() {
           <Button>Leaderboard</Button>
         </Link>
 
-        <Button
-          variant="special"
-          className="flex items-center justify-center gap-2"
-          onClick={() => {
-            loginWithRedirect();
-          }}
-        >
-          <LogIn className="h-4 w-4" />
-          Login
-        </Button>
+        {user ? (
+          <Link href="/profile">
+            <Button
+              className="flex items-center justify-center gap-2"
+              variant="special"
+            >
+              {user.name ?? "Player"}
+              <User />
+            </Button>
+          </Link>
+        ) : (
+          <Button
+            variant="special"
+            className="flex items-center justify-center gap-2"
+            onClick={() => {
+              loginWithRedirect();
+            }}
+          >
+            <LogIn className="h-4 w-4" />
+            Login
+          </Button>
+        )}
       </div>
     </div>
   );
