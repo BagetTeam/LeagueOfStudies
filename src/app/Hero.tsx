@@ -1,6 +1,9 @@
+"use client";
+
 import { Button } from "@/ui";
 import { ArrowRight, GraduationCap } from "lucide-react";
 import Link from "next/link";
+import { motion } from "motion/react";
 
 export default function Hero() {
   return (
@@ -33,7 +36,16 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="shrink-0">
+      <motion.div
+        className="shrink-0"
+        initial={{
+          y: -3,
+        }}
+        animate={{
+          y: 3,
+        }}
+        transition={{ type: "spring", damping: 0, stiffness: 1 }}
+      >
         <div className="relative">
           <div className="bg-theme-purple/30 absolute top-1/2 left-1/2 -z-10 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 transform rounded-full blur-3xl md:h-[500px] md:w-[500px]"></div>
 
@@ -100,7 +112,7 @@ export default function Hero() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
