@@ -22,6 +22,11 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+  --color-purple-light: "#9b87f5";
+  --color-purple-default-DEFAULT: "#7E69AB";
+  --color-purple-dark: "#5A4A7E";
+  --color-orange: "#F97316";
+  --color-blue: "#33C3F0";
 }
 :root {
   --background: 258 100% 98%;
