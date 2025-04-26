@@ -1,235 +1,254 @@
 /* Import Tailwind's base, components, and utilities */
-@import 'tailwindcss'; /* Or the specific layers: @import 'tailwindcss/theme'; @import 'tailwindcss/utilities'; etc. */
+@import "tailwindcss"; /* Or the specific layers: @import 'tailwindcss/theme'; @import 'tailwindcss/utilities'; etc. */
 
-/* 1. Define your CSS Variables (previously in theme.extend.colors/borderRadius) */
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+}
 :root {
-  /* Color Variables (match the names used in your hsl() definitions) */
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 215.2 76.9% 90%; /* Adjusted example ring color */
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
+  --background: 258 100% 98%;
+  --foreground: 260 10% 20%;
 
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 260 10% 20%;
 
-  /* Sidebar Variables */
-  --sidebar-background: 210 40% 96.1%; /* Example value */
-  --sidebar-foreground: 222.2 47.4% 11.2%; /* Example value */
-  --sidebar-primary: 222.2 47.4% 11.2%; /* Example value */
-  --sidebar-primary-foreground: 210 40% 98%; /* Example value */
-  --sidebar-accent: 210 40% 96.1%; /* Example value */
-  --sidebar-accent-foreground: 222.2 47.4% 11.2%; /* Example value */
-  --sidebar-border: 214.3 31.8% 91.4%; /* Example value */
-  --sidebar-ring: 215.2 76.9% 90%; /* Example value */
+  --popover: 0 0% 100%;
+  --popover-foreground: 260 10% 20%;
 
-  /* Border Radius Variables */
-  --radius: 0.5rem; /* Example value for lg */
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --primary: 258 80% 74%;
+  --primary-foreground: 0 0% 100%;
 
-  /* Custom Theme Colors (no longer need HSL wrapping here if defined directly) */
-  --theme-purple-light: #9b87f5;
-  --theme-purple: #7E69AB;
-  --theme-purple-dark: #5A4A7E;
-  --theme-orange: #F97316;
-  --theme-blue: #33C3F0;
+  --secondary: 260 28% 54%;
+  --secondary-foreground: 0 0% 100%;
 
-  /* Radix variable (used in keyframes) */
-  /* This might be set dynamically by Radix UI components */
-  --radix-accordion-content-height: auto; /* Or specific value if known */
+  --muted: 260 20% 94%;
+  --muted-foreground: 260 10% 50%;
+
+  --accent: 24 94% 53%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 260 20% 86%;
+  --input: 260 20% 86%;
+  --ring: 258 80% 74%;
 }
 
-/* Example Dark Theme Variables */
 .dark {
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 216.3 70% 60%; /* Adjusted example ring color */
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
+  --background: 260 30% 8%;
+  --foreground: 260 10% 90%;
 
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
+  --card: 260 30% 10%;
+  --card-foreground: 260 10% 90%;
 
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
+  --popover: 260 30% 10%;
+  --popover-foreground: 260 10% 90%;
 
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
+  --primary: 258 80% 74%;
+  --primary-foreground: 0 0% 100%;
 
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
+  --secondary: 260 28% 54%;
+  --secondary-foreground: 0 0% 100%;
 
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
+  --muted: 260 20% 20%;
+  --muted-foreground: 260 10% 70%;
 
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
+  --accent: 24 94% 53%;
+  --accent-foreground: 0 0% 100%;
 
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 260 10% 90%;
 
-   /* Sidebar Variables Dark */
-  --sidebar-background: 222.2 84% 4.9%; /* Example value */
-  --sidebar-foreground: 210 40% 98%; /* Example value */
-  --sidebar-primary: 210 40% 98%; /* Example value */
-  --sidebar-primary-foreground: 222.2 47.4% 11.2%; /* Example value */
-  --sidebar-accent: 217.2 32.6% 17.5%; /* Example value */
-  --sidebar-accent-foreground: 210 40% 98%; /* Example value */
-  --sidebar-border: 217.2 32.6% 17.5%; /* Example value */
-  --sidebar-ring: 216.3 70% 60%; /* Example value */
-
-  /* Custom Theme Colors Dark (if they change) */
-  /* --theme-purple: ... */
+  --border: 260 20% 26%;
+  --input: 260 20% 26%;
+  --ring: 258 80% 74%;
 }
-
 /* 2. Configure Tailwind using @theme */
-@theme {
-  /* Container Settings */
-  container: {
-    center: true,
-    padding: '2rem',
-    screens: {
-      '2xl': '1400px',
-    },
-  },
+/* @theme { */
+/*   /* Container Settings */
 
-  /* Map CSS Variables to Tailwind Color Names */
-  colors: {
-    border: 'hsl(var(--border))',
-    input: 'hsl(var(--input))',
-    ring: 'hsl(var(--ring))',
-    background: 'hsl(var(--background))',
-    foreground: 'hsl(var(--foreground))',
-    primary: {
-      DEFAULT: 'hsl(var(--primary))',
-      foreground: 'hsl(var(--primary-foreground))',
-    },
-    secondary: {
-      DEFAULT: 'hsl(var(--secondary))',
-      foreground: 'hsl(var(--secondary-foreground))',
-    },
-    destructive: {
-      DEFAULT: 'hsl(var(--destructive))',
-      foreground: 'hsl(var(--destructive-foreground))',
-    },
-    muted: {
-      DEFAULT: 'hsl(var(--muted))',
-      foreground: 'hsl(var(--muted-foreground))',
-    },
-    accent: {
-      DEFAULT: 'hsl(var(--accent))',
-      foreground: 'hsl(var(--accent-foreground))',
-    },
-    popover: {
-      DEFAULT: 'hsl(var(--popover))',
-      foreground: 'hsl(var(--popover-foreground))',
-    },
-    card: {
-      DEFAULT: 'hsl(var(--card))',
-      foreground: 'hsl(var(--card-foreground))',
-    },
-    sidebar: {
-      DEFAULT: 'hsl(var(--sidebar-background))',
-      foreground: 'hsl(var(--sidebar-foreground))',
-      primary: 'hsl(var(--sidebar-primary))',
-      'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-      accent: 'hsl(var(--sidebar-accent))',
-      'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-      border: 'hsl(var(--sidebar-border))',
-      ring: 'hsl(var(--sidebar-ring))',
-    },
-    // Custom theme colors mapping
-    theme: {
-      purple: {
-        light: 'var(--theme-purple-light)',
-        DEFAULT: 'var(--theme-purple)',
-        dark: 'var(--theme-purple-dark)',
-      },
-      orange: 'var(--theme-orange)', // Use DEFAULT automatically if only one value
-      blue: 'var(--theme-blue)', // Use DEFAULT automatically if only one value
-    }
-  },
+/*   container: { */
+/*     center: true, */
+/*     padding: '2rem', */
+/*     screens: { */
+/*       '2xl': '1400px', */
+/*     }, */
+/*   }, */
+/**/
+/*   /* Map CSS Variables to Tailwind Color Names */
+/*   colors: { */
+/*     border: 'hsl(var(--border))', */
+/*     input: 'hsl(var(--input))', */
+/*     ring: 'hsl(var(--ring))', */
+/*     background: 'hsl(var(--background))', */
+/*     foreground: 'hsl(var(--foreground))', */
+/*     primary: { */
+/*       DEFAULT: 'hsl(var(--primary))', */
+/*       foreground: 'hsl(var(--primary-foreground))', */
+/*     }, */
+/*     secondary: { */
+/*       DEFAULT: 'hsl(var(--secondary))', */
+/*       foreground: 'hsl(var(--secondary-foreground))', */
+/*     }, */
+/*     destructive: { */
+/*       DEFAULT: 'hsl(var(--destructive))', */
+/*       foreground: 'hsl(var(--destructive-foreground))', */
+/*     }, */
+/*     muted: { */
+/*       DEFAULT: 'hsl(var(--muted))', */
+/*       foreground: 'hsl(var(--muted-foreground))', */
+/*     }, */
+/*     accent: { */
+/*       DEFAULT: 'hsl(var(--accent))', */
+/*       foreground: 'hsl(var(--accent-foreground))', */
+/*     }, */
+/*     popover: { */
+/*       DEFAULT: 'hsl(var(--popover))', */
+/*       foreground: 'hsl(var(--popover-foreground))', */
+/*     }, */
+/*     card: { */
+/*       DEFAULT: 'hsl(var(--card))', */
+/*       foreground: 'hsl(var(--card-foreground))', */
+/*     }, */
+/*     sidebar: { */
+/*       DEFAULT: 'hsl(var(--sidebar-background))', */
+/*       foreground: 'hsl(var(--sidebar-foreground))', */
+/*       primary: 'hsl(var(--sidebar-primary))', */
+/*       'primary-foreground': 'hsl(var(--sidebar-primary-foreground))', */
+/*       accent: 'hsl(var(--sidebar-accent))', */
+/*       'accent-foreground': 'hsl(var(--sidebar-accent-foreground))', */
+/*       border: 'hsl(var(--sidebar-border))', */
+/*       ring: 'hsl(var(--sidebar-ring))', */
+/*     }, */
+/*     // Custom theme colors mapping */
+/*     theme: { */
+/*       purple: { */
+/*         light: 'var(--theme-purple-light)', */
+/*         DEFAULT: 'var(--theme-purple)', */
+/*         dark: 'var(--theme-purple-dark)', */
+/*       }, */
+/*       orange: 'var(--theme-orange)', // Use DEFAULT automatically if only one value */
+/*       blue: 'var(--theme-blue)', // Use DEFAULT automatically if only one value */
+/*     } */
+/*   }, */
+/**/
+/*   /* Map CSS Variables to Tailwind Border Radius Names */
 
-  /* Map CSS Variables to Tailwind Border Radius Names */
-  borderRadius: {
-    lg: 'var(--radius)',
-    md: 'var(--radius-md)',
-    sm: 'var(--radius-sm)',
-  },
-
-  /* Map Animation Names (if not handled by tailwindcss-animate) */
-  /* tailwindcss-animate might automatically create these based on the @keyframes */
-  /* Check the plugin's v4 docs. You might not need this block if the plugin works correctly. */
-  animation: {
-    'accordion-down': 'accordion-down 0.2s ease-out',
-    'accordion-up': 'accordion-up 0.2s ease-out',
-    'pulse-subtle': 'pulse-subtle 2s infinite',
-    'float': 'float 6s ease-in-out infinite',
-    'bounce-subtle': 'bounce-subtle 2s ease-in-out infinite',
-    'slide-in': 'slide-in 0.3s ease-out',
-    'fade-in': 'fade-in 0.3s ease-out',
-    'scale-in': 'scale-in 0.2s ease-out',
-  }
-}
+/*   borderRadius: { */
+/*     lg: 'var(--radius)', */
+/*     md: 'var(--radius-md)', */
+/*     sm: 'var(--radius-sm)', */
+/*   }, */
+/**/
+/*   /* Map Animation Names (if not handled by tailwindcss-animate) */
+/*   /* tailwindcss-animate might automatically create these based on the @keyframes */
+/*   /* Check the plugin's v4 docs. You might not need this block if the plugin works correctly. */
+/*   animation: { */
+/*     'accordion-down': 'accordion-down 0.2s ease-out', */
+/*     'accordion-up': 'accordion-up 0.2s ease-out', */
+/*     'pulse-subtle': 'pulse-subtle 2s infinite', */
+/*     'float': 'float 6s ease-in-out infinite', */
+/*     'bounce-subtle': 'bounce-subtle 2s ease-in-out infinite', */
+/*     'slide-in': 'slide-in 0.3s ease-out', */
+/*     'fade-in': 'fade-in 0.3s ease-out', */
+/*     'scale-in': 'scale-in 0.2s ease-out', */
+/*   } */
+/* } */
 
 /* 3. Define Keyframes directly in CSS */
 @keyframes accordion-down {
-  from { height: 0; }
-  to { height: var(--radix-accordion-content-height); }
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
 }
 
 @keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); }
-  to { height: 0; }
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 
 @keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes bounce-subtle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 @keyframes slide-in {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 @keyframes fade-in {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes scale-in {
-  0% { transform: scale(0.95); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* You might need additional base styles or component layers here */
