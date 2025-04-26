@@ -1,3 +1,4 @@
+import cn from "@/lib/cn";
 import { Button } from "@/ui";
 import { ArrowRight, GraduationCap } from "lucide-react";
 import Link from "next/link";
@@ -92,7 +93,7 @@ export default function Hero() {
                 <p className="text-muted-foreground text-sm">Boss Health</p>
                 <div className="health-bar mt-1 w-32">
                   <div
-                    className="health-bar-fill bg-theme-orange"
+                    className="health-bar-fill-orange"
                     style={{ width: "60%" }}
                   ></div>
                 </div>
