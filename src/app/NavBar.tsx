@@ -17,7 +17,7 @@ export default function NavBar() {
         <Link href="/dashboard">
           <Button>Dashboard</Button>
         </Link>
-        <Link href="/gamemodes">
+        <Link href="/game-modes">
           <Button>Game Modes</Button>
         </Link>
         <Link href="/leaderboard">
