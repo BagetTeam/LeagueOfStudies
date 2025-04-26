@@ -1,4 +1,3 @@
-import cn from "@/lib/cn";
 import { Button } from "@/ui";
 import { ArrowRight, GraduationCap } from "lucide-react";
 import Link from "next/link";
