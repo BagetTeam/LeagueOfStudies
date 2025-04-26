@@ -1,5 +1,5 @@
 import { Button } from "@/ui";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, LogIn } from "lucide-react";
 import Link from "next/link";
 
 export default function NavBar() {
@@ -23,7 +23,13 @@ export default function NavBar() {
         <Link href="/leaderboard">
           <Button>Leaderboard</Button>
         </Link>
-        <Button variant="normal">Login</Button>
+        <Button
+          variant="normal"
+          className="flex items-center justify-center gap-2"
+        >
+          <LogIn className="h-4 w-4" />
+          Login
+        </Button>
         <Button variant="special">Sign Up</Button>
       </div>
     </div>

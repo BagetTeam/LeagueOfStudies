@@ -74,7 +74,7 @@
 }
 
 .game-card {
-  @apply bg-card relative overflow-hidden rounded-xl border p-6 shadow-md transition-all hover:shadow-lg;
+  @apply bg-card border-border relative overflow-hidden rounded-xl border p-6 shadow-md transition-all hover:shadow-lg;
 }
 
 .game-card::before {
