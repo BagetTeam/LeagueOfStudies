@@ -22,7 +22,7 @@ export default function Home() {
             Sign up for free and start your learning journey today!
           </p>
           <Link href="/signup">
-            <Button className="text-theme-purple bg-white px-8 py-6 text-lg hover:bg-white/90">
+            <Button className="text-theme-purple bg-white text-lg hover:bg-white/90">
               Get Started Now
             </Button>
           </Link>
