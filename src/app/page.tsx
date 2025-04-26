@@ -2,14 +2,12 @@ import { Button } from "@/ui";
 import Features from "./Features";
 import GameMode from "./GameModes";
 import Hero from "./Hero";
-import NavBar from "./NavBar";
 import Link from "next/link";
 import Footer from "./Footer";
 
 export default function Home() {
   return (
-    <main className="bg-theme-purple/10 min-h-[100dvh] w-[100dvw] overflow-x-hidden">
-      <NavBar />
+    <main className="w-full">
       <Hero />
       <Features />
       <GameMode />
