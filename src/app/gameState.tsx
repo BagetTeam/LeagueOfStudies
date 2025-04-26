@@ -3,6 +3,9 @@ import { Player, GameMode, PublicLobby } from "../types/types";
 export type GameState = {
   //   currentPlayer: Player;
   //   players: Player[];
+  gameId: string;
+  currentPlayer: Player;
+  players: Player[];
 };
 
 export type GameStateActions =
