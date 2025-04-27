@@ -15,7 +15,7 @@ export type Database = {
           email: string
           id: number
           mode: string | null
-          result: boolean | null
+          result: string | null
           score: number | null
           subject: string | null
           topic: string | null
@@ -25,7 +25,7 @@ export type Database = {
           email: string
           id?: number
           mode?: string | null
-          result?: boolean | null
+          result?: string | null
           score?: number | null
           subject?: string | null
           topic?: string | null
@@ -35,7 +35,7 @@ export type Database = {
           email?: string
           id?: number
           mode?: string | null
-          result?: boolean | null
+          result?: string | null
           score?: number | null
           subject?: string | null
           topic?: string | null

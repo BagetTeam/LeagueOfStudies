@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui";
@@ -15,37 +15,9 @@ import {
   Users,
   Star,
 } from "lucide-react";
-
-// Mock data
-const recentGames = [
-  {
-    id: 1,
-    mode: "Deathmatch",
-    subject: "Biology",
-    topic: "Cell Structure",
-    date: "2 hours ago",
-    result: "Won",
-    score: 420,
-  },
-  {
-    id: 2,
-    mode: "Boss Fight",
-    subject: "History",
-    topic: "World War II",
-    date: "Yesterday",
-    result: "Lost",
-    score: 280,
-  },
-  {
-    id: 3,
-    mode: "Deathmatch",
-    subject: "Physics",
-    topic: "Mechanics",
-    date: "3 days ago",
-    result: "Won",
-    score: 550,
-  },
-];
+import { Tables } from "@/database.types";
+import { useAuth0 } from "@auth0/auth0-react";
+import { getRecentGames } from "../backend";
 
 const studyNotes = [
   {
@@ -69,6 +41,20 @@ const studyNotes = [
 ];
 
 export default function DashBoard() {
+  const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
+  const { user } = useAuth0();
+
+  const email = user?.email;
+
+  useEffect(() => {
+    if (email) {
+      (async () => {
+        const games = await getRecentGames(email);
+        setRecentGames(games);
+      })();
+    }
+  }, [email]);
+
   const [activeTab, setActiveTab] = useState("overview");
 
   return (
@@ -82,7 +68,7 @@ export default function DashBoard() {
         </div>
         <div className="flex gap-3">
           <Link href="/game-modes">
-            <Button className="bg-theme-purple hover:bg-theme-purple-dark gap-2">
+            <Button className="bg-theme-purple hover:bg-theme-purple-dark text-background gap-2">
               <Play className="h-4 w-4" />
               Play Now
             </Button>
@@ -139,6 +125,26 @@ export default function DashBoard() {
             </Link>
           </div>
 
+          {/* Quick stats */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="game-card">
+              <h3 className="text-muted-foreground mb-1">Total Games</h3>
+              <p className="text-3xl font-bold">24</p>
+            </div>
+            <div className="game-card">
+              <h3 className="text-muted-foreground mb-1">Win Rate</h3>
+              <p className="text-3xl font-bold">67%</p>
+            </div>
+            <div className="game-card">
+              <h3 className="text-muted-foreground mb-1">Questions Answered</h3>
+              <p className="text-3xl font-bold">342</p>
+            </div>
+            <div className="game-card">
+              <h3 className="text-muted-foreground mb-1">Total XP</h3>
+              <p className="text-3xl font-bold">3,240</p>
+            </div>
+          </div>
+
           {/* Recent games */}
           <div>
             <div className="mb-4 flex items-center justify-between">
@@ -155,7 +161,7 @@ export default function DashBoard() {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b">
+                  <tr className="border-border border-b">
                     <th className="px-4 py-3 text-left">Mode</th>
                     <th className="px-4 py-3 text-left">Subject</th>
                     <th className="px-4 py-3 text-left">Topic</th>
@@ -168,7 +174,7 @@ export default function DashBoard() {
                   {recentGames.map((game) => (
                     <tr
                       key={game.id}
-                      className="hover:bg-muted/50 border-b transition-colors"
+                      className="hover:bg-muted/50 border-border border-b transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -197,26 +203,6 @@ export default function DashBoard() {
                   ))}
                 </tbody>
               </table>
-            </div>
-          </div>
-
-          {/* Quick stats */}
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="game-card">
-              <h3 className="text-muted-foreground mb-1">Total Games</h3>
-              <p className="text-3xl font-bold">24</p>
-            </div>
-            <div className="game-card">
-              <h3 className="text-muted-foreground mb-1">Win Rate</h3>
-              <p className="text-3xl font-bold">67%</p>
-            </div>
-            <div className="game-card">
-              <h3 className="text-muted-foreground mb-1">Questions Answered</h3>
-              <p className="text-3xl font-bold">342</p>
-            </div>
-            <div className="game-card">
-              <h3 className="text-muted-foreground mb-1">Total XP</h3>
-              <p className="text-3xl font-bold">3,240</p>
             </div>
           </div>
         </TabsContent>
@@ -331,7 +317,7 @@ export default function DashBoard() {
                 </div>
               </div>
 
-              <div className="mt-6 border-t pt-4">
+              <div className="border-border mt-6 border-t pt-4">
                 <h4 className="mb-3 font-semibold">Top Subjects</h4>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -379,7 +365,7 @@ export default function DashBoard() {
                   </div>
                   <div>
                     <p className="font-medium">
-                      Earned Achievement: "Biology Expert"
+                      Earned Achievement: {'"'}Biology Expert{'"'}
                     </p>
                     <p className="text-muted-foreground text-sm">Yesterday</p>
                   </div>
