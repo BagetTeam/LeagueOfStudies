@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 
     const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: `Generate in a nested list form 10 study questions with their expected answers according to this study material: ${text} DO NOT WRITE ANY OTHER TEXT. SIMPLY RETURN A NESTED LIST, INDEX 0 IS A QUESTION AND INDEX 1 IS THE ANSWER`,
+        contents: `Generate in a nested list form 10 study questions with 4 multiple answer choices expected answers according to this study material: ${text} DO NOT WRITE ANY OTHER TEXT. SIMPLY RETURN A NESTED LIST, INDEX 0 IS A QUESTION AND INDEX 1 ARE THE NUMBERED ANSWERS CHOICES`,
       });
       console.log(response.text); // ✅ Specific to @google/genai
     
