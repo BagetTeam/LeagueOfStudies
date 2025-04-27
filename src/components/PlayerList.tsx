@@ -1,13 +1,12 @@
 import React from "react";
 import { User } from "lucide-react";
-import { GameMode, Player } from "@/types/types";
+import { Player } from "@/types/types";
 import cn from "@/lib/cn";
 
 interface PlayerListProps {
   players: Player[];
   showScores?: boolean;
   currentPlayerId: number;
-  gameMode: GameMode;
   //isResults: boolean;
 }
 
@@ -15,7 +14,6 @@ const PlayerList: React.FC<PlayerListProps> = ({
   players,
   showScores = false,
   currentPlayerId,
-  gameMode,
   //isResults = false
 }) => {
   // Sort players by score if showing scores

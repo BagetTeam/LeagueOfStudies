@@ -1,3 +1,5 @@
+"use client";
+
 // Example: GameContext.tsx
 import React, {
   createContext,
@@ -7,6 +9,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  Suspense,
 } from "react";
 import { GameState, GameStateActions, gameStatereducer } from "./gameState";
 import { Player } from "../types/types";
@@ -17,7 +20,7 @@ const initialState: GameState = {
   gameId: "",
   currentPlayer: { id: 0, name: "Guest", score: 0, health: 5, isHost: false },
   players: [],
-  gameMode: { type: "bossbattle", time: 15 },
+  gameMode: { type: "deathmatch", time: 15 },
   gameStarted: false,
   activePlayerIndex: 0,
   currentQuestionIndex: 0,
@@ -140,7 +143,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({ payload }) => {
           console.log("Received start_game broadcast:", payload);
           // Host broadcasts the list of players at the start
-          if (payload.gameMode && payload.initialPlayers) {
+          if (payload.gameMode && payload.initialPlayers && payload.questions) {
+            dispatch({
+              type: "setQuestions",
+              questions: payload.questions,
+            });
             dispatch({
               type: "setStartGame",
               gameMode: payload.gameMode,
@@ -375,7 +382,9 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   ); // Include sendBroadcast here
 
   return (
-    <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>
+    <GameContext.Provider value={contextValue}>
+      <Suspense>{children}</Suspense>
+    </GameContext.Provider>
   );
 };
 

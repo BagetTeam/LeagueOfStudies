@@ -11,7 +11,7 @@ import BossFightGame from "@/components/BossFightGame"; // Assuming path
 
 // Define initial/default game mode if needed
 const defaultGameMode: GameMode = {
-  type: "bossbattle", // Or your most common mode
+  type: "deathmatch", // Or your most common mode
   time: 15, // Corresponds to TURN_DURATION_SECONDS
 };
 

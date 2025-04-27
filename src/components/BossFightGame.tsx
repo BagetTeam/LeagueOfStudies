@@ -7,7 +7,6 @@ import { TeamStatus } from "@/components/TeamStatus";
 import { GameTimer } from "@/components/GameTimer";
 import { GameQuestion } from "@/components/GameQuestions";
 import { GameOver } from "@/components/GameOver";
-import { mockGameData } from "@/data/mockGameData";
 import { useGame } from "@/app/GameContext";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -38,6 +37,7 @@ const BossFightGame = () => {
     bossHealth, // Get from shared state
     playerAnswers = {}, // Get from shared state
     isTeamVictory, // Get from shared state
+    questions,
   } = state;
 
   // Local state for this client's interaction & UI feedback
@@ -51,10 +51,7 @@ const BossFightGame = () => {
 
   // Derive current question based on shared index
   const currentQuestion = useMemo(
-    () =>
-      mockGameData.questions[
-        currentQuestionIndex % mockGameData.questions.length
-      ],
+    () => questions[currentQuestionIndex % questions.length],
     [currentQuestionIndex],
   );
 
@@ -415,16 +412,16 @@ const BossFightGame = () => {
     <div className="from-background to-muted min-h-screen bg-gradient-to-b">
       <div className="container px-4 py-4">
         <GameHeader
-          subject={mockGameData.subject}
-          topic={mockGameData.topic}
+          subject={"Hello world"}
+          topic={"asdf"}
           roundNumber={currentQuestionIndex + 1}
         />
 
         <div className="mb-8">
           <BossStatus
-            bossName={mockGameData.bossName}
+            bossName={"1.2 teacher"}
             bossHealth={bossHealth}
-            maxHealth={mockGameData.bossHealth} // Assuming initial health is max
+            maxHealth={100} // Assuming initial health is max
             isAttacking={false} // Attack animation could be triggered by TEAM_DAMAGED broadcast maybe?
             feedback={feedbackMessage}
             showFeedback={showFeedback}
@@ -432,7 +429,11 @@ const BossFightGame = () => {
         </div>
 
         {/* TeamStatus might need slight adjustment if getBossAttackClass is removed/changed */}
-        <TeamStatus players={players} getBossAttackClass={() => ""} />
+        <TeamStatus
+          players={players}
+          getBossAttackClass={() => ""}
+          currentId={currentPlayer.id}
+        />
 
         {!isGameOver ? (
           <div className="mx-auto max-w-3xl">
@@ -449,7 +450,7 @@ const BossFightGame = () => {
             {currentPlayer.health <= 0 && !isGameOver && (
               <div className="bg-muted mt-6 rounded-md p-3 text-center">
                 <p className="text-muted-foreground">
-                  You've been defeated! Wait for your teammates.
+                  You{"'"}ve been defeated! Wait for your teammates.
                 </p>
               </div>
             )}
@@ -467,7 +468,7 @@ const BossFightGame = () => {
           <GameOver
             isVictory={isTeamVictory ?? false} // Default to false if null somehow
             bossHealth={bossHealth}
-            maxBossHealth={mockGameData.bossHealth}
+            maxBossHealth={100}
             players={players}
           />
         )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Trophy, ArrowLeft, Heart, Clock } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useGame } from "@/app/GameContext";
@@ -14,76 +14,29 @@ const BROADCAST_EVENTS = {
   GAME_OVER: "game_over",
 };
 
-const mockGameData = {
-  subject: "Biology",
-  topic: "Cell Structure",
-  questions: [
-    {
-      id: 1,
-      question:
-        "Which organelle is responsible for protein synthesis in cells?",
-      options: ["Mitochondria", "Nucleus", "Ribosome", "Golgi Apparatus"],
-      correctAnswer: 2, // Index of the correct answer (Ribosome)
-    },
-    {
-      id: 2,
-      question: "What is the powerhouse of the cell?",
-      options: ["Ribosome", "Mitochondria", "Endoplasmic Reticulum", "Nucleus"],
-      correctAnswer: 1, // Mitochondria
-    },
-    {
-      id: 3,
-      question:
-        "Which of the following is NOT a function of the cell membrane?",
-      options: [
-        "Transport of materials",
-        "Cell signaling",
-        "Energy production",
-        "Structural support",
-      ],
-      correctAnswer: 2, // Energy production
-    },
-    {
-      id: 4,
-      question: "Which structure is responsible for cell division?",
-      options: ["Lysosome", "Golgi Apparatus", "Centriole", "Vacuole"],
-      correctAnswer: 2, // Centriole
-    },
-    {
-      id: 5,
-      question: "What is the main function of chloroplasts?",
-      options: [
-        "Cellular respiration",
-        "Photosynthesis",
-        "Protein synthesis",
-        "Waste removal",
-      ],
-      correctAnswer: 1, // Photosynthesis
-    },
-  ],
-};
-
 const TURN_DURATION_SECONDS = 15;
 
 const DeathmatchGame = () => {
-  const { subjectId } = useParams();
+  const sp = useSearchParams();
+  const subject = sp.get("subject") ?? "Rust";
+
   const { state, dispatch, sendBroadcast } = useGame();
   const {
     currentPlayer, // The user of this client
     players = [], // Default to empty array
-    gameMode,
     activePlayerIndex = 0, // Default to 0
     currentQuestionIndex = 0, // Default to 0
     turnStartTime,
     isGameOver,
     winnerId,
+    questions,
   } = state;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false); // If this client just answered
   const [timeLeft, setTimeLeft] = useState(TURN_DURATION_SECONDS);
 
-  const currentQuestion = mockGameData.questions[currentQuestionIndex];
+  const currentQuestion = questions[currentQuestionIndex];
   const activePlayer = players[activePlayerIndex]; // Player whose turn it is
 
   // Determine the winner's name
@@ -248,13 +201,13 @@ const DeathmatchGame = () => {
       // and we haven't reached the end of questions, move to the next question.
       if (
         nextIndex <= activePlayerIndex &&
-        currentQuestionIndex < mockGameData.questions.length - 1
+        currentQuestionIndex < questions.length - 1
       ) {
         nextQuestionIdx = currentQuestionIndex + 1;
         console.log(`Moving to next question: ${nextQuestionIdx}`);
       } else if (
         nextIndex <= activePlayerIndex &&
-        currentQuestionIndex >= mockGameData.questions.length - 1
+        currentQuestionIndex >= questions.length - 1
       ) {
         // All questions answered, but more than one player remains? (e.g., health-based win)
         // This scenario might need refinement based on exact win conditions.
@@ -269,18 +222,14 @@ const DeathmatchGame = () => {
         `Advancing turn: Next Player Index=${nextIndex}, Next Question Index=${nextQuestionIdx}`,
       );
       // Host broadcasts the start of the next turn
-      if (
-        typeof nextIndex === "number" &&
-        typeof nextQuestionIdx === "number" &&
-        typeof Date.now() === "number"
-      ) {
-        dispatch({
-          type: "advanceTurn",
-          nextPlayerIndex: nextIndex,
-          nextQuestionIndex: nextQuestionIdx,
-          newTurnStartTime: Date.now(),
-        });
-      }
+
+      dispatch({
+        type: "advanceTurn",
+        nextPlayerIndex: nextIndex,
+        nextQuestionIndex: nextQuestionIdx,
+        newTurnStartTime: Date.now(),
+      });
+
       sendBroadcast(BROADCAST_EVENTS.TURN_ADVANCE, {
         nextPlayerIndex: nextIndex,
         nextQuestionIndex: nextQuestionIdx,
@@ -312,19 +261,18 @@ const DeathmatchGame = () => {
             <div>
               <h1 className="flex items-center gap-2 text-xl font-semibold">
                 <Trophy className="text-theme-orange h-5 w-5" />
-                Deathmatch: {mockGameData.subject}{" "}
-                {/* Replace with dynamic data */}
+                Deathmatch:
+                {subject} {/* Replace with dynamic data */}
               </h1>
-              <p className="text-muted-foreground text-sm">
-                Topic: {mockGameData.topic} {/* Replace with dynamic data */}
-              </p>
+              {/* <p className="text-muted-foreground text-sm"> */}
+              {/*   Topic: {mockGameData.topic} {/* Replace with dynamic data */}
+              {/* </p> */}
             </div>
           </div>
           <div className="bg-muted flex items-center gap-2 rounded-full px-3 py-1.5">
             <Clock className="text-muted-foreground h-4 w-4" />
             <span className="font-semibold">
-              Question {currentQuestionIndex + 1}/
-              {mockGameData.questions.length}
+              Question {currentQuestionIndex + 1}/{questions.length}
             </span>
           </div>
         </div>
