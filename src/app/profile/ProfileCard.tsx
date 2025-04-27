@@ -16,7 +16,7 @@ export default function ProfileCard({
   handleProfileSave,
 }: Props) {
   return (
-    <div className="lg:col-span-4">
+    <div className="shrink-0">
       <div className="game-card flex flex-col items-center text-center">
         <div className="relative mb-4">
           <User className="h-24 w-24 rounded-full" />
@@ -60,7 +60,7 @@ export default function ProfileCard({
 
         <Button
           variant={isEditing ? "normal" : undefined}
-          className={`mt-6 w-full gap-2 ${isEditing ? "" : "bg-theme-purple hover:bg-theme-purple-dark"}`}
+          className={`mt-6 flex w-full items-center justify-center gap-2 ${isEditing ? "" : "bg-theme-purple hover:bg-theme-purple-dark text-background"}`}
           onClick={() => (isEditing ? handleProfileSave() : setIsEditing(true))}
         >
           {isEditing ? (
