@@ -31,7 +31,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-theme-purple/10 w-[100vw] overflow-x-hidden antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-primary/10 w-[100vw] overflow-x-hidden antialiased`}
       >
         <Wrapper domain={domain} client_id={cliend_id}>
           <Theme>
