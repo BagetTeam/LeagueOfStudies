@@ -23,18 +23,18 @@ function GameScreenContent() {
 
   useEffect(() => {
     const joinGameId = searchParams.get("join");
-    let effectiveGameId = gameId;
+    // let effectiveGameId = gameId;
 
     // --- Initialization Logic ---
     // 1. Set Game ID (Join or Create)
     if (joinGameId && !gameId) {
       console.log(`Joining game from URL: ${joinGameId}`);
-      effectiveGameId = joinGameId;
+      // effectiveGameId = joinGameId;
       dispatch({ type: "setGameId", gameId: joinGameId });
     } else if (!gameId) {
       const newGameId = "game-" + crypto.randomUUID().toString();
       console.log(`Creating new game with ID: ${newGameId}`);
-      effectiveGameId = newGameId;
+      // effectiveGameId = newGameId;
       dispatch({ type: "setGameId", gameId: newGameId });
     }
 

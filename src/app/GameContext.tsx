@@ -24,12 +24,13 @@ const initialState: GameState = {
   turnStartTime: null,
   isGameOver: false,
   winnerId: null,
+  questions: [],
 };
 
 type GameContextType = {
   state: GameState;
   dispatch: React.Dispatch<GameStateActions>;
-  sendBroadcast: (event: string, payload: any) => void;
+  sendBroadcast: (event: string, payload: object) => void;
 };
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -50,6 +51,8 @@ const BROADCAST_EVENTS = {
   BOSS_DAMAGED: "boss_damaged", // Host signals boss health update
   TEAM_DAMAGED: "team_damaged", // Host signals multiple players health update
   BOSS_FIGHT_GAME_OVER: "boss_fight_game_over",
+
+  SET_QUESTIONS: "set_questions",
 };
 
 export const GameProvider = ({ children }: GameProviderProps) => {
@@ -298,6 +301,17 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         },
       );
 
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.SET_QUESTIONS },
+        ({ payload }) => {
+          dispatch({
+            type: "setQuestions",
+            questions: payload.questions,
+          });
+        },
+      );
+
       channel.subscribe(async (status) => {
         console.log(`Channel ${state.gameId} subscription status:`, status);
         if (status === "SUBSCRIBED") {
@@ -321,7 +335,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       });
 
       return () => {
-        console.log(`Unsubscribing from channel ${state.gameId}`);
+        console.log(`Cleaning up channel`);
         if (channelRef.current) {
           channelRef.current.unsubscribe();
           channelRef.current = null;
@@ -330,7 +344,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     }
   }, [state.gameId, state.currentPlayer.id]);
 
-  const sendBroadcast = useCallback((event: string, payload: any) => {
+  const sendBroadcast = useCallback((event: string, payload: object) => {
     if (channelRef.current) {
       console.log(`Sending broadcast: ${event}`, payload);
       channelRef.current

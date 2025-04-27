@@ -142,7 +142,8 @@ function LobbyScreen({ selectedMode, onBackToMenu, isPublic }: LobbyProps) {
             <Copy size={14} />
             <span>Copy</span>
           </Button>
-          {navigator.share && ( // Only show share if supported
+          {
+            // Only show share if supported
             <Button
               onClick={shareInviteLink}
               className="flex items-center gap-1"
@@ -150,7 +151,7 @@ function LobbyScreen({ selectedMode, onBackToMenu, isPublic }: LobbyProps) {
               <Share2 size={14} />
               <span>Share</span>
             </Button>
-          )}
+          }
         </div>
         <p className="text-muted-foreground mt-2 text-center text-xs">
           Game ID: {gameId}

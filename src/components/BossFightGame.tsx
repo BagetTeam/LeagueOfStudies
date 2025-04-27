@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
 import { GameHeader } from "@/components/GameHeader";
 import { BossStatus } from "@/components/BossStatus";
 import { TeamStatus } from "@/components/TeamStatus";
 import { GameTimer } from "@/components/GameTimer";
 import { GameQuestion } from "@/components/GameQuestions";
 import { GameOver } from "@/components/GameOver";
-import { mockGameData, mockPlayers } from "@/data/mockGameData";
+import { mockGameData } from "@/data/mockGameData";
 import { useGame } from "@/app/GameContext";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const BROADCAST_EVENTS = {
   PLAYER_ANSWERED: "player_answered",
@@ -20,16 +21,17 @@ const BROADCAST_EVENTS = {
 };
 
 const TURN_DURATION_SECONDS = 10;
+const XP_GAIN_ON_WIN = 500;
+const XP_LOSS_ON_LOSE = 200;
 
 const BossFightGame = () => {
-  const searchParams = useSearchParams();
-  const subjectId = searchParams.get("subjectId") ?? "";
+  // const searchParams = useSearchParams();
+  // const subjectId = searchParams.get("subjectId") ?? "";
 
   const { state, dispatch, sendBroadcast } = useGame();
   const {
     currentPlayer,
     players = [],
-    gameMode,
     currentQuestionIndex = 0,
     turnStartTime, // Represents Question Start Time
     isGameOver,
@@ -45,6 +47,7 @@ const BossFightGame = () => {
   const [feedbackMessage, setFeedbackMessage] = useState(""); // For local feedback
   const [showFeedback, setShowFeedback] = useState(false);
   const [isResolvingRound, setIsResolvingRound] = useState(false); // Prevent actions during resolution
+  const [xpUpdateAttempted, setXpUpdateAttempted] = useState(false);
 
   // Derive current question based on shared index
   const currentQuestion = useMemo(
@@ -298,6 +301,101 @@ const BossFightGame = () => {
     sendBroadcast,
     isResolvingRound,
   ]);
+
+  const { user } = useAuth0();
+  useEffect(() => {
+    // Run only when the game transitions to 'over' state AND XP update hasn't been attempted
+    if (isGameOver && !xpUpdateAttempted) {
+      setXpUpdateAttempted(true); // Mark as attempted to prevent repeats
+
+      // Ensure currentPlayer and their email exist (user is logged in)
+      if (user?.email) {
+        const playerEmail = user?.email;
+        // Determine XP change based on victory status
+        const xpChange = isTeamVictory ? XP_GAIN_ON_WIN : -XP_LOSS_ON_LOSE; // Use negative for loss
+
+        console.log(
+          `Game Over. Victory: ${isTeamVictory}. Player ${playerEmail} XP change: ${xpChange}`,
+        );
+
+        // Define async function to handle the database update
+        const updateUserXp = async () => {
+          try {
+            // 1. Fetch the current XP from the 'stats' table
+            const { data: currentStats, error: fetchError } = await supabase
+              .from("stats")
+              .select("totalXp")
+              .eq("email", playerEmail)
+              .single(); // Expecting only one row per email
+
+            if (fetchError) {
+              // Handle case where the user might not have a stats row yet
+              if (fetchError.code === "PGRST116") {
+                // Supabase code for 'Not Found'
+                console.warn(
+                  `No stats row found for ${playerEmail}. Cannot update XP directly.`,
+                );
+                // OPTIONAL: You could insert a new stats row here if needed, e.g.,
+                // const { error: insertError } = await supabase.from('stats').insert({ email: playerEmail, totalXp: Math.max(0, xpChange) /* other defaults */ });
+                // if (insertError) throw insertError; // Handle insertion error
+                // else console.log(`Created initial stats row for ${playerEmail} with XP ${Math.max(0, xpChange)}`);
+              } else {
+                // Log and re-throw other fetch errors
+                console.error(
+                  `Error fetching user stats for ${playerEmail}:`,
+                  fetchError,
+                );
+                throw fetchError;
+              }
+              return; // Stop if fetch failed or no row found (and no insertion logic added)
+            }
+
+            // 2. Calculate the new XP, ensuring it doesn't go below 0
+            const currentXp = currentStats?.totalXp ?? 0; // Default to 0 if totalXp is null
+            const newXp = Math.max(0, currentXp + xpChange);
+
+            console.log(
+              `Updating XP for ${playerEmail}: ${currentXp} -> ${newXp}`,
+            );
+
+            // 3. Update the 'stats' table with the new XP
+            const { error: updateError } = await supabase
+              .from("stats")
+              .update({ totalXp: newXp })
+              .eq("email", playerEmail);
+
+            if (updateError) {
+              console.error(
+                `Error updating user XP for ${playerEmail}:`,
+                updateError,
+              );
+              throw updateError; // Re-throw update errors
+            }
+
+            console.log(
+              `Successfully updated XP for ${playerEmail} to ${newXp}`,
+            );
+          } catch (error) {
+            // Catch any errors from fetch, calculation, or update
+            console.error("Failed to update user XP:", error);
+            // Consider adding user feedback here if the update fails
+          }
+        };
+
+        // Execute the async update function
+        updateUserXp();
+      } else {
+        // Log if the game is over but the player isn't identifiable for XP update
+        console.log(
+          "Game Over, but current player has no email. Skipping XP update.",
+        );
+      }
+    }
+
+    if (!isGameOver) {
+      setXpUpdateAttempted(false);
+    }
+  }, [isGameOver, isTeamVictory, currentPlayer, xpUpdateAttempted]);
 
   // --- UI Rendering ---
 

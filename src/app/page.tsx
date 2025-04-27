@@ -1,10 +1,8 @@
 "use client";
 
-import LobbyScreen from "@/components/LobbyScreen";
-import NavBar from "./NavBar";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 import { Button } from "@/ui";
 import Features from "./Features";
@@ -15,7 +13,7 @@ import Footer from "./Footer";
 
 export default function Home() {
   // const {data, error} = await supabase.from().se;
-  const router = useRouter();
+  // const router = useRouter();
   useEffect(() => {
     const channel = supabase.channel("room1");
     channel

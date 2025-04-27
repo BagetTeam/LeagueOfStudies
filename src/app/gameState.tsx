@@ -1,6 +1,4 @@
-import { act } from "react";
-import { Player, GameMode, PublicLobby } from "../types/types";
-import { tr } from "motion/react-client";
+import { Player, GameMode, PublicLobby, Question } from "../types/types";
 
 export type GameState = {
   //   currentPlayer: Player;
@@ -24,6 +22,7 @@ export type GameState = {
     };
   };
   isTeamVictory?: boolean | null;
+  questions: Question[];
 };
 
 export type GameStateActions =
@@ -109,7 +108,11 @@ export type GameStateActions =
       type: "updateMultiplePlayerHealth";
       healthUpdates: { [playerId: number]: number };
     }
-  | { type: "setBossFightGameOver"; isVictory: boolean };
+  | { type: "setBossFightGameOver"; isVictory: boolean }
+  | {
+      type: "setQuestions";
+      questions: Question[];
+    };
 
 export function gameStatereducer(
   state: GameState,
@@ -316,6 +319,12 @@ export function gameStatereducer(
         isGameOver: true,
         winnerId: action.winnerId,
         turnStartTime: null, // Stop timer
+        questions: [],
+      };
+    case "setQuestions":
+      return {
+        ...state,
+        questions: action.questions,
       };
     default:
       return state;

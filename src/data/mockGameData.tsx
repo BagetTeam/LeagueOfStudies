@@ -4,7 +4,7 @@ export const mockGameData: GameData = {
   subject: "History",
   topic: "World War II",
   bossName: "Professor Chronos",
-  bossHealth: 20,
+  bossHealth: 100,
   questions: [
     {
       id: 1,
@@ -68,9 +68,3 @@ export const mockGameData: GameData = {
     },
   ],
 };
-
-export const mockPlayers: Player[] = [
-  { id: 1, name: "Player 1 (You)", score: 0, health: 5, isYou: true },
-  { id: 2, name: "HistoryBuff", score: 0, health: 5, isYou: false },
-  { id: 3, name: "TimeTravel99", score: 0, health: 5, isYou: false },
-];

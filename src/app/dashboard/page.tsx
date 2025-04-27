@@ -379,7 +379,7 @@ export default function DashBoard() {
                   </div>
                   <div>
                     <p className="font-medium">
-                      Earned Achievement: "Biology Expert"
+                      Earned Achievement: &quot;Biology Expert&quot;
                     </p>
                     <p className="text-muted-foreground text-sm">Yesterday</p>
                   </div>

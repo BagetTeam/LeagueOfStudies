@@ -38,7 +38,7 @@ export default function ProfilePage() {
         }
       })();
     }
-  }, [email]);
+  }, [email, name]);
 
   return (
     <div className="w-full p-4">

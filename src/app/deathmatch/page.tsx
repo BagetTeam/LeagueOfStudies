@@ -1,7 +1,9 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { Button } from "@/ui";
-import { X, Heart, Trophy, Clock, ArrowLeft } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Heart, Trophy, Clock, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 // Mock data - in a real app, this would come from an API based on the subject ID
@@ -70,9 +72,9 @@ const mockPlayers = [
 
 export default function DeathmatchGame() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
 
-  const subjectId = searchParams.get("subjectId") ?? "";
+  // const subjectId = searchParams.get("subjectId") ?? "";
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -93,7 +95,6 @@ export default function DeathmatchGame() {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
           // If time runs out, count as wrong answer
           handleAnswer(null);
           return 0;
