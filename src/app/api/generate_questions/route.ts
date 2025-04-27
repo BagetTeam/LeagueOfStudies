@@ -39,7 +39,7 @@ import "dotenv/config";
 import { GoogleGenAI } from "@google/genai"; // ✅ using genai now
 
 export async function POST(req: NextRequest) {
-  const key = "AIzaSyCoqzMkImnrURn76zyo9fY92o4SlUHtCAs";
+  const key = process.env.GEMINI;
   console.log("API KEY:", key);
 
   try {
