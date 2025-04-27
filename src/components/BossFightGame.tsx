@@ -81,7 +81,12 @@ const BossFightGame = () => {
       setTimeLeft(Math.max(0, remaining));
 
       // Check if time ran out *for this client*
-      if (remaining <= 0 && !isAnsweredLocally && !isGameOver) {
+      if (
+        remaining <= 0 &&
+        !isAnsweredLocally &&
+        !isGameOver &&
+        !isResolvingRound
+      ) {
         console.log(
           `Time ran out for local player ${currentPlayer.id} on Q#${currentQuestionIndex}`,
         );
@@ -105,7 +110,6 @@ const BossFightGame = () => {
   // --- Handle Local Answer Submission ---
   const handleAnswer = (optionIndex: number | null) => {
     console.log(optionIndex, "ERM");
-    // Prevent answering multiple times, if already answered, if dead, or during resolution phase
     if (
       isAnsweredLocally ||
       currentPlayer.health <= 0 ||
@@ -143,13 +147,10 @@ const BossFightGame = () => {
       questionIndex: currentQuestionIndex, // Send index to prevent processing stale answers
       isCorrect: isCorrect,
     });
-
-    // Host logic will handle aggregation and outcome (see useEffect below)
   };
 
   // --- HOST ONLY: Round Resolution Logic ---
   useEffect(() => {
-    // Only the host should perform this logic
     if (
       !currentPlayer.isHost ||
       isGameOver ||
@@ -190,7 +191,7 @@ const BossFightGame = () => {
         const answer = playerAnswers[player.id];
         // If time expired and player didn't answer, OR if they answered incorrectly
         if (
-          (timeExpired && !answer?.answered) ||
+          (timeExpired && (!answer || !answer.answered)) ||
           (answer?.answered && answer.isCorrect === false)
         ) {
           allCorrect = false;
@@ -220,7 +221,9 @@ const BossFightGame = () => {
           type: "setBossHealth",
           newBossHealth: newBossHealth,
         });
-        sendBroadcast(BROADCAST_EVENTS.BOSS_DAMAGED, { newBossHealth });
+        setTimeout(() => {
+          sendBroadcast(BROADCAST_EVENTS.BOSS_DAMAGED, { newBossHealth });
+        }, 500);
 
         if (newBossHealth <= 0) {
           console.log("Host: Boss defeated! Broadcasting Game Over.");
@@ -268,15 +271,18 @@ const BossFightGame = () => {
       console.log("Host: Starting next question.");
       // Add a small delay before starting next question to allow UI updates
       setTimeout(() => {
+        const nextIndex = currentQuestionIndex + 1;
+        const newStartTime = Date.now();
+
         dispatch({
           type: "advanceTurn", // Or rename action if preferred e.g., 'advanceBossQuestion'
           nextPlayerIndex: -1, // Not relevant here
-          nextQuestionIndex: currentQuestionIndex + 1,
-          newTurnStartTime: Date.now(),
+          nextQuestionIndex: nextIndex,
+          newTurnStartTime: newStartTime,
         });
         sendBroadcast(BROADCAST_EVENTS.QUESTION_START, {
-          nextQuestionIndex: currentQuestionIndex + 1,
-          newTurnStartTime: Date.now(),
+          nextQuestionIndex: nextIndex,
+          newTurnStartTime: newStartTime,
         });
         // Note: setIsResolvingRound(false) happens in the useEffect watching turnStartTime
       }, 2000); // 2-second delay

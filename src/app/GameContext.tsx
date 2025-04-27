@@ -201,25 +201,32 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         { event: BROADCAST_EVENTS.PLAYER_ANSWERED },
         ({ payload }) => {
           console.log("Received player_answered broadcast:", payload);
-          if (
-            payload.playerId &&
-            typeof payload.isCorrect !== "undefined" &&
-            payload.questionIndex === state.currentQuestionIndex
-          ) {
-            dispatch({
-              type: "recordPlayerAnswer",
-              playerId: payload.playerId,
-              questionIndex: payload.questionIndex,
-              isCorrect: payload.isCorrect,
-            });
-          } else {
-            console.warn(
-              "Invalid or stale PLAYER_ANSWERED payload:",
-              payload,
-              "Current Q:",
-              state.currentQuestionIndex,
+          // if (
+          //   payload.playerId &&
+          //   typeof payload.isCorrect !== "undefined" &&
+          //   payload.questionIndex >= 0
+          // ) {
+          if (payload.questionIndex !== state.currentQuestionIndex) {
+            console.log(
+              `Question index mismatch: Player answered Q${payload.questionIndex}, but current is Q${state.currentQuestionIndex}`,
             );
+            // Still record the answer to handle race conditions
           }
+          dispatch({
+            type: "recordPlayerAnswer",
+            playerId: payload.playerId,
+            questionIndex: payload.questionIndex,
+            isCorrect: payload.isCorrect,
+          });
+
+          // } else {
+          //   console.warn(
+          //     "Invalid or stale PLAYER_ANSWERED payload:",
+          //     payload,
+          //     "Current Q:",
+          //     state.currentQuestionIndex,
+          //   );
+          // }
         },
       );
 
