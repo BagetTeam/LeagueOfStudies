@@ -103,8 +103,7 @@ export default function GameModes() {
         <div
           className={`game-card hover:border-theme-blue cursor-pointer transition-all ${selectedMode === "bossfight" ? "border-theme-blue ring-theme-blue/20 ring-2" : ""}`}
           onClick={() => {
-            return;
-            // setSelectedMode("bossfight")
+            setSelectedMode("bossfight");
           }}
         >
           <div className="mb-4 flex items-center gap-4">
