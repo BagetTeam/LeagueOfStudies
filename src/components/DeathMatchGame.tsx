@@ -1,3 +1,5 @@
+"use client";
+
 import { Trophy, ArrowLeft, Heart, Clock } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";

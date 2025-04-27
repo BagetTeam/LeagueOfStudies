@@ -52,9 +52,8 @@ export default function GameModes() {
       ),
   );
 
-  const handleStartGame = (mode: string, subjectId: number) => {
-    // In a real app, navigate to the game page with mode and subject ID
-    router.push(`/game/${mode.toLowerCase()}/${subjectId}`);
+  const handleStartGame = (mode: string, subject: string) => {
+    router.push(`/game?mode=${mode}&subject=${subject}`);
   };
 
   return (
@@ -103,14 +102,17 @@ export default function GameModes() {
 
         <div
           className={`game-card hover:border-theme-blue cursor-pointer transition-all ${selectedMode === "bossfight" ? "border-theme-blue ring-theme-blue/20 ring-2" : ""}`}
-          onClick={() => setSelectedMode("bossfight")}
+          onClick={() => {
+            return;
+            // setSelectedMode("bossfight")
+          }}
         >
           <div className="mb-4 flex items-center gap-4">
             <div className="bg-theme-blue/20 flex h-14 w-14 items-center justify-center rounded-full">
               <Users className="text-theme-blue h-7 w-7" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Boss Fight</h2>
+              <h2 className="text-2xl font-bold">Boss Fight (coming soon)</h2>
               <p className="text-muted-foreground">Cooperative mode</p>
             </div>
           </div>
@@ -177,7 +179,7 @@ export default function GameModes() {
 
                 <Button
                   className={`text-background w-full gap-2 ${selectedMode === "deathmatch" ? "bg-theme-orange hover:bg-theme-orange/80" : "bg-theme-blue hover:bg-theme-blue/80"}`}
-                  onClick={() => handleStartGame(selectedMode, subject.id)}
+                  onClick={() => handleStartGame(selectedMode, subject.name)}
                 >
                   <Play className="h-4 w-4" />
                   Start Game
