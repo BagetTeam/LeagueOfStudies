@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      game: {
+        Row: {
+          date: string | null
+          email: string
+          id: number
+          mode: string | null
+          result: boolean | null
+          score: number | null
+          subject: string | null
+          topic: string | null
+        }
+        Insert: {
+          date?: string | null
+          email: string
+          id?: number
+          mode?: string | null
+          result?: boolean | null
+          score?: number | null
+          subject?: string | null
+          topic?: string | null
+        }
+        Update: {
+          date?: string | null
+          email?: string
+          id?: number
+          mode?: string | null
+          result?: boolean | null
+          score?: number | null
+          subject?: string | null
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_email_fkey"
+            columns: ["email"]
+            isOneToOne: false
+            referencedRelation: "stats"
+            referencedColumns: ["email"]
+          },
+        ]
+      }
       stats: {
         Row: {
           accuracy: number | null
