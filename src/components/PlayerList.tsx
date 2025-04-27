@@ -38,7 +38,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
         <div
           key={player.id}
           className={cn(
-            "player-card",
+            "bg-background flex items-center gap-2 rounded-lg p-2",
             player.id === currentPlayerId && "border-primary border-2",
             showScores &&
               player.score === Math.max(...players.map((p) => p.score)) &&

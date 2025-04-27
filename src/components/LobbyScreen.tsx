@@ -78,6 +78,8 @@ function LobbyScreen({ selectedMode, onBackToMenu, isPublic }: LobbyProps) {
       if (questions.length === 0) {
         (async () => {
           const questions = (await getQuestions(subject)) satisfies Question[];
+          console.log("questions:", questions);
+
           dispatch({ type: "setQuestions", questions });
         })();
       } else {
