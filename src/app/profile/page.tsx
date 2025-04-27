@@ -1,107 +1,9 @@
-"use client";
-
-import { Tables } from "@/database.types";
-import { useAuth0 } from "@auth0/auth0-react";
-import { useEffect, useState } from "react";
-import { getUser, getUserStats } from "../backend";
-import { Trophy, Settings, User } from "lucide-react";
-import { TabsList, TabsTrigger, Tabs } from "@/ui";
-import ProfileCard from "./ProfileCard";
-import ProfileTab from "./ProfileTab";
-import AchievementsTab from "./AchievementsTab";
-import SettingsTab from "./SettingsTab";
-
-export type UserData = Tables<"users"> & Tables<"stats">;
-
-export default function ProfilePage() {
-  const { user, logout } = useAuth0();
-  const email = user?.email;
-  const name = user?.name;
-
-  const [userData, setUserData] = useState<UserData | null>(null);
-
-  const [activeTab, setActiveTab] = useState("profile");
-  const [isEditing, setIsEditing] = useState(false);
-
-  function handleProfileSave() {
-    setIsEditing(false);
-  }
-
-  useEffect(() => {
-    if (email) {
-      (async () => {
-        const user = await getUser(email, name ?? "Player");
-        const stats = await getUserStats(email);
-
-        if (user && stats) {
-          setUserData({ ...user, ...stats });
-        }
-      })();
-    }
-  }, [email]);
-
-  return (
-    <div className="w-full p-4">
-      {userData ? (
-        <>
-          <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-            <h1 className="text-3xl font-bold">My Profile</h1>
-          </div>
-
-          <div className="flex w-full gap-4">
-            <ProfileCard
-              isEditing={isEditing}
-              userData={userData}
-              handleProfileSave={handleProfileSave}
-              setIsEditing={setIsEditing}
-            />
-
-            {/* Main content */}
-            <div className="basis-full">
-              <Tabs
-                defaultValue={activeTab}
-                onValueChange={setActiveTab}
-                className="w-full"
-              >
-                <TabsList className="mb-8 grid w-full grid-cols-3">
-                  <TabsTrigger value="profile">
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </TabsTrigger>
-                  <TabsTrigger value="achievements">
-                    <Trophy className="mr-2 h-4 w-4" />
-                    Achievements
-                  </TabsTrigger>
-                  <TabsTrigger value="settings">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </TabsTrigger>
-                </TabsList>
-
-                <ProfileTab userData={userData} isEditing={isEditing} />
-
-                <AchievementsTab />
-
-                <SettingsTab />
-              </Tabs>
-            </div>
-          </div>
-        </>
-      ) : (
-        <div></div>
-      )}
-    </div>
-  );
-=======
 "use client"
 
-import Image from "next/image";
-import { PlayerCard } from "../components/PlayerCard";
-import NavBar from "../NavBar";
-import { number } from "motion";
-import { Button } from "@/ui";
+import { useRouter } from "next/navigation";
 
 export default function Profile() {
+    const router = useRouter();
     const name = "Nigga Joe";
     const email = "joenigga@email.com";
 
@@ -144,7 +46,7 @@ export default function Profile() {
                             <div className={`bg-red-600 rounded-xs h-full `} style={{width: `${progress}%`}}></div>
                         </div>
                     </div>
-                    <button className="bg-gray-200 px-3.5 hover:cursor-pointer font-mono rounded-lg" onClick={()=>{}}>Edit Profile</button>
+                    <button className="bg-gray-200 px-3.5 hover:cursor-pointer font-mono rounded-lg" onClick={()=>{router.push("/profile/edit")}}>Edit Profile</button>
                     <div className="pb-3"></div>
                     <div className="h-[0.5px] w-full bg-gray-600/15"></div>
                     <div className="items-left flex flex-col w-full">
@@ -264,4 +166,5 @@ export default function Profile() {
         </div>
     </div>
     );
+    
 }
