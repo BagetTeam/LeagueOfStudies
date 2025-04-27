@@ -1,15 +1,13 @@
 "use client";
 
-import { supabase } from "../lib/supabaseClient";
-import { RealtimeChannel } from "@supabase/supabase-js";
-import { GameMode, Player } from "@/types/types";
+import { GameMode, Player, Question } from "@/types/types";
 import { Button } from "@/ui";
-import { Switch } from "@/ui/switch";
 import { ArrowLeft, Copy, Play, Share2 } from "lucide-react";
 import { use, useEffect, useState } from "react";
 import PlayerList from "./PlayerList";
 import { useGame } from "@/app/GameContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getQuestions } from "@/app/backend";
 
 const BROADCAST_EVENTS = {
   START_GAME: "start_game",
@@ -17,6 +15,7 @@ const BROADCAST_EVENTS = {
   ANSWER_SUBMITTED: "answer_submitted",
   TURN_ADVANCE: "turn_advance",
   GAME_OVER: "game_over",
+  SET_QUESTIONS: "set_questions",
 };
 type LobbyProps = {
   selectedMode: GameMode; // This might come from context now?
@@ -25,12 +24,31 @@ type LobbyProps = {
 };
 function LobbyScreen({ selectedMode, onBackToMenu, isPublic }: LobbyProps) {
   const { state, dispatch, sendBroadcast } = useGame();
-  const { gameId, players = [], currentPlayer, gameMode, gameStarted } = state; // Default players to []
+  const {
+    gameId,
+    players = [],
+    currentPlayer,
+    gameMode,
+    gameStarted,
+    questions,
+  } = state; // Default players to []
   const router = useRouter();
   const gameUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/game?join=${gameId}`
       : `/game?join=${gameId}`;
+
+  const urlSearchParams = useSearchParams();
+  const gmode = urlSearchParams.get("gameMode") ?? "deathmatch";
+  const subject =
+    urlSearchParams.get("subject") ?? "Rust (programing language)";
+
+  useEffect(() => {
+    dispatch({
+      type: "setGameMode",
+      gameMode: { type: gmode, time: Infinity },
+    });
+  }, []);
 
   useEffect(() => {
     if (
@@ -53,7 +71,20 @@ function LobbyScreen({ selectedMode, onBackToMenu, isPublic }: LobbyProps) {
         router.push("/game/bossbattle"); // Adjust path as needed
       }
     }
-  }, [gameStarted, state.gameMode, router]);
+  }, [gameStarted, state.gameMode]);
+
+  useEffect(() => {
+    if (currentPlayer.isHost) {
+      if (questions.length === 0) {
+        (async () => {
+          const questions = (await getQuestions(subject)) satisfies Question[];
+          dispatch({ type: "setQuestions", questions });
+        })();
+      } else {
+        sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, questions);
+      }
+    }
+  }, [players.length]);
 
   const startGame = () => {
     console.log("ERM");

@@ -39,7 +39,7 @@ type GameProviderProps = {
   children: ReactNode;
 };
 
-const BROADCAST_EVENTS = {
+export const BROADCAST_EVENTS = {
   START_GAME: "start_game",
   HEALTH_UPDATE: "health_update",
   ANSWER_SUBMITTED: "answer_submitted", // Player submits an answer
@@ -51,7 +51,6 @@ const BROADCAST_EVENTS = {
   BOSS_DAMAGED: "boss_damaged", // Host signals boss health update
   TEAM_DAMAGED: "team_damaged", // Host signals multiple players health update
   BOSS_FIGHT_GAME_OVER: "boss_fight_game_over",
-
   SET_QUESTIONS: "set_questions",
 };
 

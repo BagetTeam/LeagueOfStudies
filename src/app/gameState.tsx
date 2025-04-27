@@ -326,7 +326,10 @@ export function gameStatereducer(
         ...state,
         questions: action.questions,
       };
-    default:
-      return state;
+    case "setQuestions":
+      return {
+        ...state,
+        questions: action.questions,
+      };
   }
 }
