@@ -2,6 +2,15 @@ import { Trophy, ArrowLeft, Heart, Clock } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useGame } from "@/app/GameContext";
+
+const BROADCAST_EVENTS = {
+  START_GAME: "start_game",
+  HEALTH_UPDATE: "health_update",
+  ANSWER_SUBMITTED: "answer_submitted",
+  TURN_ADVANCE: "turn_advance",
+  GAME_OVER: "game_over",
+};
 
 const mockGameData = {
   subject: "Biology",
@@ -52,34 +61,39 @@ const mockGameData = {
   ],
 };
 
-// Mock players - in a real app, these would be real players in the lobby
-const mockPlayers = [
-  {
-    id: 1,
-    name: "Player 1 (You)",
-    health: 5,
-    isCurrentTurn: true,
-    isYou: true,
-  },
-  { id: 2, name: "ScienceGuru", health: 5, isCurrentTurn: false, isYou: false },
-  { id: 3, name: "BioWizard", health: 4, isCurrentTurn: false, isYou: false },
-  { id: 4, name: "CellExpert", health: 3, isCurrentTurn: false, isYou: false },
-];
+const TURN_DURATION_SECONDS = 15;
 
 const DeathmatchGame = () => {
   const { subjectId } = useParams();
+  const { state, dispatch } = useGame();
+  const { currentPlayer, players, gameMode } = state;
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(15);
-  const [players, setPlayers] = useState(mockPlayers);
   const [isAnswered, setIsAnswered] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [winner, setWinner] = useState<string | null>(null);
+  const [dead, setDead] = useState(0);
 
   const currentQuestion = mockGameData.questions[currentQuestionIndex];
-  const currentPlayerIndex = players.findIndex((p) => p.isCurrentTurn);
-  const currentPlayer = players[currentPlayerIndex];
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+
+  const nextPlayerIndex = () => {
+    let nextIndex = (currentPlayerIndex + 1) % players.length;
+
+    // Find next player who still has health
+    while (players[nextIndex].health <= 0 && nextIndex !== currentPlayerIndex) {
+      nextIndex = (nextIndex + 1) % players.length;
+    }
+
+    setCurrentPlayerIndex(nextIndex);
+  };
+  console.log(players, "IM ABT TO BUSSSSS");
+  console.log(
+    currentPlayer,
+    "AGYUWDGYIHDYUGAWIDUHYGAUWDBAWDAWG DIA GWUDGAUD GAUWD GUAW",
+  );
 
   // Timer effect
   useEffect(() => {
@@ -102,24 +116,48 @@ const DeathmatchGame = () => {
   // Handle answer selection
   const handleAnswer = (optionIndex: number | null) => {
     if (isAnswered) return;
+    if (
+      !players ||
+      players.length === 0 ||
+      currentPlayerIndex >= players.length ||
+      !currentPlayer ||
+      !players[currentPlayerIndex]
+    ) {
+      console.error("Player data is not properly initialized");
+      return;
+    }
+    if (
+      !currentPlayer?.id ||
+      !players[currentPlayerIndex]?.id ||
+      currentPlayer.id != players[currentPlayerIndex].id
+    ) {
+      return;
+    }
 
     setSelectedOption(optionIndex);
     setIsAnswered(true);
 
-    // Check if answer is correct
     const isCorrect = optionIndex === currentQuestion.correctAnswer;
 
-    // Update player health if wrong
     if (!isCorrect) {
-      const updatedPlayers = [...players];
-      updatedPlayers[currentPlayerIndex].health -= 1;
-
-      // Check if player is out
-      if (updatedPlayers[currentPlayerIndex].health <= 0) {
-        updatedPlayers[currentPlayerIndex].health = 0;
+      if (currentPlayer.health > 0) {
+        if (currentPlayer.health == 1) {
+          setDead(dead + 1);
+        }
+        dispatch({
+          type: "setHealth",
+          playerId: currentPlayer.id,
+          health: currentPlayer.health - 1,
+        });
+        dispatch({
+          type: "setPlayers",
+          players: players.map((player) =>
+            player.id === currentPlayer.id
+              ? { ...player, health: currentPlayer.health } // Create a *new* player object
+              : player,
+          ),
+        });
       }
-
-      setPlayers(updatedPlayers);
     }
 
     // After 2 seconds, move to next player or next question
@@ -129,10 +167,10 @@ const DeathmatchGame = () => {
       setTimeLeft(15);
 
       // Move to next player's turn
-      const nextPlayerIndex = getNextPlayerIndex(currentPlayerIndex);
+      nextPlayerIndex();
 
       // If everyone has answered, move to next question
-      if (nextPlayerIndex <= currentPlayerIndex) {
+      if (currentPlayerIndex >= players.length || currentPlayerIndex == 0) {
         if (currentQuestionIndex < mockGameData.questions.length - 1) {
           setCurrentQuestionIndex((prev) => prev + 1);
         } else {
@@ -142,34 +180,14 @@ const DeathmatchGame = () => {
         }
       }
 
-      // Update players turn
-      const updatedPlayers = [...players].map((p, i) => ({
-        ...p,
-        isCurrentTurn: i === nextPlayerIndex,
-      }));
-
       // Check if game is over (only one player left)
-      const activePlayers = updatedPlayers.filter((p) => p.health > 0);
-      if (activePlayers.length === 1) {
-        setWinner(activePlayers[0].name);
+      // Check if game is over (only one player left)
+      if (dead == players.length - 1) {
+        setWinner(players[currentPlayerIndex].name);
         setIsGameOver(true);
         return;
       }
-
-      setPlayers(updatedPlayers);
     }, 2000);
-  };
-
-  // Get next player who still has health
-  const getNextPlayerIndex = (currentIndex: number) => {
-    let nextIndex = (currentIndex + 1) % players.length;
-
-    // Find next player who still has health
-    while (players[nextIndex].health <= 0 && nextIndex !== currentIndex) {
-      nextIndex = (nextIndex + 1) % players.length;
-    }
-
-    return nextIndex;
   };
 
   // End the game
@@ -181,27 +199,27 @@ const DeathmatchGame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
-      <div className="container py-4 px-4">
+    <div className="from-background to-muted min-h-screen bg-gradient-to-b">
+      <div className="container px-4 py-4">
         {/* Game header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link href={"/game-modes"}>
+            <Link href={"/"}>
               <ArrowLeft className="h-4 w-4" />
             </Link>
             <div>
-              <h1 className="text-xl font-semibold flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-theme-orange" />
+              <h1 className="flex items-center gap-2 text-xl font-semibold">
+                <Trophy className="text-theme-orange h-5 w-5" />
                 Deathmatch: {mockGameData.subject}
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Topic: {mockGameData.topic}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-full">
-            <Clock className="h-4 w-4 text-muted-foreground" />
+          <div className="bg-muted flex items-center gap-2 rounded-full px-3 py-1.5">
+            <Clock className="text-muted-foreground h-4 w-4" />
             <span className="font-semibold">
               Question {currentQuestionIndex + 1}/
               {mockGameData.questions.length}
@@ -210,31 +228,31 @@ const DeathmatchGame = () => {
         </div>
 
         {/* Players status */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
           {players.map((player) => (
             <div
               key={player.id}
-              className={`p-4 rounded-xl border ${
-                player.isCurrentTurn
+              className={`rounded-xl border p-4 ${
+                player.id == players[currentPlayerIndex].id
                   ? "bg-theme-orange/10 border-theme-orange animate-pulse-subtle"
                   : player.health <= 0
-                  ? "bg-muted/50 text-muted-foreground border-muted"
-                  : "bg-card"
+                    ? "bg-muted/50 text-muted-foreground border-muted"
+                    : "bg-card"
               }`}
             >
-              <div className="flex justify-between items-start mb-2">
+              <div className="mb-2 flex items-start justify-between">
                 <h3
                   className={`font-semibold ${
-                    player.isYou ? "text-theme-purple" : ""
+                    player.id == currentPlayer.id ? "text-theme-purple" : ""
                   }`}
                 >
                   {player.name}
-                  {player.isCurrentTurn && (
+                  {player.id == players[currentPlayerIndex].id && (
                     <span className="text-theme-orange ml-1">(Turn)</span>
                   )}
                 </h3>
                 {player.health <= 0 && (
-                  <div className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-medium">
+                  <div className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">
                     Out
                   </div>
                 )}
@@ -246,7 +264,7 @@ const DeathmatchGame = () => {
                     key={i}
                     className={`h-4 w-4 ${
                       i < player.health
-                        ? "text-red-500 fill-red-500"
+                        ? "fill-red-500 text-red-500"
                         : "text-gray-300"
                     }`}
                   />
@@ -258,11 +276,11 @@ const DeathmatchGame = () => {
 
         {/* Game content */}
         {!isGameOver ? (
-          <div className="max-w-3xl mx-auto">
+          <div className="mx-auto max-w-3xl">
             {/* Timer */}
             <div className="mb-6 flex justify-center">
-              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center text-2xl font-bold relative">
-                <svg className="w-20 h-20 absolute top-0 left-0 transform -rotate-90">
+              <div className="bg-muted relative flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold">
+                <svg className="absolute top-0 left-0 h-20 w-20 -rotate-90 transform">
                   <circle
                     cx="40"
                     cy="40"
@@ -283,35 +301,40 @@ const DeathmatchGame = () => {
 
             {/* Question */}
             <div className="game-card mb-8">
-              <h2 className="text-xl md:text-2xl font-semibold mb-2">
+              <h2 className="mb-2 text-xl font-semibold md:text-2xl">
                 {currentQuestion.question}
               </h2>
               <p className="text-muted-foreground mb-4">
-                {currentPlayer.isYou
+                {currentPlayer.id == players[currentPlayerIndex].id
                   ? "Your turn! Select an answer:"
                   : `${currentPlayer.name}'s turn`}
               </p>
 
               {/* Answer options */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {currentQuestion.options.map((option, index) => (
                   <button
                     key={index}
-                    className={`p-4 border rounded-xl text-left transition ${
+                    className={`rounded-xl border p-4 text-left transition ${
                       isAnswered && selectedOption === index
                         ? index === currentQuestion.correctAnswer
-                          ? "bg-green-100 border-green-400 text-green-800"
-                          : "bg-red-100 border-red-400 text-red-800"
+                          ? "border-green-400 bg-green-100 text-green-800"
+                          : "border-red-400 bg-red-100 text-red-800"
                         : isAnswered && index === currentQuestion.correctAnswer
-                        ? "bg-green-100 border-green-400 text-green-800"
-                        : "hover:bg-muted"
+                          ? "border-green-400 bg-green-100 text-green-800"
+                          : "hover:bg-muted"
                     }`}
                     onClick={() =>
-                      currentPlayer.isYou && !isAnswered && handleAnswer(index)
+                      currentPlayer.id == players[currentPlayerIndex].id &&
+                      !isAnswered &&
+                      handleAnswer(index)
                     }
-                    disabled={!currentPlayer.isYou || isAnswered}
+                    disabled={
+                      currentPlayer.id != players[currentPlayerIndex].id ||
+                      isAnswered
+                    }
                   >
-                    <span className="font-semibold mr-2">
+                    <span className="mr-2 font-semibold">
                       {String.fromCharCode(65 + index)}.
                     </span>
                     {option}
@@ -321,10 +344,10 @@ const DeathmatchGame = () => {
             </div>
           </div>
         ) : (
-          <div className="game-card max-w-2xl mx-auto text-center">
+          <div className="game-card mx-auto max-w-2xl text-center">
             <div className="mb-6">
-              <Trophy className="h-16 w-16 text-theme-orange mx-auto mb-4" />
-              <h2 className="text-3xl font-bold mb-2">Game Over!</h2>
+              <Trophy className="text-theme-orange mx-auto mb-4 h-16 w-16" />
+              <h2 className="mb-2 text-3xl font-bold">Game Over!</h2>
               <p className="text-xl">
                 {winner === "Player 1 (You)"
                   ? "Congratulations! You won the game!"
@@ -332,7 +355,7 @@ const DeathmatchGame = () => {
               </p>
             </div>
 
-            <div className="flex flex-col gap-4 items-center mb-6">
+            <div className="mb-6 flex flex-col items-center gap-4">
               <h3 className="font-semibold">Final Results</h3>
               {players.map((player) => (
                 <div
@@ -340,7 +363,7 @@ const DeathmatchGame = () => {
                   className="flex items-center gap-3 text-lg"
                 >
                   {player.name === winner && (
-                    <Trophy className="h-4 w-4 text-theme-orange" />
+                    <Trophy className="text-theme-orange h-4 w-4" />
                   )}
                   <span className={player.name === winner ? "font-bold" : ""}>
                     {player.name}: {player.health}{" "}
@@ -350,10 +373,10 @@ const DeathmatchGame = () => {
               ))}
             </div>
 
-            <div className="flex flex-wrap gap-4 justify-center">
+            <div className="flex flex-wrap justify-center gap-4">
               <Link
-                href="/game-modes"
-                className="gap-2 bg-theme-orange hover:bg-theme-orange/80"
+                href="/"
+                className="bg-theme-orange hover:bg-theme-orange/80 gap-2"
               >
                 Play Again
               </Link>

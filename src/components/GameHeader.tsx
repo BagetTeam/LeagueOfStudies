@@ -18,7 +18,7 @@ export function GameHeader({ subject, topic, roundNumber }: GameHeaderProps) {
           variant="special"
           onClick={() => {
             if (window.confirm("Are you sure you want to leave the game?")) {
-              router.push("/game-modes");
+              router.push("/");
             }
           }}
         >

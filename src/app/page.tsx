@@ -1,11 +1,14 @@
 "use client";
 
+import LobbyScreen from "@/components/LobbyScreen";
 import NavBar from "./NavBar";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   // const {data, error} = await supabase.from().se;
+  const router = useRouter();
   useEffect(() => {
     const channel = supabase.channel("room1");
     channel
@@ -13,17 +16,12 @@ export default function Home() {
         console.log("Cursor position received!", payload);
       })
       .subscribe(async (status) => {
-        console.log("SUBSCRIPTED");
-        console.log(status);
         if (status === "SUBSCRIBED") {
-          console.log("HI");
-          console.log(
-            await channel.send({
-              type: "broadcast",
-              event: "cursor-pos",
-              payload: { x: Math.random(), y: Math.random() },
-            }),
-          );
+          await channel.send({
+            type: "broadcast",
+            event: "cursor-pos",
+            payload: { x: Math.random(), y: Math.random() },
+          });
         }
       });
     return () => {
@@ -34,6 +32,13 @@ export default function Home() {
   return (
     <main className="bg-primary/10 min-h-[100dvh] w-[100dvw] overflow-x-hidden">
       <NavBar />
+      <button
+        onClick={() => {
+          router.push("/game");
+        }}
+      >
+        Click me
+      </button>
     </main>
   );
 }
