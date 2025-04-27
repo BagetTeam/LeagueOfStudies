@@ -204,23 +204,7 @@ export default function GameModes() {
 
       {/* Call-to-action for creating custom game */}
       <div className="bg-theme-purple/10 rounded-xl p-6 md:p-8">
-        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-          <div>
-            <h3 className="mb-2 text-xl font-semibold">
-              Can{"'"}t find what you{"'"}re looking for?
-            </h3>
-            <p className="text-muted-foreground">
-              Upload your own study notes and create custom quizzes tailored to
-              your needs.
-            </p>
-          </div>
-          <Link href="/upload">
-            <Button className="bg-theme-purple hover:bg-theme-purple-dark gap-2 whitespace-nowrap">
-              <FileText className="h-4 w-4" />
-              Create Custom Game
-            </Button>
-          </Link>
-        </div>
+        <div className="flex flex-col items-center justify-between gap-6 md:flex-row"></div>
       </div>
     </div>
   );
