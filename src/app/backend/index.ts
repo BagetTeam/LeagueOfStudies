@@ -50,3 +50,9 @@ export async function getUserStats(
 
   return res.data[0] satisfies Tables<"stats">;
 }
+
+export async function getRecentGames(email: string): Promise<Tables<"game">[]> {
+  const res = await supabase.from("game").select("*").eq("email", email);
+
+  return (res.data ?? []) satisfies Tables<"game">[];
+}

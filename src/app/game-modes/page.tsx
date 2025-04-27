@@ -52,9 +52,8 @@ export default function GameModes() {
       ),
   );
 
-  const handleStartGame = (mode: string, subjectId: number) => {
-    // In a real app, navigate to the game page with mode and subject ID
-    router.push(`/game/${mode.toLowerCase()}/${subjectId}`);
+  const handleStartGame = (mode: string, subject: string) => {
+    router.push(`/game?mode=${mode}&subject=${subject}`);
   };
 
   return (
@@ -103,14 +102,16 @@ export default function GameModes() {
 
         <div
           className={`game-card hover:border-theme-blue cursor-pointer transition-all ${selectedMode === "bossfight" ? "border-theme-blue ring-theme-blue/20 ring-2" : ""}`}
-          onClick={() => setSelectedMode("bossfight")}
+          onClick={() => {
+            setSelectedMode("bossfight");
+          }}
         >
           <div className="mb-4 flex items-center gap-4">
             <div className="bg-theme-blue/20 flex h-14 w-14 items-center justify-center rounded-full">
               <Users className="text-theme-blue h-7 w-7" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Boss Fight</h2>
+              <h2 className="text-2xl font-bold">Boss Fight (coming soon)</h2>
               <p className="text-muted-foreground">Cooperative mode</p>
             </div>
           </div>
@@ -177,7 +178,7 @@ export default function GameModes() {
 
                 <Button
                   className={`text-background w-full gap-2 ${selectedMode === "deathmatch" ? "bg-theme-orange hover:bg-theme-orange/80" : "bg-theme-blue hover:bg-theme-blue/80"}`}
-                  onClick={() => handleStartGame(selectedMode, subject.id)}
+                  onClick={() => handleStartGame(selectedMode, subject.name)}
                 >
                   <Play className="h-4 w-4" />
                   Start Game
@@ -203,23 +204,7 @@ export default function GameModes() {
 
       {/* Call-to-action for creating custom game */}
       <div className="bg-theme-purple/10 rounded-xl p-6 md:p-8">
-        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-          <div>
-            <h3 className="mb-2 text-xl font-semibold">
-              Can{"'"}t find what you{"'"}re looking for?
-            </h3>
-            <p className="text-muted-foreground">
-              Upload your own study notes and create custom quizzes tailored to
-              your needs.
-            </p>
-          </div>
-          <Link href="/upload">
-            <Button className="bg-theme-purple hover:bg-theme-purple-dark gap-2 whitespace-nowrap">
-              <FileText className="h-4 w-4" />
-              Create Custom Game
-            </Button>
-          </Link>
-        </div>
+        <div className="flex flex-col items-center justify-between gap-6 md:flex-row"></div>
       </div>
     </div>
   );
