@@ -3,7 +3,7 @@ export interface Player {
   name: string;
   score: number;
   health: number;
-  isYou: boolean;
+  isHost: boolean;
 }
 
 export interface GamePlayer {

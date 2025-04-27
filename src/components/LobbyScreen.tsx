@@ -1,140 +1,106 @@
-import { supabase } from "@/lib/supabaseClient";
+"use client";
+
+import { supabase } from "../lib/supabaseClient";
+import { RealtimeChannel } from "@supabase/supabase-js";
 import { GameMode, Player } from "@/types/types";
 import { Button } from "@/ui";
 import { Switch } from "@/ui/switch";
 import { ArrowLeft, Copy, Play, Share2 } from "lucide-react";
 import { use, useEffect, useState } from "react";
 import PlayerList from "./PlayerList";
+import { useGame } from "@/app/GameContext";
+import { useRouter } from "next/navigation";
 
-type LobbyScreenProps = LobbyProps;
-
-function LobbyScreen({
-  gameId,
-  players,
-  currentPlayer,
-  selectedMode,
-  onStartGame,
-  onBackToMenu,
-  isPublic,
-}: LobbyScreenProps) {
-  const [showNameDialogue, setShowNameDialogue] = useState(true);
-
-  return (
-    <div className="animate-fade-in flex max-w-2xl flex-col items-center justify-center space-y-6">
-      <Lobby
-        gameId={gameId}
-        players={players}
-        currentPlayer={currentPlayer}
-        selectedMode={selectedMode}
-        onStartGame={onStartGame}
-        onBackToMenu={onBackToMenu}
-        isPublic={isPublic}
-      />
-    </div>
-  );
-}
-
+const BROADCAST_EVENTS = {
+  START_GAME: "start_game",
+  HEALTH_UPDATE: "health_update",
+  ANSWER_SUBMITTED: "answer_submitted",
+  TURN_ADVANCE: "turn_advance",
+  GAME_OVER: "game_over",
+};
 type LobbyProps = {
-  gameId: string;
-  players: Player[];
-  currentPlayer: Player;
-  selectedMode: GameMode;
-  onStartGame: () => void;
-  onBackToMenu: (players: Player[]) => void;
-  //   dispatch: ActionDispatch<[action: GameOpsAction]>;
+  selectedMode: GameMode; // This might come from context now?
+  onBackToMenu: () => void;
   isPublic: boolean;
 };
-function Lobby({
-  gameId,
-  players,
-  selectedMode,
-  onBackToMenu,
-  currentPlayer,
-  onStartGame,
-  //   dispatch,
-  isPublic,
-}: LobbyProps) {
-  const gameUrl = `http://localhost:3000?join=${gameId}`;
-  const [currentIsPublic, setIsPublic] = useState(isPublic);
-  const channel = supabase.channel(gameId);
+function LobbyScreen({ selectedMode, onBackToMenu, isPublic }: LobbyProps) {
+  const { state, dispatch, sendBroadcast } = useGame();
+  const { gameId, players = [], currentPlayer, gameMode, gameStarted } = state; // Default players to []
+  const router = useRouter();
+  const gameUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/game?join=${gameId}`
+      : `/game?join=${gameId}`;
 
   useEffect(() => {
-    channel
-      .on("broadcast", { event: "join" }, ({ newPresence }) => {
-        console.log("NEWLY JOINED MEMBER");
-      })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await channel.track({ online_at: new Date().toISOString() });
-        }
+    if (
+      players.length === 1 &&
+      players[0].id === currentPlayer.id &&
+      !currentPlayer.isHost
+    ) {
+      console.log("Setting current player as host (only player)");
+      dispatch({ type: "setHost", player: { ...currentPlayer, isHost: true } });
+    }
+  }, [players, currentPlayer, dispatch]);
+
+  useEffect(() => {
+    console.log("Gamehas Started");
+    if (state.gameStarted) {
+      console.log("Game started, navigating...");
+      if (state.gameMode.type === "deathmatch") {
+        router.push("/game/deathmatch"); // Adjust path as needed
+      } else if (state.gameMode.type === "bossbattle") {
+        router.push("/game/bossbattle"); // Adjust path as needed
+      }
+    }
+  }, [gameStarted, state.gameMode, router]);
+
+  const startGame = () => {
+    console.log("ERM");
+    console.log(state);
+    if (currentPlayer.isHost && players.length > 0) {
+      // Ensure there are players
+      console.log(
+        "Host starting game. Broadcasting START_GAME with players:",
+        players,
+      );
+      dispatch({
+        type: "setStartGame",
+        gameMode: state.gameMode,
+        initialPlayers: players,
       });
+      sendBroadcast(BROADCAST_EVENTS.START_GAME, {
+        gameMode: state.gameMode, // Send the confirmed game mode
+        initialPlayers: players, // Send the list of players currently in the lobby
+        initiatedBy: currentPlayer.id,
+      });
+    } else {
+      console.warn("Cannot start game: Not host or no players.");
+    }
+  };
 
-    // connection.on("SetGameMode", (mode: string) => {
-    //   dispatch({
-    //     type: "setGameMode",
-    //     gameMode: JSON.parse(mode),
-    //   });
-    // });
-
-    // connection.on("AddUnloadEventListener", (player: string) => {
-    //   const p: Player = JSON.parse(player);
-
-    //   const f = async () => {
-    //     await connection.send("RemovePlayer", gameId, p.id);
-    //     window.removeEventListener("beforeunload", f);
-    //   };
-
-    //   window.addEventListener("beforeunload", f);
-
-    //   dispatch({
-    //     type: "setCurrentPlayer",
-    //     player: p,
-    //   });
-    // });
-
-    // if (!currentPlayer.hasComplete) {
-    //   console.log(JSON.stringify(currentPlayer));
-    //   connection
-    //     .send(
-    //       "JoinLobby",
-    //       gameId,
-    //       currentPlayer.name,
-    //       selectedMode.type,
-    //       selectedMode.count,
-    //     )
-    //     .catch();
-    //   console.log(JSON.stringify(players));
-    // }
-    // console.log(JSON.stringify(players));
-    return () => {
-      channel.unsubscribe;
-    };
-  }, []);
-
-  //   const changePublicPrivate = async () => {
-  //     var newState = !currentIsPublic;
-  //     setIsPublic(newState);
-  //     try {
-  //       await connection.send("ChangePublic", gameId);
-  //     } catch {
-  //       setIsPublic(!newState);
-  //     }
-  //   };
+  const handleBackToMenuClick = () => {
+    console.log("Leaving lobby...");
+    dispatch({ type: "exitLobby" });
+    onBackToMenu();
+  };
 
   const copyInviteLink = () => {
-    console.log(JSON.stringify(players));
-    navigator.clipboard.writeText(gameUrl);
-    //toast.success("Invite link copied to clipboard");
+    navigator.clipboard
+      .writeText(gameUrl)
+      .then(() => console.log("Invite link copied"))
+      .catch((err) => console.error("Failed to copy link: ", err));
   };
 
   const shareInviteLink = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Join my Math Race Quest game!",
-          text: "Join me for a math racing challenge!",
+          title: "Join my Quiz Game!",
+          text: "Join me for a fun quiz challenge!",
           url: gameUrl,
         });
+        console.log("Link shared successfully");
       } catch (err) {
         console.error("Error sharing:", err);
         copyInviteLink();
@@ -143,115 +109,90 @@ function Lobby({
       copyInviteLink();
     }
   };
-  //   const canStart = (): boolean => {
-  //     return !players.some((p) => !p.hasComplete);
-  //   };
-  //   // Display game mode info
-  //   const getModeDescription = () => {
-  //     if (selectedMode.type === "equations") {
-  //       return `First to solve ${selectedMode.count} equations wins`;
-  //     } else {
-  //       return `Solve the most equations in ${selectedMode.count} seconds`;
-  //     }
-  //   };
 
   return (
-    <>
-      <div className="w-full">
-        <Button
-          variant="special"
-          onClick={() => onBackToMenu(players)}
-          className="mb-4 flex items-center gap-2"
-        >
-          <ArrowLeft size={16} />
-          <span>Back to Menu</span>
-        </Button>
+    <div className="mx-auto flex max-w-md flex-col items-center gap-4 p-4">
+      {/* Back Button */}
+      <Button
+        onClick={handleBackToMenuClick}
+        className="mb-4 flex items-center gap-2 self-start" // Align left
+      >
+        <ArrowLeft size={16} />
+        <span>Back to Menu</span>
+      </Button>
 
-        <h1 className="mb-2 text-center text-3xl font-bold">Game Lobby</h1>
-        <p className="text-muted-foreground mb-6 text-center">{"ahh mode"}</p>
-      </div>
-      {/* {currentPlayer.isHost && (
-        <div className="bg-secondary/30 border-secondary w-full rounded-lg border p-4">
-          <div className="flex flex-col items-start pb-2">
-            <div className="text-[15px] text-gray-800">Game Settings</div>
-            <div className="text-xs text-gray-500">
-              Only the host can modify these settings
-            </div>
-          </div>
-          <div className="flex flex-row items-center justify-between gap-3">
-            <div className="flex flex-col items-start">
-              <div className="text-[15px] text-gray-800">Public Lobby</div>
-              <div className="text-xs text-gray-500">
-                Allow anyone to join without an invite
-              </div>
-            </div>
-            <Switch
-              checked={isPublic}
-              //   onCheckedChange={changePublicPrivate}
-              className="data-[state=checked]:bg-primary"
-            ></Switch>
-          </div>
+      {/* Lobby Title */}
+      <h1 className="mb-2 text-center text-3xl font-bold">Game Lobby</h1>
+      {/* Display Game Mode */}
+      <p className="text-muted-foreground mb-6 text-center capitalize">
+        Mode: {state.gameMode.type}{" "}
+        {state.gameMode.type === "time" ? `(${state.gameMode.time}s)` : ""}
+      </p>
+
+      {/* Invite Section */}
+      <div className="bg-secondary/30 border-secondary flex w-full flex-col gap-3 rounded-lg border p-4">
+        <div className="text-center text-sm font-medium md:text-left">
+          Invite players with this link:
         </div>
-      )} */}
-
-      <div className="bg-secondary/30 border-secondary w-full rounded-lg border p-4">
-        <div className="mb-2 flex flex-col items-center justify-between gap-3 md:flex-row">
-          <div className="text-sm font-medium">
-            Share this link to invite players:
-          </div>
-          <div className="flex items-center gap-2">
+        <div className="bg-background truncate rounded border p-2 text-center font-mono text-xs select-all">
+          {gameUrl}
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          <Button onClick={copyInviteLink} className="flex items-center gap-1">
+            <Copy size={14} />
+            <span>Copy</span>
+          </Button>
+          {navigator.share && ( // Only show share if supported
             <Button
-              variant="special"
-              onClick={copyInviteLink}
-              className="flex items-center gap-1"
-            >
-              <Copy size={14} />
-              <span>Copy</span>
-            </Button>
-            <Button
-              variant="special"
               onClick={shareInviteLink}
               className="flex items-center gap-1"
             >
               <Share2 size={14} />
               <span>Share</span>
             </Button>
-          </div>
+          )}
         </div>
-        <div className="bg-background truncate rounded border p-2 text-xs">
-          {gameUrl}
-        </div>
+        <p className="text-muted-foreground mt-2 text-center text-xs">
+          Game ID: {gameId}
+        </p>
       </div>
 
-      <div className="w-full">
+      {/* Player List Section */}
+      <div className="mt-4 w-full">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Players ({players.length})</h2>
-          {/* {currentPlayer.isHost && players.length > 1 && canStart() && (
+          {/* Start Game Button for Host */}
+          {currentPlayer.isHost && (
             <Button
-              onClick={async () => {
-                onStartGame();
-              }}
-              className="math-button-primary flex items-center gap-2"
+              onClick={startGame}
+              disabled={players.length < 1} // Example: Disable if < 2 players? Or allow solo start?
+              className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
             >
               <Play size={16} />
               <span>Start Game</span>
             </Button>
-          )} */}
+          )}
         </div>
 
-        <PlayerList
-          players={players}
-          currentPlayerId={currentPlayer.id}
-          gameMode={selectedMode}
-        />
-
-        {/* {(players.length < 2 || !canStart()) && (
-          <p className="text-muted-foreground mt-4 text-center text-sm">
-            Waiting for more players to join...
+        {/* Player List Component */}
+        {players.length > 0 ? (
+          <PlayerList
+            players={players}
+            currentPlayerId={currentPlayer.id}
+            gameMode={gameMode}
+          />
+        ) : (
+          <p className="text-muted-foreground py-4 text-center">
+            Waiting for players...
           </p>
-        )} */}
+        )}
+
+        {/* Host Indicator (Optional) */}
+        {/* <div className="text-center text-sm mt-2">
+                  {currentPlayer.isHost ? "You are the host" : "Waiting for host to start..."}
+              </div> */}
       </div>
-    </>
+    </div>
   );
 }
 
