@@ -11,7 +11,7 @@ import BossFightGame from "@/components/BossFightGame"; // Assuming path
 
 // Define initial/default game mode if needed
 const defaultGameMode: GameMode = {
-  type: "deathmatch", // Or your most common mode
+  type: "bossbattle", // Or your most common mode
   time: 15, // Corresponds to TURN_DURATION_SECONDS
 };
 
@@ -99,7 +99,7 @@ function GameScreenContent() {
         return <DeathmatchGame />;
       case "bossbattle":
         // return <BossFightGame />; // Uncomment when component exists
-        return <div>Boss Battle (Not Implemented)</div>;
+        return <BossFightGame />;
       default:
         console.error(`Unknown game mode: ${gameMode.type}`);
         // Navigate back or show error

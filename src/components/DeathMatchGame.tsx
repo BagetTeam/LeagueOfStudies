@@ -137,12 +137,7 @@ const DeathmatchGame = () => {
 
   // --- Answer Handling ---
   const handleAnswer = (optionIndex: number | null) => {
-    // Prevent multiple submissions per turn or answering when it's not your turn
-    if (
-      isAnsweredLocally ||
-      activePlayer?.id !== currentPlayer.id ||
-      isGameOver
-    ) {
+    if (isAnsweredLocally || cannotAnswerNow || isGameOver) {
       console.log("Answer blocked:", {
         isAnsweredLocally,
         isMyTurn: activePlayer?.id === currentPlayer.id,
@@ -164,23 +159,22 @@ const DeathmatchGame = () => {
       questionId: currentQuestion.id,
       selectedOptionIndex: optionIndex,
       isCorrect: isCorrect,
-      // Add timestamp if needed for server-side validation/ordering
     });
 
-    // --- HOST-SIDE LOGIC (or could be on a dedicated server) ---
-    // This part *should ideally live on the server* or be handled *only by the host* client
-    // to prevent cheating and ensure consistency.
-    // For simplicity in this example, we'll assume the player whose turn it was handles the immediate consequences
-    // and broadcasting the next state. In a real app, the host should validate and broadcast.
-
-    // Simulating Host/Server Logic triggered by ANSWER_SUBMITTED:
-    // 1. Validate the answer (if needed)
-    // 2. Update health if incorrect
-    // 3. Determine next player/question
-    // 4. Check for game over
-    // 5. Broadcast TURN_ADVANCE or GAME_OVER
-
-    // --- Health Update (Simulated Host Logic) ---
+    if (isCorrect && activePlayer?.id !== currentPlayer.id) {
+      const currentHealth =
+        players.find((p) => p.id === activePlayer?.id)?.health ?? 0;
+      const newHealth = Math.max(0, currentHealth - 1);
+      dispatch({
+        type: "setHealth",
+        playerId: activePlayer?.id,
+        health: newHealth,
+      });
+      sendBroadcast(BROADCAST_EVENTS.HEALTH_UPDATE, {
+        playerId: activePlayer?.id,
+        newHealth: newHealth,
+      });
+    }
     if (!isCorrect) {
       const currentHealth =
         players.find((p) => p.id === currentPlayer.id)?.health ?? 0;
@@ -300,6 +294,10 @@ const DeathmatchGame = () => {
   }
 
   const isMyTurn = activePlayer?.id === currentPlayer.id;
+  const cannotAnswerNow =
+    activePlayer?.id !== currentPlayer.id &&
+    Math.floor((Date.now() - turnStartTime!) / 1000) < 2;
+
   return (
     <div className="from-background to-muted min-h-screen bg-gradient-to-b">
       <div className="container px-4 py-4">
@@ -460,9 +458,13 @@ const DeathmatchGame = () => {
                   return (
                     <button
                       key={index}
-                      className={`rounded-xl border p-4 text-left transition duration-150 ease-in-out ${buttonClass} ${!isMyTurn || isAnsweredLocally ? "cursor-not-allowed opacity-80" : "hover:scale-105"}`}
+                      className={`rounded-xl border p-4 text-left transition duration-150 ease-in-out ${buttonClass} ${(!isMyTurn && cannotAnswerNow) || isAnsweredLocally ? "cursor-not-allowed bg-gray-400 opacity-80" : "hover:scale-105"}`}
                       onClick={() => handleAnswer(index)}
-                      disabled={!isMyTurn || isAnsweredLocally || isGameOver}
+                      disabled={
+                        (!isMyTurn && cannotAnswerNow) ||
+                        isAnsweredLocally ||
+                        isGameOver
+                      }
                     >
                       <span className="mr-2 font-semibold">
                         {String.fromCharCode(65 + index)}.
@@ -516,7 +518,7 @@ const DeathmatchGame = () => {
             <div className="flex flex-wrap justify-center gap-4">
               {/* Optional: Add a button to go back to lobby or dashboard */}
               <Link
-                href="/lobby"
+                href="/game"
                 /* Or wherever lobby is */ className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
               >
                 Back to Lobby

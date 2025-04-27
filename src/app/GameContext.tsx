@@ -17,7 +17,7 @@ const initialState: GameState = {
   gameId: "",
   currentPlayer: { id: 0, name: "Guest", score: 0, health: 5, isHost: false },
   players: [],
-  gameMode: { type: "deathmatch", time: 15 },
+  gameMode: { type: "bossbattle", time: 15 },
   gameStarted: false,
   activePlayerIndex: 0,
   currentQuestionIndex: 0,
@@ -44,6 +44,12 @@ const BROADCAST_EVENTS = {
   ANSWER_SUBMITTED: "answer_submitted", // Player submits an answer
   TURN_ADVANCE: "turn_advance", // Server/Host advances the turn
   GAME_OVER: "game_over", // Server/Host declares game over
+
+  PLAYER_ANSWERED: "player_answered", // Player submits their individual answer
+  QUESTION_START: "question_start", // Host signals start of new question & timer
+  BOSS_DAMAGED: "boss_damaged", // Host signals boss health update
+  TEAM_DAMAGED: "team_damaged", // Host signals multiple players health update
+  BOSS_FIGHT_GAME_OVER: "boss_fight_game_over",
 };
 
 export const GameProvider = ({ children }: GameProviderProps) => {
@@ -187,6 +193,101 @@ export const GameProvider = ({ children }: GameProviderProps) => {
             type: "setGameOver",
             winnerId: payload.winnerId ?? null, // Use winnerId from payload or null
           });
+        },
+      );
+
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.PLAYER_ANSWERED },
+        ({ payload }) => {
+          console.log("Received player_answered broadcast:", payload);
+          if (
+            payload.playerId &&
+            typeof payload.isCorrect !== "undefined" &&
+            payload.questionIndex === state.currentQuestionIndex
+          ) {
+            dispatch({
+              type: "recordPlayerAnswer",
+              playerId: payload.playerId,
+              questionIndex: payload.questionIndex,
+              isCorrect: payload.isCorrect,
+            });
+          } else {
+            console.warn(
+              "Invalid or stale PLAYER_ANSWERED payload:",
+              payload,
+              "Current Q:",
+              state.currentQuestionIndex,
+            );
+          }
+        },
+      );
+
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.QUESTION_START },
+        ({ payload }) => {
+          console.log("Received question_start broadcast:", payload);
+          if (
+            typeof payload.nextQuestionIndex === "number" &&
+            typeof payload.newTurnStartTime === "number"
+          ) {
+            // Use 'advanceTurn' reducer logic which now also resets answers
+            dispatch({
+              type: "advanceTurn", // Or rename action if preferred e.g., 'advanceBossQuestion'
+              nextPlayerIndex: -1, // Not relevant here
+              nextQuestionIndex: payload.nextQuestionIndex,
+              newTurnStartTime: payload.newTurnStartTime,
+            });
+            // Optionally reset local UI state in component listening to this, if needed
+          }
+        },
+      );
+
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.BOSS_DAMAGED },
+        ({ payload }) => {
+          console.log("Received boss_damaged broadcast:", payload);
+          if (typeof payload.newBossHealth === "number") {
+            dispatch({
+              type: "setBossHealth",
+              newBossHealth: payload.newBossHealth,
+            });
+            // Trigger UI feedback in component
+          }
+        },
+      );
+
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.TEAM_DAMAGED },
+        ({ payload }) => {
+          console.log("Received team_damaged broadcast:", payload);
+          if (
+            payload.healthUpdates &&
+            typeof payload.healthUpdates === "object"
+          ) {
+            dispatch({
+              type: "updateMultiplePlayerHealth",
+              healthUpdates: payload.healthUpdates,
+            });
+            // Trigger UI feedback in component
+          }
+        },
+      );
+
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER },
+        ({ payload }) => {
+          console.log("Received boss_fight_game_over broadcast:", payload);
+          if (typeof payload.isVictory === "boolean") {
+            dispatch({
+              type: "setBossFightGameOver",
+              isVictory: payload.isVictory,
+            });
+          }
         },
       );
 

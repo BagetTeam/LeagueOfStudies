@@ -15,6 +15,15 @@ export type GameState = {
   turnStartTime: number | null; // Timestamp when the current turn started (use null initially)
   isGameOver: boolean;
   winnerId: number | null;
+  bossHealth?: number; // Optional to allow different game modes
+  playerAnswers?: {
+    // Tracks answers for the *current* question
+    [playerId: number]: {
+      answered: boolean;
+      isCorrect: boolean | null; // null if not answered/timed out
+    };
+  };
+  isTeamVictory?: boolean | null;
 };
 
 export type GameStateActions =
@@ -87,7 +96,20 @@ export type GameStateActions =
       nextQuestionIndex: number;
       newTurnStartTime: number;
     }
-  | { type: "setGameOver"; winnerId: number | null };
+  | { type: "setGameOver"; winnerId: number | null }
+  | { type: "setBossHealth"; newBossHealth: number }
+  | {
+      type: "recordPlayerAnswer";
+      playerId: number;
+      questionIndex: number; // Ensure it's for the current question
+      isCorrect: boolean | null;
+    }
+  | { type: "resetPlayerAnswers" } // Reset for new question
+  | {
+      type: "updateMultiplePlayerHealth";
+      healthUpdates: { [playerId: number]: number };
+    }
+  | { type: "setBossFightGameOver"; isVictory: boolean };
 
 export function gameStatereducer(
   state: GameState,
@@ -186,6 +208,7 @@ export function gameStatereducer(
       };
     case "setStartGame":
       // Initialize health for all players when game starts
+      const initialBossHealth = 100; // Or get from gameMode/settings
       const initialPlayersWithHealth = action.initialPlayers.map((p) => ({
         ...p,
         health: 5, // Or get initial health from gameMode/settings
@@ -193,23 +216,98 @@ export function gameStatereducer(
       return {
         ...state,
         gameMode: action.gameMode,
-        players: initialPlayersWithHealth, // Set initial health
+        players: initialPlayersWithHealth,
         gameStarted: true,
-        activePlayerIndex: 0, // Start with the first player
+        activePlayerIndex: 0, // Or -1 if no specific turn
         currentQuestionIndex: 0,
-        turnStartTime: Date.now(), // Start the timer immediately
+        turnStartTime: Date.now(), // Start timer for first question
         isGameOver: false,
         winnerId: null,
+        // --- Boss Fight Init ---
+        bossHealth: initialBossHealth,
+        playerAnswers: {}, // Start with empty answers
+        isTeamVictory: null,
       };
-    case "advanceTurn":
+    case "setBossHealth":
+      if (typeof state.bossHealth !== "number") return state; // Only run in boss mode
+      return {
+        ...state,
+        bossHealth: Math.max(0, action.newBossHealth), // Ensure non-negative
+      };
+
+    case "recordPlayerAnswer":
+      // Only record if the answer is for the current question index state
+      if (
+        action.questionIndex !== state.currentQuestionIndex ||
+        !state.playerAnswers
+      ) {
+        console.warn(
+          `Ignoring stale answer for Q#${action.questionIndex} (current is ${state.currentQuestionIndex})`,
+        );
+        return state;
+      }
+      return {
+        ...state,
+        playerAnswers: {
+          ...state.playerAnswers,
+          [action.playerId]: {
+            answered: true,
+            isCorrect: action.isCorrect,
+          },
+        },
+      };
+
+    case "resetPlayerAnswers":
+      return {
+        ...state,
+        playerAnswers: {}, // Clear answers for the new round
+      };
+
+    case "updateMultiplePlayerHealth":
+      if (!action.healthUpdates) return state;
+      const updatedPlayersMulti = state.players.map((player) => {
+        if (action.healthUpdates.hasOwnProperty(player.id)) {
+          return {
+            ...player,
+            health: Math.max(0, action.healthUpdates[player.id]),
+          };
+        }
+        return player;
+      });
+      // Update currentPlayer's health as well if it's in the list
+      const updatedCurrentPlayerHealthMulti =
+        action.healthUpdates.hasOwnProperty(state.currentPlayer.id)
+          ? Math.max(0, action.healthUpdates[state.currentPlayer.id])
+          : state.currentPlayer.health;
+
+      return {
+        ...state,
+        players: updatedPlayersMulti,
+        currentPlayer: {
+          ...state.currentPlayer,
+          health: updatedCurrentPlayerHealthMulti,
+        },
+      };
+
+    case "setBossFightGameOver":
+      return {
+        ...state,
+        isGameOver: true,
+        isTeamVictory: action.isVictory,
+        turnStartTime: null, // Stop timer
+      };
+
+    // Modify advanceTurn for Boss Fight context (or create a new action like 'advanceBossQuestion')
+    case "advanceTurn": // Re-purpose for advancing question
       console.log(
-        `Reducer: Advancing turn. Next Player Index: ${action.nextPlayerIndex}, Next Question Index: ${action.nextQuestionIndex}`,
+        `Reducer: Advancing question. Next Q Index: ${action.nextQuestionIndex}`,
       );
       return {
         ...state,
-        activePlayerIndex: action.nextPlayerIndex,
         currentQuestionIndex: action.nextQuestionIndex,
-        turnStartTime: action.newTurnStartTime, // Set the start time for the new turn
+        turnStartTime: action.newTurnStartTime, // Set start time for the new question
+        playerAnswers: {}, // Automatically reset answers for the new question
+        // activePlayerIndex might not be relevant, keep or set to -1
       };
     case "setGameOver":
       console.log(`Reducer: Setting game over. Winner ID: ${action.winnerId}`);

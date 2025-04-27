@@ -1,7 +1,9 @@
 import { Button } from "@/ui";
 import { Trophy, ArrowRight, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function GameMode() {
+  const router = useRouter();
   return (
     <section className="flex w-full flex-col justify-center p-10">
       <div className="mb-12 text-center">
@@ -23,7 +25,12 @@ export default function GameMode() {
             Compete against friends to see who knows the material best. Each
             player has 5 lives - answer incorrectly and lose a life!
           </p>
-          <Button className="bg-theme-orange hover:bg-theme-orange/80 text-background flex items-center justify-center gap-2">
+          <Button
+            onClick={() => {
+              router.push("/game");
+            }}
+            className="bg-theme-orange hover:bg-theme-orange/80 text-background flex items-center justify-center gap-2"
+          >
             Play Deathmatch
             <ArrowRight className="h-4 w-4" />
           </Button>

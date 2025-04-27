@@ -74,18 +74,15 @@ function LobbyScreen({ selectedMode, onBackToMenu, isPublic }: LobbyProps) {
         initialPlayers: players, // Send the list of players currently in the lobby
         initiatedBy: currentPlayer.id,
       });
-      // No need to call onStartGame prop if navigation is handled by useEffect
     } else {
       console.warn("Cannot start game: Not host or no players.");
-      // Maybe show a notification to the user
     }
   };
 
   const handleBackToMenuClick = () => {
     console.log("Leaving lobby...");
-    // Unsubscribe logic is handled in GameContext's useEffect cleanup
-    dispatch({ type: "exitLobby" }); // Reset game state
-    onBackToMenu(); // Navigate back
+    dispatch({ type: "exitLobby" });
+    onBackToMenu();
   };
 
   const copyInviteLink = () => {
@@ -93,25 +90,22 @@ function LobbyScreen({ selectedMode, onBackToMenu, isPublic }: LobbyProps) {
       .writeText(gameUrl)
       .then(() => console.log("Invite link copied"))
       .catch((err) => console.error("Failed to copy link: ", err));
-    // Add toast notification here
   };
 
   const shareInviteLink = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Join my Quiz Game!", // Customize title
-          text: "Join me for a fun quiz challenge!", // Customize text
+          title: "Join my Quiz Game!",
+          text: "Join me for a fun quiz challenge!",
           url: gameUrl,
         });
         console.log("Link shared successfully");
       } catch (err) {
         console.error("Error sharing:", err);
-        // Fallback to copy link if sharing fails or is cancelled
         copyInviteLink();
       }
     } else {
-      // Fallback for browsers that don't support navigator.share
       copyInviteLink();
     }
   };
