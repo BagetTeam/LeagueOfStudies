@@ -9,14 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/genai": "^0.10.0",
+    "@google/generative-ai": "^0.24.0",
     "@radix-ui/themes": "^3.2.1",
+    "@types/formidable": "^3.4.5",
     "clsx": "^2.1.1",
+    "dotenv": "^16.5.0",
+    "edgestore": "^1.0.3",
+    "formidable": "^3.5.4",
+    "fs": "^0.0.1-security",
     "i": "^0.3.7",
     "lucide-react": "^0.503.0",
     "motion": "^12.9.2",
     "next": "15.3.1",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.1.91",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-pdf": "^9.2.1",
     "tailwind-merge": "^3.2.0"
   },
   "devDependencies": {
@@ -30,6 +40,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4",
+    "tsx": "^4.19.3",
     "typescript": "^5"
   }
 }
