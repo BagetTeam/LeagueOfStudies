@@ -11,182 +11,168 @@ import PlayerList from "./PlayerList";
 import { useGame } from "@/app/GameContext";
 import { useRouter } from "next/navigation";
 
+const BROADCAST_EVENTS = {
+  START_GAME: "start_game",
+  HEALTH_UPDATE: "health_update",
+  ANSWER_SUBMITTED: "answer_submitted",
+  TURN_ADVANCE: "turn_advance",
+  GAME_OVER: "game_over",
+};
 type LobbyProps = {
-  selectedMode: GameMode;
-  onStartGame: () => void;
+  selectedMode: GameMode; // This might come from context now?
   onBackToMenu: () => void;
-  //   dispatch: ActionDispatch<[action: GameOpsAction]>;
   isPublic: boolean;
 };
-function LobbyScreen({
-  selectedMode,
-  onBackToMenu,
-  onStartGame,
-  isPublic,
-}: LobbyProps) {
-  const { state, dispatch, sendBroadcast } = useGame(); // Get state and dispatch from context
-  const { gameId, players, currentPlayer } = state;
-  const gameUrl = `http://localhost:3000?join=${gameId}`;
-  const [currentIsPublic, setIsPublic] = useState(isPublic);
-  const channel = supabase.channel(gameId);
-  const router = useRouter(); // Add this to access router
+function LobbyScreen({ selectedMode, onBackToMenu, isPublic }: LobbyProps) {
+  const { state, dispatch, sendBroadcast } = useGame();
+  const { gameId, players = [], currentPlayer, gameMode, gameStarted } = state; // Default players to []
+  const router = useRouter();
+  const gameUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/game?join=${gameId}`
+      : `/game?join=${gameId}`;
 
-  //   const changePublicPrivate = async () => {
-  //     var newState = !currentIsPublic;
-  //     setIsPublic(newState);
-  //     try {
-  //       await connection.send("ChangePublic", gameId);
-  //     } catch {
-  //       setIsPublic(!newState);
-  //     }
-  //   };
-  console.log(players, "ERMRMMRMRM");
-  console.log(currentPlayer, "AWYGDUAWHIDJAUIWDVG");
   useEffect(() => {
     if (
-      currentPlayer.id &&
       players.length === 1 &&
-      players[0].id === currentPlayer.id
+      players[0].id === currentPlayer.id &&
+      !currentPlayer.isHost
     ) {
-      console.log("CHANGING HOST - no other players detected");
-      dispatch({
-        type: "setHost",
-        player: { ...currentPlayer, isHost: true },
-      });
+      console.log("Setting current player as host (only player)");
+      dispatch({ type: "setHost", player: { ...currentPlayer, isHost: true } });
     }
-  }, [players.length, currentPlayer.id, dispatch]);
+  }, [players, currentPlayer, dispatch]);
 
   useEffect(() => {
-    const handleGameStart = (gameType: string) => {
-      console.log(`Game starting! Type: ${gameType}`);
-      if (gameType === "deathmatch") {
-        router.push("/game/deathmatch");
-      } else if (gameType === "bossbattle") {
-        router.push("/game/bossbattle");
+    console.log("Gamehas Started");
+    if (state.gameStarted) {
+      console.log("Game started, navigating...");
+      if (state.gameMode.type === "deathmatch") {
+        router.push("/game/deathmatch"); // Adjust path as needed
+      } else if (state.gameMode.type === "bossbattle") {
+        router.push("/game/bossbattle"); // Adjust path as needed
       }
-    };
-
-    return () => {};
-  }, [router]);
+    }
+  }, [gameStarted, state.gameMode, router]);
 
   const startGame = () => {
-    if (currentPlayer.isHost) {
-      sendBroadcast("start_game", {
-        gameMode: selectedMode,
+    console.log("ERM");
+    console.log(state);
+    if (currentPlayer.isHost && players.length > 0) {
+      // Ensure there are players
+      console.log(
+        "Host starting game. Broadcasting START_GAME with players:",
+        players,
+      );
+      dispatch({
+        type: "setStartGame",
+        gameMode: state.gameMode,
+        initialPlayers: players,
+      });
+      sendBroadcast(BROADCAST_EVENTS.START_GAME, {
+        gameMode: state.gameMode, // Send the confirmed game mode
+        initialPlayers: players, // Send the list of players currently in the lobby
         initiatedBy: currentPlayer.id,
       });
-
-      onStartGame();
+      // No need to call onStartGame prop if navigation is handled by useEffect
+    } else {
+      console.warn("Cannot start game: Not host or no players.");
+      // Maybe show a notification to the user
     }
   };
 
   const handleBackToMenuClick = () => {
-    console.log("LEAVING LOBBY");
-    dispatch({ type: "exitLobby" }); // Make sure reducer handles this!
-    onBackToMenu(); // Call original prop function (maybe remove players arg now)
-    console.log(players);
+    console.log("Leaving lobby...");
+    // Unsubscribe logic is handled in GameContext's useEffect cleanup
+    dispatch({ type: "exitLobby" }); // Reset game state
+    onBackToMenu(); // Navigate back
   };
 
   const copyInviteLink = () => {
-    console.log(JSON.stringify(players));
-    navigator.clipboard.writeText(gameUrl);
-    //toast.success("Invite link copied to clipboard");
+    navigator.clipboard
+      .writeText(gameUrl)
+      .then(() => console.log("Invite link copied"))
+      .catch((err) => console.error("Failed to copy link: ", err));
+    // Add toast notification here
   };
 
   const shareInviteLink = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Join my Math Race Quest game!",
-          text: "Join me for a math racing challenge!",
+          title: "Join my Quiz Game!", // Customize title
+          text: "Join me for a fun quiz challenge!", // Customize text
           url: gameUrl,
         });
+        console.log("Link shared successfully");
       } catch (err) {
         console.error("Error sharing:", err);
+        // Fallback to copy link if sharing fails or is cancelled
         copyInviteLink();
       }
     } else {
+      // Fallback for browsers that don't support navigator.share
       copyInviteLink();
     }
   };
 
   return (
-    <>
-      <div className="w-full">
-        <Button
-          variant="special"
-          onClick={handleBackToMenuClick}
-          className="mb-4 flex items-center gap-2"
-        >
-          <ArrowLeft size={16} />
-          <span>Back to Menu</span>
-        </Button>
+    <div className="mx-auto flex max-w-md flex-col items-center gap-4 p-4">
+      {/* Back Button */}
+      <Button
+        onClick={handleBackToMenuClick}
+        className="mb-4 flex items-center gap-2 self-start" // Align left
+      >
+        <ArrowLeft size={16} />
+        <span>Back to Menu</span>
+      </Button>
 
-        <h1 className="mb-2 text-center text-3xl font-bold">Game Lobby</h1>
-        <p className="text-muted-foreground mb-6 text-center">{"ahh mode"}</p>
-      </div>
-      {/* {currentPlayer.isHost && (
-        <div className="bg-secondary/30 border-secondary w-full rounded-lg border p-4">
-          <div className="flex flex-col items-start pb-2">
-            <div className="text-[15px] text-gray-800">Game Settings</div>
-            <div className="text-xs text-gray-500">
-              Only the host can modify these settings
-            </div>
-          </div>
-          <div className="flex flex-row items-center justify-between gap-3">
-            <div className="flex flex-col items-start">
-              <div className="text-[15px] text-gray-800">Public Lobby</div>
-              <div className="text-xs text-gray-500">
-                Allow anyone to join without an invite
-              </div>
-            </div>
-            <Switch
-              checked={isPublic}
-              //   onCheckedChange={changePublicPrivate}
-              className="data-[state=checked]:bg-primary"
-            ></Switch>
-          </div>
+      {/* Lobby Title */}
+      <h1 className="mb-2 text-center text-3xl font-bold">Game Lobby</h1>
+      {/* Display Game Mode */}
+      <p className="text-muted-foreground mb-6 text-center capitalize">
+        Mode: {state.gameMode.type}{" "}
+        {state.gameMode.type === "time" ? `(${state.gameMode.time}s)` : ""}
+      </p>
+
+      {/* Invite Section */}
+      <div className="bg-secondary/30 border-secondary flex w-full flex-col gap-3 rounded-lg border p-4">
+        <div className="text-center text-sm font-medium md:text-left">
+          Invite players with this link:
         </div>
-      )} */}
-
-      <div className="bg-secondary/30 border-secondary w-full rounded-lg border p-4">
-        <div className="mb-2 flex flex-col items-center justify-between gap-3 md:flex-row">
-          <div className="text-sm font-medium">
-            Share this link to invite players:
-          </div>
-          <div className="flex items-center gap-2">
+        <div className="bg-background truncate rounded border p-2 text-center font-mono text-xs select-all">
+          {gameUrl}
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          <Button onClick={copyInviteLink} className="flex items-center gap-1">
+            <Copy size={14} />
+            <span>Copy</span>
+          </Button>
+          {navigator.share && ( // Only show share if supported
             <Button
-              variant="special"
-              onClick={copyInviteLink}
-              className="flex items-center gap-1"
-            >
-              <Copy size={14} />
-              <span>Copy</span>
-            </Button>
-            <Button
-              variant="special"
               onClick={shareInviteLink}
               className="flex items-center gap-1"
             >
               <Share2 size={14} />
               <span>Share</span>
             </Button>
-          </div>
+          )}
         </div>
-        <div className="bg-background truncate rounded border p-2 text-xs">
-          {gameUrl}
-        </div>
+        <p className="text-muted-foreground mt-2 text-center text-xs">
+          Game ID: {gameId}
+        </p>
       </div>
-      <p className="text-muted-foreground text-sm">Game ID: {gameId}</p>
-      <div className="w-full">
+
+      {/* Player List Section */}
+      <div className="mt-4 w-full">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Players ({players.length})</h2>
+          {/* Start Game Button for Host */}
           {currentPlayer.isHost && (
             <Button
-              onClick={async () => {
-                startGame();
-              }}
-              className="math-button-primary flex items-center gap-2"
+              onClick={startGame}
+              disabled={players.length < 1} // Example: Disable if < 2 players? Or allow solo start?
+              className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
             >
               <Play size={16} />
               <span>Start Game</span>
@@ -194,14 +180,25 @@ function LobbyScreen({
           )}
         </div>
 
-        <PlayerList
-          players={players}
-          currentPlayerId={currentPlayer.id}
-          gameMode={selectedMode}
-        />
-        <div>{currentPlayer.isHost ? "HOST" : "NOT HOST"}</div>
+        {/* Player List Component */}
+        {players.length > 0 ? (
+          <PlayerList
+            players={players}
+            currentPlayerId={currentPlayer.id}
+            gameMode={gameMode}
+          />
+        ) : (
+          <p className="text-muted-foreground py-4 text-center">
+            Waiting for players...
+          </p>
+        )}
+
+        {/* Host Indicator (Optional) */}
+        {/* <div className="text-center text-sm mt-2">
+                  {currentPlayer.isHost ? "You are the host" : "Waiting for host to start..."}
+              </div> */}
       </div>
-    </>
+    </div>
   );
 }
 

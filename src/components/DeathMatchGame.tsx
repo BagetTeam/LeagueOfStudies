@@ -1,6 +1,6 @@
 import { Trophy, ArrowLeft, Heart, Clock } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useGame } from "@/app/GameContext";
 
@@ -65,139 +65,241 @@ const TURN_DURATION_SECONDS = 15;
 
 const DeathmatchGame = () => {
   const { subjectId } = useParams();
-  const { state, dispatch } = useGame();
-  const { currentPlayer, players, gameMode } = state;
+  const { state, dispatch, sendBroadcast } = useGame();
+  const {
+    currentPlayer, // The user of this client
+    players = [], // Default to empty array
+    gameMode,
+    activePlayerIndex = 0, // Default to 0
+    currentQuestionIndex = 0, // Default to 0
+    turnStartTime,
+    isGameOver,
+    winnerId,
+  } = state;
 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [timeLeft, setTimeLeft] = useState(15);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [isGameOver, setIsGameOver] = useState(false);
-  const [winner, setWinner] = useState<string | null>(null);
-  const [dead, setDead] = useState(0);
+  const [isAnsweredLocally, setIsAnsweredLocally] = useState(false); // If this client just answered
+  const [timeLeft, setTimeLeft] = useState(TURN_DURATION_SECONDS);
 
   const currentQuestion = mockGameData.questions[currentQuestionIndex];
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const activePlayer = players[activePlayerIndex]; // Player whose turn it is
 
-  const nextPlayerIndex = () => {
-    let nextIndex = (currentPlayerIndex + 1) % players.length;
+  // Determine the winner's name
+  const winner = useMemo(() => {
+    if (!isGameOver || winnerId === null) return null;
+    return players.find((p) => p.id === winnerId)?.name || "Unknown Winner";
+  }, [isGameOver, winnerId, players]);
 
-    // Find next player who still has health
-    while (players[nextIndex].health <= 0 && nextIndex !== currentPlayerIndex) {
-      nextIndex = (nextIndex + 1) % players.length;
-    }
-
-    setCurrentPlayerIndex(nextIndex);
-  };
-  console.log(players, "IM ABT TO BUSSSSS");
-  console.log(
-    currentPlayer,
-    "AGYUWDGYIHDYUGAWIDUHYGAUWDBAWDAWG DIA GWUDGAUD GAUWD GUAW",
-  );
-
-  // Timer effect
   useEffect(() => {
-    if (isAnswered || isGameOver) return;
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          // If time runs out, count as wrong answer
-          handleAnswer(null);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    if (isGameOver || turnStartTime === null) {
+      setTimeLeft(0); // Ensure timer shows 0 when game over or turn hasn't started
+      return;
+    }
 
-    return () => clearInterval(timer);
-  }, [currentQuestionIndex, isAnswered, isGameOver]);
+    const calculateRemainingTime = () => {
+      const now = Date.now();
+      const elapsed = Math.floor((now - turnStartTime) / 1000);
+      const remaining = TURN_DURATION_SECONDS - elapsed;
+      setTimeLeft(Math.max(0, remaining)); // Ensure it doesn't go below 0
 
-  // Handle answer selection
+      // If time runs out and it's this client's turn, trigger timeout action
+      if (
+        remaining <= 0 &&
+        activePlayer?.id === currentPlayer.id &&
+        !isAnsweredLocally
+      ) {
+        console.log("Time ran out for current player");
+        handleAnswer(null); // Trigger timeout (counts as wrong)
+      }
+    };
+
+    // Set initial time immediately
+    calculateRemainingTime();
+
+    // Update timer every second
+    const timerInterval = setInterval(calculateRemainingTime, 1000);
+
+    // Cleanup interval on unmount or when dependencies change
+    return () => clearInterval(timerInterval);
+  }, [
+    turnStartTime,
+    activePlayer?.id,
+    currentPlayer.id,
+    isGameOver,
+    isAnsweredLocally,
+  ]); // Rerun when turn changes or game ends
+
+  // Reset local answer state when the turn changes (new turnStartTime)
+  useEffect(() => {
+    setIsAnsweredLocally(false);
+    setSelectedOption(null);
+  }, [turnStartTime]);
+
+  // --- Answer Handling ---
   const handleAnswer = (optionIndex: number | null) => {
-    if (isAnswered) return;
+    // Prevent multiple submissions per turn or answering when it's not your turn
     if (
-      !players ||
-      players.length === 0 ||
-      currentPlayerIndex >= players.length ||
-      !currentPlayer ||
-      !players[currentPlayerIndex]
+      isAnsweredLocally ||
+      activePlayer?.id !== currentPlayer.id ||
+      isGameOver
     ) {
-      console.error("Player data is not properly initialized");
-      return;
-    }
-    if (
-      !currentPlayer?.id ||
-      !players[currentPlayerIndex]?.id ||
-      currentPlayer.id != players[currentPlayerIndex].id
-    ) {
+      console.log("Answer blocked:", {
+        isAnsweredLocally,
+        isMyTurn: activePlayer?.id === currentPlayer.id,
+        isGameOver,
+      });
       return;
     }
 
+    console.log(
+      `Player ${currentPlayer.id} answered with option: ${optionIndex}`,
+    );
+    setIsAnsweredLocally(true); // Mark locally that an answer was submitted for this turn
     setSelectedOption(optionIndex);
-    setIsAnswered(true);
 
     const isCorrect = optionIndex === currentQuestion.correctAnswer;
 
+    sendBroadcast(BROADCAST_EVENTS.ANSWER_SUBMITTED, {
+      playerId: currentPlayer.id,
+      questionId: currentQuestion.id,
+      selectedOptionIndex: optionIndex,
+      isCorrect: isCorrect,
+      // Add timestamp if needed for server-side validation/ordering
+    });
+
+    // --- HOST-SIDE LOGIC (or could be on a dedicated server) ---
+    // This part *should ideally live on the server* or be handled *only by the host* client
+    // to prevent cheating and ensure consistency.
+    // For simplicity in this example, we'll assume the player whose turn it was handles the immediate consequences
+    // and broadcasting the next state. In a real app, the host should validate and broadcast.
+
+    // Simulating Host/Server Logic triggered by ANSWER_SUBMITTED:
+    // 1. Validate the answer (if needed)
+    // 2. Update health if incorrect
+    // 3. Determine next player/question
+    // 4. Check for game over
+    // 5. Broadcast TURN_ADVANCE or GAME_OVER
+
+    // --- Health Update (Simulated Host Logic) ---
     if (!isCorrect) {
-      if (currentPlayer.health > 0) {
-        if (currentPlayer.health == 1) {
-          setDead(dead + 1);
-        }
-        dispatch({
-          type: "setHealth",
-          playerId: currentPlayer.id,
-          health: currentPlayer.health - 1,
-        });
-        dispatch({
-          type: "setPlayers",
-          players: players.map((player) =>
-            player.id === currentPlayer.id
-              ? { ...player, health: currentPlayer.health } // Create a *new* player object
-              : player,
-          ),
-        });
-      }
+      const currentHealth =
+        players.find((p) => p.id === currentPlayer.id)?.health ?? 0;
+      const newHealth = Math.max(0, currentHealth - 1);
+      console.log(
+        `Broadcasting health update for ${currentPlayer.id}: ${newHealth}`,
+      );
+      // Host broadcasts the authoritative health update
+      dispatch({
+        type: "setHealth",
+        playerId: currentPlayer.id,
+        health: newHealth,
+      });
+      sendBroadcast(BROADCAST_EVENTS.HEALTH_UPDATE, {
+        playerId: currentPlayer.id,
+        newHealth: newHealth,
+      });
     }
 
-    // After 2 seconds, move to next player or next question
+    // --- Turn Advancement & Game Over Check (Simulated Host Logic) ---
+    // Introduce a small delay to allow UI feedback before advancing
     setTimeout(() => {
-      setIsAnswered(false);
-      setSelectedOption(null);
-      setTimeLeft(15);
+      // Recalculate state based on potential health updates
+      const updatedPlayers = players.map((p) =>
+        p.id === currentPlayer.id && !isCorrect
+          ? { ...p, health: Math.max(0, (p.health ?? 0) - 1) }
+          : p,
+      );
 
-      // Move to next player's turn
-      nextPlayerIndex();
+      const playersWithHealth = updatedPlayers.filter((p) => p.health > 0);
+      console.log("Players with health:", playersWithHealth);
 
-      // If everyone has answered, move to next question
-      if (currentPlayerIndex >= players.length || currentPlayerIndex == 0) {
-        if (currentQuestionIndex < mockGameData.questions.length - 1) {
-          setCurrentQuestionIndex((prev) => prev + 1);
-        } else {
-          // Game over - all questions answered
-          endGame();
+      // Check for Game Over
+      if (playersWithHealth.length <= 1) {
+        const winnerFound =
+          playersWithHealth.length === 1 ? playersWithHealth[0] : null;
+        console.log(`Game Over! Winner ID: ${winnerFound?.id}`);
+        dispatch({
+          type: "setGameOver",
+          winnerId: winnerFound?.id ?? null, // Use winnerId from payload or null
+        });
+        sendBroadcast(BROADCAST_EVENTS.GAME_OVER, {
+          winnerId: winnerFound?.id ?? null, // Can be null if everyone died simultaneously (draw)
+        });
+        return; // Stop further turn advancement
+      }
+
+      // Determine Next Player Index
+      let nextIndex = (activePlayerIndex + 1) % players.length;
+      // Find the next player who is still alive (using the updated player list)
+      while (updatedPlayers[nextIndex]?.health <= 0) {
+        nextIndex = (nextIndex + 1) % players.length;
+        // Safety break to prevent infinite loop if all players somehow have 0 health but game isn't over
+        if (nextIndex === activePlayerIndex) {
+          console.error("Could not find next player with health!");
+          // Potentially trigger game over as a fallback
+          dispatch({
+            type: "setGameOver",
+            winnerId: null, // Use winnerId from payload or null
+          });
+          sendBroadcast(BROADCAST_EVENTS.GAME_OVER, { winnerId: null });
           return;
         }
       }
 
-      // Check if game is over (only one player left)
-      // Check if game is over (only one player left)
-      if (dead == players.length - 1) {
-        setWinner(players[currentPlayerIndex].name);
-        setIsGameOver(true);
-        return;
+      // Determine Next Question Index
+      let nextQuestionIdx = currentQuestionIndex;
+      // If the cycle comes back to the first player (or the next player index is smaller, indicating a wrap-around)
+      // and we haven't reached the end of questions, move to the next question.
+      if (
+        nextIndex <= activePlayerIndex &&
+        currentQuestionIndex < mockGameData.questions.length - 1
+      ) {
+        nextQuestionIdx = currentQuestionIndex + 1;
+        console.log(`Moving to next question: ${nextQuestionIdx}`);
+      } else if (
+        nextIndex <= activePlayerIndex &&
+        currentQuestionIndex >= mockGameData.questions.length - 1
+      ) {
+        // All questions answered, but more than one player remains? (e.g., health-based win)
+        // This scenario might need refinement based on exact win conditions.
+        // For now, let's assume the game ends when players run out of health.
+        // If win condition is "last one standing after all questions", add logic here.
+        console.log("All questions answered, checking remaining players...");
+        // Game over check above handles the primary win condition (<=1 player left)
+        // If you need a different win condition (e.g., highest health after last question), calculate winner here.
       }
-    }, 2000);
+
+      console.log(
+        `Advancing turn: Next Player Index=${nextIndex}, Next Question Index=${nextQuestionIdx}`,
+      );
+      // Host broadcasts the start of the next turn
+      if (
+        typeof nextIndex === "number" &&
+        typeof nextQuestionIdx === "number" &&
+        typeof Date.now() === "number"
+      ) {
+        dispatch({
+          type: "advanceTurn",
+          nextPlayerIndex: nextIndex,
+          nextQuestionIndex: nextQuestionIdx,
+          newTurnStartTime: Date.now(),
+        });
+      }
+      sendBroadcast(BROADCAST_EVENTS.TURN_ADVANCE, {
+        nextPlayerIndex: nextIndex,
+        nextQuestionIndex: nextQuestionIdx,
+        newTurnStartTime: Date.now(), // Start timer for the next turn
+      });
+    }, 1500); // Delay allows seeing correct/incorrect feedback
   };
 
-  // End the game
-  const endGame = () => {
-    // Find winner (player with most health)
-    const sortedPlayers = [...players].sort((a, b) => b.health - a.health);
-    setWinner(sortedPlayers[0].name);
-    setIsGameOver(true);
-  };
+  // --- UI Rendering ---
+  if (!currentQuestion || !players || players.length === 0) {
+    // Handle loading state or error state if question/players aren't available yet
+    return <div>Loading game...</div>;
+  }
 
+  const isMyTurn = activePlayer?.id === currentPlayer.id;
   return (
     <div className="from-background to-muted min-h-screen bg-gradient-to-b">
       <div className="container px-4 py-4">
@@ -210,14 +312,14 @@ const DeathmatchGame = () => {
             <div>
               <h1 className="flex items-center gap-2 text-xl font-semibold">
                 <Trophy className="text-theme-orange h-5 w-5" />
-                Deathmatch: {mockGameData.subject}
+                Deathmatch: {mockGameData.subject}{" "}
+                {/* Replace with dynamic data */}
               </h1>
               <p className="text-muted-foreground text-sm">
-                Topic: {mockGameData.topic}
+                Topic: {mockGameData.topic} {/* Replace with dynamic data */}
               </p>
             </div>
           </div>
-
           <div className="bg-muted flex items-center gap-2 rounded-full px-3 py-1.5">
             <Clock className="text-muted-foreground h-4 w-4" />
             <span className="font-semibold">
@@ -229,26 +331,29 @@ const DeathmatchGame = () => {
 
         {/* Players status */}
         <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {players.map((player) => (
+          {players.map((player, index) => (
             <div
               key={player.id}
               className={`rounded-xl border p-4 ${
-                player.id == players[currentPlayerIndex].id
+                index === activePlayerIndex && !isGameOver // Highlight active player
                   ? "bg-theme-orange/10 border-theme-orange animate-pulse-subtle"
-                  : player.health <= 0
-                    ? "bg-muted/50 text-muted-foreground border-muted"
-                    : "bg-card"
+                  : player.health <= 0 // Dim eliminated players
+                    ? "bg-muted/50 text-muted-foreground border-muted opacity-60"
+                    : "bg-card" // Default card style
               }`}
             >
               <div className="mb-2 flex items-start justify-between">
                 <h3
                   className={`font-semibold ${
-                    player.id == currentPlayer.id ? "text-theme-purple" : ""
+                    player.id === currentPlayer.id ? "text-theme-purple" : "" // Highlight local player's name
                   }`}
                 >
                   {player.name}
-                  {player.id == players[currentPlayerIndex].id && (
+                  {index === activePlayerIndex && !isGameOver && (
                     <span className="text-theme-orange ml-1">(Turn)</span>
+                  )}
+                  {player.id === currentPlayer.id && (
+                    <span className="ml-1 text-blue-500">(You)</span>
                   )}
                 </h3>
                 {player.health <= 0 && (
@@ -257,18 +362,22 @@ const DeathmatchGame = () => {
                   </div>
                 )}
               </div>
-
               <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Heart
-                    key={i}
-                    className={`h-4 w-4 ${
-                      i < player.health
-                        ? "fill-red-500 text-red-500"
-                        : "text-gray-300"
-                    }`}
-                  />
-                ))}
+                {[...Array(5)].map(
+                  (
+                    _,
+                    i, // Assuming max 5 health
+                  ) => (
+                    <Heart
+                      key={i}
+                      className={`h-4 w-4 ${
+                        i < (player.health ?? 0) // Use nullish coalescing for safety
+                          ? "fill-red-500 text-red-500"
+                          : "text-gray-300"
+                      }`}
+                    />
+                  ),
+                )}
               </div>
             </div>
           ))}
@@ -281,16 +390,30 @@ const DeathmatchGame = () => {
             <div className="mb-6 flex justify-center">
               <div className="bg-muted relative flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold">
                 <svg className="absolute top-0 left-0 h-20 w-20 -rotate-90 transform">
-                  <circle
+                  <circle // Background track
                     cx="40"
                     cy="40"
                     r="36"
                     strokeWidth="8"
-                    stroke={timeLeft <= 5 ? "#ef4444" : "#9b87f5"}
+                    stroke="#e5e7eb" // Example: gray-200
                     fill="transparent"
-                    strokeDasharray={36 * 2 * Math.PI}
-                    strokeDashoffset={36 * 2 * Math.PI * (1 - timeLeft / 15)}
-                    className="transition-all duration-1000"
+                  />
+                  <circle // Foreground progress
+                    cx="40"
+                    cy="40"
+                    r="36"
+                    strokeWidth="8"
+                    stroke={timeLeft <= 5 ? "#ef4444" : "#9b87f5"} // Red when low, theme otherwise
+                    fill="transparent"
+                    strokeDasharray={2 * Math.PI * 36}
+                    strokeDashoffset={
+                      2 * Math.PI * 36 * (1 - timeLeft / TURN_DURATION_SECONDS)
+                    }
+                    strokeLinecap="round" // Makes the ends rounded
+                    style={{
+                      transition:
+                        "stroke-dashoffset 1s linear, stroke 0.3s ease",
+                    }} // Smooth transitions
                   />
                 </svg>
                 <span className={timeLeft <= 5 ? "text-red-500" : ""}>
@@ -300,87 +423,110 @@ const DeathmatchGame = () => {
             </div>
 
             {/* Question */}
-            <div className="game-card mb-8">
+            <div className="game-card bg-card mb-8 rounded-lg border p-6 shadow-sm">
               <h2 className="mb-2 text-xl font-semibold md:text-2xl">
                 {currentQuestion.question}
               </h2>
               <p className="text-muted-foreground mb-4">
-                {currentPlayer.id == players[currentPlayerIndex].id
+                {isMyTurn
                   ? "Your turn! Select an answer:"
-                  : `${currentPlayer.name}'s turn`}
+                  : activePlayer
+                    ? `${activePlayer.name}'s turn`
+                    : "Waiting..."}
               </p>
 
               {/* Answer options */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {currentQuestion.options.map((option, index) => (
-                  <button
-                    key={index}
-                    className={`rounded-xl border p-4 text-left transition ${
-                      isAnswered && selectedOption === index
-                        ? index === currentQuestion.correctAnswer
-                          ? "border-green-400 bg-green-100 text-green-800"
-                          : "border-red-400 bg-red-100 text-red-800"
-                        : isAnswered && index === currentQuestion.correctAnswer
-                          ? "border-green-400 bg-green-100 text-green-800"
-                          : "hover:bg-muted"
-                    }`}
-                    onClick={() =>
-                      currentPlayer.id == players[currentPlayerIndex].id &&
-                      !isAnswered &&
-                      handleAnswer(index)
+                {currentQuestion.options.map((option, index) => {
+                  const isSelected = selectedOption === index;
+                  const isCorrectAnswer =
+                    index === currentQuestion.correctAnswer;
+                  let buttonClass = "border-muted hover:bg-muted"; // Default
+
+                  if (isAnsweredLocally && isMyTurn) {
+                    // Feedback for the player who just answered
+                    if (isSelected) {
+                      buttonClass = isCorrectAnswer
+                        ? "border-green-400 bg-green-100 text-green-800 ring-2 ring-green-300" // Correct selected
+                        : "border-red-400 bg-red-100 text-red-800 ring-2 ring-red-300"; // Incorrect selected
+                    } else if (isCorrectAnswer) {
+                      buttonClass =
+                        "border-green-400 bg-green-100/50 text-green-700"; // Show correct if wrong was selected
                     }
-                    disabled={
-                      currentPlayer.id != players[currentPlayerIndex].id ||
-                      isAnswered
-                    }
-                  >
-                    <span className="mr-2 font-semibold">
-                      {String.fromCharCode(65 + index)}.
-                    </span>
-                    {option}
-                  </button>
-                ))}
+                  } else if (!isMyTurn && isAnsweredLocally) {
+                    // Maybe subtle feedback for others if needed, or none
+                  }
+
+                  return (
+                    <button
+                      key={index}
+                      className={`rounded-xl border p-4 text-left transition duration-150 ease-in-out ${buttonClass} ${!isMyTurn || isAnsweredLocally ? "cursor-not-allowed opacity-80" : "hover:scale-105"}`}
+                      onClick={() => handleAnswer(index)}
+                      disabled={!isMyTurn || isAnsweredLocally || isGameOver}
+                    >
+                      <span className="mr-2 font-semibold">
+                        {String.fromCharCode(65 + index)}.
+                      </span>
+                      {option}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
         ) : (
-          <div className="game-card mx-auto max-w-2xl text-center">
+          // --- Game Over Screen ---
+          <div className="game-card bg-card mx-auto max-w-2xl rounded-lg border p-8 text-center shadow-lg">
             <div className="mb-6">
-              <Trophy className="text-theme-orange mx-auto mb-4 h-16 w-16" />
+              <Trophy className="text-theme-orange mx-auto mb-4 h-16 w-16 animate-bounce" />
               <h2 className="mb-2 text-3xl font-bold">Game Over!</h2>
-              <p className="text-xl">
-                {winner === "Player 1 (You)"
-                  ? "Congratulations! You won the game!"
-                  : `${winner} has won the game!`}
+              <p className="text-muted-foreground text-xl">
+                {winner ? `${winner} has won the game!` : "It's a draw!"}
               </p>
+              {winnerId === currentPlayer.id && (
+                <p className="mt-2 text-lg font-semibold text-green-600">
+                  Congratulations!
+                </p>
+              )}
             </div>
 
-            <div className="mb-6 flex flex-col items-center gap-4">
-              <h3 className="font-semibold">Final Results</h3>
-              {players.map((player) => (
-                <div
-                  key={player.id}
-                  className="flex items-center gap-3 text-lg"
-                >
-                  {player.name === winner && (
-                    <Trophy className="text-theme-orange h-4 w-4" />
-                  )}
-                  <span className={player.name === winner ? "font-bold" : ""}>
-                    {player.name}: {player.health}{" "}
-                    {player.health === 1 ? "health" : "health"} remaining
-                  </span>
-                </div>
-              ))}
+            <div className="mb-8 flex flex-col items-center gap-3">
+              <h3 className="mb-2 border-b pb-1 text-lg font-semibold">
+                Final Results
+              </h3>
+              {players
+                .sort((a, b) => (b.health ?? 0) - (a.health ?? 0)) // Sort by health descending
+                .map((player) => (
+                  <div
+                    key={player.id}
+                    className={`text-md flex w-full items-center justify-center gap-3 rounded p-2 ${player.id === winnerId ? "bg-yellow-100" : ""}`}
+                  >
+                    {player.id === winnerId && (
+                      <Trophy className="h-5 w-5 text-yellow-500" />
+                    )}
+                    <span
+                      className={`${player.id === winnerId ? "font-bold" : ""} ${player.health <= 0 ? "text-muted-foreground line-through" : ""}`}
+                    >
+                      {player.name}: {player.health ?? 0} health remaining
+                    </span>
+                  </div>
+                ))}
             </div>
 
             <div className="flex flex-wrap justify-center gap-4">
+              {/* Optional: Add a button to go back to lobby or dashboard */}
+              <Link
+                href="/lobby"
+                /* Or wherever lobby is */ className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+              >
+                Back to Lobby
+              </Link>
               <Link
                 href="/"
-                className="bg-theme-orange hover:bg-theme-orange/80 gap-2"
+                className="border-input bg-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
               >
-                Play Again
+                Back to Menu
               </Link>
-              <Link href={"/dashboard"}>Back to Dashboard</Link>
             </div>
           </div>
         )}

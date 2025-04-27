@@ -1,76 +1,127 @@
+// GameScreen.tsx
 "use client";
 
-import BossFightGame from "@/components/BossFightGame";
-import DeathmatchGame from "@/components/DeathMatchGame";
 import LobbyScreen from "@/components/LobbyScreen";
-import { GameMode, Player } from "@/types/types";
-import { useRouter } from "next/navigation";
-import { GameProvider, useGame } from "../GameContext";
+import { GameMode } from "@/types/types"; // Keep Player if needed
+import { useRouter, useSearchParams } from "next/navigation"; // Use useSearchParams
+import { useGame } from "../GameContext";
 import { useEffect } from "react";
+import DeathmatchGame from "@/components/DeathMatchGame"; // Assuming path
+import BossFightGame from "@/components/BossFightGame"; // Assuming path
 
-export default function GameScreen() {
-  const router = useRouter();
-
-  return <GameScreenContent />;
-}
+// Define initial/default game mode if needed
+const defaultGameMode: GameMode = {
+  type: "deathmatch", // Or your most common mode
+  time: 15, // Corresponds to TURN_DURATION_SECONDS
+};
 
 function GameScreenContent() {
   const router = useRouter();
+  const searchParams = useSearchParams(); // Get URL search parameters
   const { state, dispatch } = useGame();
-  const { gameStarted, gameMode } = state;
-
-  // Set initial values when component mounts
-  useEffect(() => {
-    // Initialize with a game ID
-    dispatch({
-      type: "setGameId",
-      gameId: "hello",
-      // gameId: "game-" + crypto.randomUUID().toString(),
-    });
-
-    // Initialize with a current player
-    dispatch({
-      type: "setCurrentPlayer",
-      player: {
-        id: Math.floor(Math.random() * 10000), // Generate unique ID
-        name: "Player-" + Math.floor(Math.random() * 1000),
-        score: 0,
-        health: 5,
-        isHost: false,
-      },
-    });
-  }, [dispatch]);
+  const { gameId, gameStarted, gameMode, currentPlayer } = state;
 
   useEffect(() => {
-    if (gameStarted && gameMode) {
-      if (gameMode.type === "deathmatch") {
-        router.push("/game/deathmatch");
-      } else if (gameMode.type === "bossbattle") {
-        router.push("/game/bossbattle");
+    const joinGameId = searchParams.get("join");
+    let effectiveGameId = gameId;
+
+    // --- Initialization Logic ---
+    // 1. Set Game ID (Join or Create)
+    if (joinGameId && !gameId) {
+      console.log(`Joining game from URL: ${joinGameId}`);
+      effectiveGameId = joinGameId;
+      dispatch({ type: "setGameId", gameId: joinGameId });
+    } else if (!gameId) {
+      const newGameId = "game-" + crypto.randomUUID().toString();
+      console.log(`Creating new game with ID: ${newGameId}`);
+      effectiveGameId = newGameId;
+      dispatch({ type: "setGameId", gameId: newGameId });
+    }
+
+    // 2. Set Current Player (should ideally happen earlier, but fallback)
+    if (!currentPlayer || currentPlayer.id === 0) {
+      // Check if player is not set or is default guest
+      const playerId = Math.floor(Math.random() * 10000) + 1; // Ensure non-zero ID
+      const playerName = "Player" + playerId; // Simple name generation
+      console.log(
+        `Initializing temporary player: ${playerName} (ID: ${playerId})`,
+      );
+      dispatch({
+        type: "setCurrentPlayer",
+        player: {
+          id: playerId,
+          name: playerName,
+          score: 0,
+          health: 5, // Standard starting health
+          isHost: !joinGameId, // Assume host if creating, not if joining
+        },
+      });
+      // If creating, also add self to players list and set as host
+      if (!joinGameId) {
+        dispatch({
+          type: "addPlayer",
+          player: {
+            id: playerId,
+            name: playerName,
+            score: 0,
+            health: 5,
+            isHost: true,
+          },
+        });
+        dispatch({
+          type: "setHost",
+          player: {
+            id: playerId,
+            name: playerName,
+            score: 0,
+            health: 5,
+            isHost: true,
+          },
+        });
       }
     }
-  }, [gameStarted, gameMode.type, router]);
 
-  const mode: GameMode = {
-    type: "deathmatch",
-    time: 60,
-  };
-  if (gameStarted) {
-    return <div>Game starting...</div>;
+    // 3. Set Default Game Mode if not set
+    if (!gameMode?.type) {
+      dispatch({ type: "setGameMode", gameMode: defaultGameMode });
+    }
+  }, [dispatch, gameId, currentPlayer, searchParams, gameMode]); // Dependencies for init
+
+  // --- Navigation / Component Rendering ---
+  if (!gameId || !currentPlayer || currentPlayer.id === 0) {
+    return <div>Initializing...</div>; // Show loading until basic state is set
   }
 
-  return (
-    <LobbyScreen
-      selectedMode={mode}
-      isPublic={false}
-      onBackToMenu={() => {
-        router.push("/");
-      }}
-      onStartGame={() => {
-        mode.type === "deathmatch"
-          ? router.push("/game/deathmatch")
-          : router.push("/game/bossbattle");
-      }}
-    />
-  );
+  if (gameStarted) {
+    // Render the correct game component based on gameMode
+    switch (gameMode.type) {
+      case "deathmatch":
+        return <DeathmatchGame />;
+      case "bossbattle":
+        // return <BossFightGame />; // Uncomment when component exists
+        return <div>Boss Battle (Not Implemented)</div>;
+      default:
+        console.error(`Unknown game mode: ${gameMode.type}`);
+        // Navigate back or show error
+        return <div>Error: Unknown Game Mode</div>;
+    }
+  } else {
+    // Render Lobby if game hasn't started
+    return (
+      <LobbyScreen
+        selectedMode={gameMode || defaultGameMode} // Pass current or default mode
+        isPublic={false} // Get from state if implemented: state.isPublicLobby
+        onBackToMenu={() => {
+          router.push("/"); // Navigate to home or dashboard
+        }}
+      />
+    );
+  }
+}
+
+export default function GameScreen() {
+  // GameProvider should wrap this component higher up in the tree (e.g., in layout.tsx or _app.tsx)
+  // If GameProvider is *only* for this screen, wrap GameScreenContent here.
+  // For global state, GameProvider should be higher.
+  return <GameScreenContent />;
 }

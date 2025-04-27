@@ -190,8 +190,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         },
       );
 
-      // Add other broadcast listeners (e.g., ANSWER_SUBMITTED if needed for specific UI feedback)
-
       channel.subscribe(async (status) => {
         console.log(`Channel ${state.gameId} subscription status:`, status);
         if (status === "SUBSCRIBED") {
@@ -222,11 +220,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       };
     }
-    // No cleanup needed here if gameId/currentPlayer.id is not set,
-    // the initial check and cleanup handles it.
   }, [state.gameId, state.currentPlayer.id]);
 
-  // Function to send broadcasts (can be added to context value if needed elsewhere)
   const sendBroadcast = useCallback((event: string, payload: any) => {
     if (channelRef.current) {
       console.log(`Sending broadcast: ${event}`, payload);
