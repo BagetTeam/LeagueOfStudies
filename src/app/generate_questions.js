@@ -24,7 +24,7 @@ async function GenerateQuestions(filepath) {
   console.log(summary);
   const response = await ai.models.generateContent({
     model: "gemini-2.0-flash",
-    contents: `Generate in a dictionary form 10 study questions with their expected answers according to this study material ${summary}`,
+    contents: `Generate in a dictionary form 10 study questions with their expected answers according to this study material cellular biology`,
   });
   console.log(response.text);
 }
