@@ -90,7 +90,7 @@ export default function SettingsTab() {
             <h3 className="text-destructive font-semibold">Danger Zone</h3>
             <Button
               variant="normal"
-              className="border-destructive text-destructive hover:bg-destructive/10 flex w-full items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2"
               onClick={() => logout()}
             >
               <LogOut className="h-4 w-4" />
