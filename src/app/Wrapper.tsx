@@ -1,15 +1,19 @@
 "use client";
 
 import { Auth0Provider } from "@auth0/auth0-react";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { createContext } from "react";
 type Props = {
   children: React.ReactNode;
+  domain: string;
+  client_id: string;
 };
 
-export default function Wrapper({ children }: Props) {
+export default function Wrapper({ children, domain, client_id }: Props) {
   return (
     <Auth0Provider
-      domain="dev-26y6jtgreq2t3aaj.us.auth0.com"
-      clientId="mWbr9XyYRxIP8I4jtaFDLioUudWuuQx6"
+      domain={domain}
+      clientId={client_id}
       authorizationParams={{
         redirect_uri: "http://localhost:3000",
       }}
@@ -18,3 +22,5 @@ export default function Wrapper({ children }: Props) {
     </Auth0Provider>
   );
 }
+
+export const Context = createContext<SupabaseClient | null>(null);
