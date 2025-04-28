@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# League of Studies
 
-## Getting Started
+Welcome to **League of Studies** — where studying feels less like a chore and more like a challenge you actually want to win.
 
-First, run the development server:
+🌐 Visit the site: [ihatestudying.study](https://ihatestudying.study)
+
+---
+
+## About
+
+**League of Studies** turns studying into an engaging, game-like experience. Compete, collaborate, and climb the ranks by answering questions, mastering topics, and leveling up your knowledge. Whether you're cramming for exams or brushing up on new skills, we make the grind feel fun.
+
+Think of it as **your academic battle arena** — solo or with friends.
+
+---
+
+## Features
+
+- 🎯 **Topic-Based Challenges** — Pick a subject and start answering curated questions.
+- 🧠 **Study Notes Hub** — Access structured notes by topic to study smarter.
+- 🏆 **Ranking System** — Earn points, badges, and achievements as you master material.
+- 👥 **Multiplayer Mode** — Challenge friends, classmates, or strangers to study duels.
+- 🧩 **Custom Question Sets** — Create and share your own quizzes and note sets.
+- 📈 **Progress Tracking** — Visualize your improvement over time.
+
+---
+
+## Tech Stack
+
+- **Frontend**: Next.js, React, TailwindCSS
+- **Backend**: Node.js, Express.js
+- **Database**: Supabase
+- **Authentication**: Auth0
+- **Hosting**: Vercel
+- **Other**: OpenAI (for question generation)
+
+---
+
+## How to Contribute
+
+We welcome ideas, bug reports, and contributions!  
+Coming soon: A public roadmap and issue tracker.
+
+In the meantime:
+- **Feedback**: Open an issue or email us.
+- **Want to help build?** DM us on the site contact form!
+
+---
+
+## Getting Started (for Developers)
 
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/league-of-studies.git
+
+# Install dependencies
+npm install
+
+# Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Visit
+http://localhost:3000
