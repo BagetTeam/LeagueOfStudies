@@ -170,9 +170,11 @@ const DeathmatchGame = () => {
         dispatch({
           type: "setGameOver",
           winnerId: winnerFound?.id ?? null, // Use winnerId from payload or null
+          isGameOver: true,
         });
         sendBroadcast(BROADCAST_EVENTS.GAME_OVER, {
           winnerId: winnerFound?.id ?? null, // Can be null if everyone died simultaneously (draw)
+          isGameOver: true,
         });
         return; // Stop further turn advancement
       }
@@ -189,8 +191,12 @@ const DeathmatchGame = () => {
           dispatch({
             type: "setGameOver",
             winnerId: null, // Use winnerId from payload or null
+            isGameOver: true,
           });
-          sendBroadcast(BROADCAST_EVENTS.GAME_OVER, { winnerId: null });
+          sendBroadcast(BROADCAST_EVENTS.GAME_OVER, {
+            winnerId: null,
+            isGameOver: true,
+          });
           return;
         }
       }

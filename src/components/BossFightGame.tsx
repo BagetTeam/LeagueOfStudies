@@ -229,7 +229,7 @@ const BossFightGame = () => {
           console.log("Host: Boss defeated! Broadcasting Game Over.");
           dispatch({
             type: "setBossFightGameOver",
-            isVictory: false,
+            isVictory: true,
           });
           sendBroadcast(BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER, {
             isVictory: true,

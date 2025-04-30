@@ -55,6 +55,8 @@ export const BROADCAST_EVENTS = {
   TEAM_DAMAGED: "team_damaged", // Host signals multiple players health update
   BOSS_FIGHT_GAME_OVER: "boss_fight_game_over",
   SET_QUESTIONS: "set_questions",
+
+  RESTART_GAME: "restart_game",
 };
 
 export const GameProvider = ({ children }: GameProviderProps) => {
@@ -201,6 +203,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           dispatch({
             type: "setGameOver",
             winnerId: payload.winnerId ?? null, // Use winnerId from payload or null
+            isGameOver: payload.isGameOver,
           });
         },
       );
@@ -314,6 +317,16 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           dispatch({
             type: "setQuestions",
             questions: payload.questions,
+          });
+        },
+      );
+
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.RESTART_GAME },
+        ({}) => {
+          dispatch({
+            type: "restartGame",
           });
         },
       );

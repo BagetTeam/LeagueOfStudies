@@ -2,6 +2,7 @@ import { Button } from "@/ui";
 import { Shield, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Player } from "@/types/types";
+import { useGame } from "@/app/GameContext";
 
 interface GameOverProps {
   isVictory: boolean;
@@ -17,6 +18,14 @@ export function GameOver({
   players,
 }: GameOverProps) {
   const router = useRouter();
+  const { dispatch, sendBroadcast } = useGame();
+
+  const onPlayAgain = () => {
+    dispatch({
+      type: "restartGame",
+    });
+    sendBroadcast("restart_game", {});
+  };
 
   return (
     <div className="game-card mx-auto max-w-2xl text-center">

@@ -41,6 +41,11 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
       type: "setGameMode",
       gameMode: { type: gmode, time: Infinity },
     });
+    dispatch({
+      type: "setGameOver",
+      winnerId: null,
+      isGameOver: false,
+    });
   }, []);
 
   useEffect(() => {

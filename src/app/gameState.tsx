@@ -95,7 +95,7 @@ export type GameStateActions =
       nextQuestionIndex: number;
       newTurnStartTime: number;
     }
-  | { type: "setGameOver"; winnerId: number | null }
+  | { type: "setGameOver"; winnerId: number | null; isGameOver: boolean }
   | { type: "setBossHealth"; newBossHealth: number }
   | {
       type: "recordPlayerAnswer";
@@ -112,6 +112,9 @@ export type GameStateActions =
   | {
       type: "setQuestions";
       questions: Question[];
+    }
+  | {
+      type: "restartGame";
     };
 
 export function gameStatereducer(
@@ -316,7 +319,7 @@ export function gameStatereducer(
       console.log(`Reducer: Setting game over. Winner ID: ${action.winnerId}`);
       return {
         ...state,
-        isGameOver: true,
+        isGameOver: action.isGameOver,
         winnerId: action.winnerId,
         turnStartTime: null, // Stop timer
         questions: [],
@@ -330,6 +333,13 @@ export function gameStatereducer(
       return {
         ...state,
         questions: action.questions,
+      };
+    case "restartGame":
+      return {
+        ...state,
+        questions: [],
+        currentQuestionIndex: 0,
+        gameStarted: false,
       };
   }
 }
