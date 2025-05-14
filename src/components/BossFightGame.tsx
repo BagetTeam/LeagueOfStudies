@@ -395,7 +395,12 @@ const BossFightGame = () => {
 
   // --- UI Rendering ---
 
-  if (!currentQuestion || !players || typeof bossHealth !== "number") {
+  if (
+    !currentQuestion ||
+    !players ||
+    typeof bossHealth !== "number" ||
+    !questions
+  ) {
     // Handle loading state or error state if question/players/bossHealth aren't available yet
     return <div>Loading game... (Ensure game started correctly)</div>;
   }

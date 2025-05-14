@@ -83,6 +83,7 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
   }, [gameStarted, state.gameMode]);
 
   useEffect(() => {
+    console.log("CHANGE HAS HAPPENED??? HUH");
     if (currentPlayer.isHost) {
       if (questions.length === 0 && subject) {
         (async () => {

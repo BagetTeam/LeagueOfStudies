@@ -244,6 +244,7 @@ const DeathmatchGame = () => {
   };
 
   const onRestartGame = () => {
+    console.log("Restarting game right neow");
     dispatch({
       type: "restartGame",
     });
