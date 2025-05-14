@@ -88,6 +88,7 @@ export type GameStateActions =
       type: "setStartGame";
       gameMode: GameMode;
       initialPlayers: Player[];
+      activePlayerIndex: number;
     }
   | {
       type: "advanceTurn";
@@ -213,18 +214,17 @@ export function gameStatereducer(
         ),
       };
     case "setStartGame":
-      // Initialize health for all players when game starts
-      const initialBossHealth = 100; // Or get from gameMode/settings
+      const initialBossHealth = 100;
       const initialPlayersWithHealth = action.initialPlayers.map((p) => ({
         ...p,
-        health: 5, // Or get initial health from gameMode/settings
+        health: 5,
       }));
       return {
         ...state,
         gameMode: action.gameMode,
         players: initialPlayersWithHealth,
         gameStarted: true,
-        activePlayerIndex: 0, // Or -1 if no specific turn
+        activePlayerIndex: action.activePlayerIndex,
         currentQuestionIndex: 0,
         turnStartTime: Date.now(), // Start timer for first question
         isGameOver: false,
@@ -310,10 +310,10 @@ export function gameStatereducer(
       );
       return {
         ...state,
+        activePlayerIndex: action.nextPlayerIndex,
         currentQuestionIndex: action.nextQuestionIndex,
         turnStartTime: action.newTurnStartTime, // Set start time for the new question
         playerAnswers: {}, // Automatically reset answers for the new question
-        // activePlayerIndex might not be relevant, keep or set to -1
       };
     case "setGameOver":
       console.log(`Reducer: Setting game over. Winner ID: ${action.winnerId}`);
@@ -323,11 +323,6 @@ export function gameStatereducer(
         winnerId: action.winnerId,
         turnStartTime: null, // Stop timer
         questions: [],
-      };
-    case "setQuestions":
-      return {
-        ...state,
-        questions: action.questions,
       };
     case "setQuestions":
       return {

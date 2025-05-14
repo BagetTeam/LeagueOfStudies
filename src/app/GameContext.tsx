@@ -12,7 +12,7 @@ import React, {
   Suspense,
 } from "react";
 import { GameState, GameStateActions, gameStatereducer } from "./gameState";
-import { Player } from "../types/types";
+import { GameMode, Player, Question } from "../types/types";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -57,6 +57,13 @@ export const BROADCAST_EVENTS = {
   SET_QUESTIONS: "set_questions",
 
   RESTART_GAME: "restart_game",
+};
+
+type StartGamePayload = {
+  initiatedBy: number;
+  initialPlayers: Player[];
+  gameMode: GameMode;
+  questions: Question[]; // You can replace `any` with a proper type for questions if you have one
 };
 
 export const GameProvider = ({ children }: GameProviderProps) => {
@@ -142,9 +149,12 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.START_GAME },
-        ({ payload }) => {
+        ({ payload }: { payload: StartGamePayload }) => {
           console.log("Received start_game broadcast:", payload);
           // Host broadcasts the list of players at the start
+          const hostIndex = payload.initialPlayers.findIndex(
+            (player) => player.id == payload.initiatedBy,
+          );
           if (payload.gameMode && payload.initialPlayers && payload.questions) {
             dispatch({
               type: "setQuestions",
@@ -154,6 +164,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
               type: "setStartGame",
               gameMode: payload.gameMode,
               initialPlayers: payload.initialPlayers, // Use the player list from the host
+              activePlayerIndex: hostIndex,
             });
           }
         },

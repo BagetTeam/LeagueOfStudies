@@ -1,22 +1,25 @@
 "use client";
 
 import { Trophy, ArrowLeft, Heart, Clock } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useGame } from "@/app/GameContext";
+import { Button } from "@/ui";
 
 const BROADCAST_EVENTS = {
   START_GAME: "start_game",
   HEALTH_UPDATE: "health_update",
-  ANSWER_SUBMITTED: "answer_submitted",
+  PLAYER_ANSWERED: "answer_submitted",
   TURN_ADVANCE: "turn_advance",
   GAME_OVER: "game_over",
+  RESTART_GAME: "restart_game",
 };
 
 const TURN_DURATION_SECONDS = 15;
 
 const DeathmatchGame = () => {
+  const router = useRouter();
   const sp = useSearchParams();
   const subject = sp.get("subject") ?? "Rust";
 
@@ -35,10 +38,19 @@ const DeathmatchGame = () => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false); // If this client just answered
   const [timeLeft, setTimeLeft] = useState(TURN_DURATION_SECONDS);
+  const [isResolvingRound, setIsResolvingRound] = useState(false);
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const activePlayer = players[activePlayerIndex]; // Player whose turn it is
+  const currentQuestion = useMemo(
+    () => questions[currentQuestionIndex % questions.length],
+    [currentQuestionIndex],
+  );
 
+  const activePlayer = useMemo(
+    () => players[activePlayerIndex],
+    [activePlayerIndex],
+  ); // Player whose turn it is
+
+  console.log(questions);
   // Determine the winner's name
   const winner = useMemo(() => {
     if (!isGameOver || winnerId === null) return null;
@@ -70,24 +82,28 @@ const DeathmatchGame = () => {
 
     // Set initial time immediately
     calculateRemainingTime();
+    console.log("Time LEFT: " + timeLeft);
 
-    // Update timer every second
     const timerInterval = setInterval(calculateRemainingTime, 1000);
 
     // Cleanup interval on unmount or when dependencies change
     return () => clearInterval(timerInterval);
   }, [
     turnStartTime,
-    activePlayer?.id,
-    currentPlayer.id,
     isGameOver,
     isAnsweredLocally,
+    currentPlayer.id,
+    activePlayer?.id,
+    currentQuestionIndex,
+    isResolvingRound,
   ]); // Rerun when turn changes or game ends
 
   // Reset local answer state when the turn changes (new turnStartTime)
   useEffect(() => {
     setIsAnsweredLocally(false);
     setSelectedOption(null);
+    setIsResolvingRound(false);
+    console.log("NEXT TURN STARTED");
   }, [turnStartTime]);
 
   // --- Answer Handling ---
@@ -109,17 +125,14 @@ const DeathmatchGame = () => {
 
     const isCorrect = optionIndex === currentQuestion.correctAnswer;
 
-    sendBroadcast(BROADCAST_EVENTS.ANSWER_SUBMITTED, {
-      playerId: currentPlayer.id,
-      questionId: currentQuestion.id,
-      selectedOptionIndex: optionIndex,
-      isCorrect: isCorrect,
-    });
-
     if (isCorrect && activePlayer?.id !== currentPlayer.id) {
       const currentHealth =
         players.find((p) => p.id === activePlayer?.id)?.health ?? 0;
       const newHealth = Math.max(0, currentHealth - 1);
+      console.log(
+        `Broadcasting health update for ${activePlayer.id}: ${newHealth}`,
+      );
+
       dispatch({
         type: "setHealth",
         playerId: activePlayer?.id,
@@ -179,18 +192,16 @@ const DeathmatchGame = () => {
         return; // Stop further turn advancement
       }
 
-      // Determine Next Player Index
       let nextIndex = (activePlayerIndex + 1) % players.length;
       // Find the next player who is still alive (using the updated player list)
       while (updatedPlayers[nextIndex]?.health <= 0) {
         nextIndex = (nextIndex + 1) % players.length;
-        // Safety break to prevent infinite loop if all players somehow have 0 health but game isn't over
+
         if (nextIndex === activePlayerIndex) {
           console.error("Could not find next player with health!");
-          // Potentially trigger game over as a fallback
           dispatch({
             type: "setGameOver",
-            winnerId: null, // Use winnerId from payload or null
+            winnerId: null,
             isGameOver: true,
           });
           sendBroadcast(BROADCAST_EVENTS.GAME_OVER, {
@@ -201,27 +212,15 @@ const DeathmatchGame = () => {
         }
       }
 
-      // Determine Next Question Index
-      let nextQuestionIdx = currentQuestionIndex;
+      let nextQuestionIdx = currentQuestionIndex + 1;
       // If the cycle comes back to the first player (or the next player index is smaller, indicating a wrap-around)
       // and we haven't reached the end of questions, move to the next question.
-      if (
-        nextIndex <= activePlayerIndex &&
-        currentQuestionIndex < questions.length - 1
-      ) {
-        nextQuestionIdx = currentQuestionIndex + 1;
-        console.log(`Moving to next question: ${nextQuestionIdx}`);
-      } else if (
-        nextIndex <= activePlayerIndex &&
-        currentQuestionIndex >= questions.length - 1
-      ) {
-        // All questions answered, but more than one player remains? (e.g., health-based win)
-        // This scenario might need refinement based on exact win conditions.
-        // For now, let's assume the game ends when players run out of health.
-        // If win condition is "last one standing after all questions", add logic here.
+      if (currentQuestionIndex >= questions.length) {
+        //TODO ALL ANSWERS QUESTIONS (restart questions or end??)
         console.log("All questions answered, checking remaining players...");
-        // Game over check above handles the primary win condition (<=1 player left)
-        // If you need a different win condition (e.g., highest health after last question), calculate winner here.
+
+        //temp
+        nextQuestionIdx = 0;
       }
 
       console.log(
@@ -244,9 +243,16 @@ const DeathmatchGame = () => {
     }, 1500); // Delay allows seeing correct/incorrect feedback
   };
 
+  const onRestartGame = () => {
+    dispatch({
+      type: "restartGame",
+    });
+
+    sendBroadcast(BROADCAST_EVENTS.RESTART_GAME, {});
+  };
+
   // --- UI Rendering ---
   if (!currentQuestion || !players || players.length === 0) {
-    // Handle loading state or error state if question/players aren't available yet
     return <div>Loading game...</div>;
   }
 
@@ -278,7 +284,7 @@ const DeathmatchGame = () => {
           <div className="bg-muted flex items-center gap-2 rounded-full px-3 py-1.5">
             <Clock className="text-muted-foreground h-4 w-4" />
             <span className="font-semibold">
-              Question {currentQuestionIndex + 1}/{questions.length}
+              Question {currentQuestionIndex + 1}
             </span>
           </div>
         </div>
@@ -293,7 +299,9 @@ const DeathmatchGame = () => {
                   ? "bg-theme-orange/10 border-theme-orange animate-pulse-subtle"
                   : player.health <= 0 // Dim eliminated players
                     ? "bg-muted/50 text-muted-foreground border-muted opacity-60"
-                    : "bg-card" // Default card style
+                    : index === currentPlayer.id
+                      ? "bg-blue-600"
+                      : "bg-card" // Default card style
               }`}
             >
               <div className="mb-2 flex items-start justify-between">
@@ -473,18 +481,18 @@ const DeathmatchGame = () => {
 
             <div className="flex flex-wrap justify-center gap-4">
               {/* Optional: Add a button to go back to lobby or dashboard */}
-              <Link
-                href="/game"
+              <Button
+                onClick={onRestartGame}
                 /* Or wherever lobby is */ className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
               >
                 Back to Lobby
-              </Link>
-              <Link
-                href="/"
+              </Button>
+              <Button
+                onClick={() => router.push("/")}
                 className="border-input bg-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
               >
                 Back to Menu
-              </Link>
+              </Button>
             </div>
           </div>
         )}

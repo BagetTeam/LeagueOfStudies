@@ -109,7 +109,6 @@ const BossFightGame = () => {
 
   // --- Handle Local Answer Submission ---
   const handleAnswer = (optionIndex: number | null) => {
-    console.log(optionIndex, "ERM");
     if (
       isAnsweredLocally ||
       currentPlayer.health <= 0 ||

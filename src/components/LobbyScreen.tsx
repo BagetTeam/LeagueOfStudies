@@ -24,7 +24,18 @@ type LobbyProps = {
 };
 function LobbyScreen({ onBackToMenu }: LobbyProps) {
   const { state, dispatch, sendBroadcast } = useGame();
-  const { gameId, players = [], currentPlayer, gameStarted, questions } = state; // Default players to []
+  const {
+    gameId,
+    players = [],
+    currentPlayer,
+    gameStarted,
+    questions,
+    gameMode,
+  } = state; // Default players to []
+
+  const [studyText, setStudyText] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
   const router = useRouter();
   const gameUrl =
     typeof window !== "undefined"
@@ -99,6 +110,10 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
     console.log(state);
     if (currentPlayer.isHost && players.length > 0) {
       // Ensure there are players
+      const hostIndex = players.findIndex(
+        (player) => player.id == currentPlayer.id,
+      );
+
       console.log(
         "Host starting game. Broadcasting START_GAME with players:",
         players,
@@ -107,12 +122,13 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
         type: "setStartGame",
         gameMode: state.gameMode,
         initialPlayers: players,
+        activePlayerIndex: hostIndex,
       });
       sendBroadcast(BROADCAST_EVENTS.START_GAME, {
-        gameMode: state.gameMode, // Send the confirmed game mode
+        gameMode: gameMode, // Send the confirmed game mode
         initialPlayers: players, // Send the list of players currently in the lobby
         initiatedBy: currentPlayer.id,
-        questions: state.questions,
+        questions: questions,
       });
     } else {
       console.warn("Cannot start game: Not host or no players.");
@@ -150,64 +166,64 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
     }
   };
 
-  const [studyText, setStudyText] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setStudyText(e.target.value);
   };
 
   return (
     <div className="flex w-full basis-full gap-8 p-4">
-      <div className="flex h-full basis-full flex-col items-center justify-start bg-gray-100 p-8">
-        <h1 className="mb-8 text-3xl font-bold">Study Question Generator</h1>
+      {currentPlayer.isHost && (
+        <div className="flex h-full basis-full flex-col items-center justify-start bg-gray-100 p-8">
+          <h1 className="mb-8 text-3xl font-bold">Study Question Generator</h1>
+          <textarea
+            value={studyText}
+            onChange={handleChange}
+            placeholder="Write your study material here..."
+            className="h-56 w-full max-w-3xl resize-none rounded-lg border border-gray-300 p-4 text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
 
-        <textarea
-          value={studyText}
-          onChange={handleChange}
-          placeholder="Write your study material here..."
-          className="h-56 w-full max-w-3xl resize-none rounded-lg border border-gray-300 p-4 text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-        />
+          <button
+            onClick={async () => {
+              if (!studyText) return; // Prevent empty submissions
+              console.log("LOADING NOW");
+              setLoading(true);
+              try {
+                const q = await getQuestions(studyText);
+                console.log("Generated questions:", q);
+                // Dispatch locally FIRST
+                dispatch({ type: "setQuestions", questions: q });
+                // THEN Broadcast
+                sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, { questions: q });
+              } catch (error) {
+                console.error("Failed to generate questions:", error);
+                // Maybe show an error message to the user
+              } finally {
+                setLoading(false);
+                console.log("LOADING STOP");
+              }
+            }}
+            disabled={loading || !studyText} // Disable if loading or no text
+            className="..."
+          >
+            {loading ? "Generating..." : "Submit"}
+          </button>
 
-        <button
-          onClick={async () => {
-            if (!studyText) return; // Prevent empty submissions
-            setLoading(true);
-            try {
-              const q = await getQuestions(studyText);
-              console.log("Generated questions:", q);
-              // Dispatch locally FIRST
-              dispatch({ type: "setQuestions", questions: q });
-              // THEN Broadcast
-              sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, { questions: q });
-            } catch (error) {
-              console.error("Failed to generate questions:", error);
-              // Maybe show an error message to the user
-            } finally {
-              setLoading(false);
-            }
-          }}
-          disabled={loading || !studyText} // Disable if loading or no text
-          className="..."
-        >
-          {loading ? "Generating..." : "Submit"}
-        </button>
-
-        {/* Display questions */}
-        {questions.length > 0 && (
-          <div className="mt-10 grid w-full max-w-5xl grid-cols-1 gap-6">
-            {questions.map((qa, idx) => (
-              <div
-                key={idx}
-                className="rounded-lg bg-white p-6 shadow-md transition hover:shadow-lg"
-              >
-                <h2 className="mb-2 text-xl font-bold">{qa.question}</h2>
-                <p className="text-gray-700">{qa.options[idx]}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+          {/* Display questions */}
+          {questions.length > 0 && (
+            <div className="mt-10 grid w-full max-w-5xl grid-cols-1 gap-6">
+              {questions.map((qa, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-lg bg-white p-6 shadow-md transition hover:shadow-lg"
+                >
+                  <h2 className="mb-2 text-xl font-bold">{qa.question}</h2>
+                  <p className="text-gray-700">{qa.options[idx]}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <div className="flex basis-1/2 flex-col items-center gap-4 p-4">
         {/* Back Button */}
         <Button
@@ -268,11 +284,22 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
             {currentPlayer.isHost && (
               <Button
                 onClick={startGame}
-                disabled={players.length < 1} // Example: Disable if < 2 players? Or allow solo start?
+                disabled={
+                  players.length < 1 ||
+                  loading ||
+                  questions.length == 0 ||
+                  (players.length < 2 && gameMode.type === "deathmatch")
+                }
                 className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
               >
                 <Play size={16} />
-                <span>Start Game</span>
+                {loading ? (
+                  <span>Loading...</span>
+                ) : players.length < 2 ? (
+                  <span>Waiting for players...</span>
+                ) : (
+                  <span>Start Game</span>
+                )}
               </Button>
             )}
           </div>
