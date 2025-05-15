@@ -91,7 +91,7 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
         " -=-=-=-=-=-=-=-=-=---=-=-=-=-=-=",
     );
 
-    if (questions.length === 0 && subject) {
+    if (!questions || (questions.length === 0 && subject)) {
       console.log(
         "Clearly there are no questions because length is " + questions.length,
       );
