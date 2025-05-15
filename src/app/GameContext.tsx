@@ -66,6 +66,10 @@ type StartGamePayload = {
   questions: Question[]; // You can replace `any` with a proper type for questions if you have one
 };
 
+type SetQuestionsPayload = {
+  questions: Question[]; // You can replace `any` with a proper type for questions if you have one
+};
+
 export const GameProvider = ({ children }: GameProviderProps) => {
   const [state, dispatch] = useReducer(gameStatereducer, initialState);
   const channelRef = React.useRef<RealtimeChannel | null>(null);
@@ -156,6 +160,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
             (player) => player.id == payload.initiatedBy,
           );
           if (payload.gameMode && payload.initialPlayers && payload.questions) {
+            console.log("Yeyyeyeyyeyeyeyeyeyeyeyeyeyyeyeyeyey");
             dispatch({
               type: "setQuestions",
               questions: payload.questions,
@@ -324,7 +329,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.SET_QUESTIONS },
-        ({ payload }) => {
+        ({ payload }: { payload: SetQuestionsPayload }) => {
+          console.log("EYEYYEYEYEYEYYEYEYEYYEYEYEYYEE");
           dispatch({
             type: "setQuestions",
             questions: payload.questions,

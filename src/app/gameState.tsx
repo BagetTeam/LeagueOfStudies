@@ -221,6 +221,11 @@ export function gameStatereducer(
       }));
       return {
         ...state,
+        currentPlayer: {
+          ...state.currentPlayer,
+          health: 5,
+          score: 0,
+        },
         gameMode: action.gameMode,
         players: initialPlayersWithHealth,
         gameStarted: true,
@@ -325,6 +330,9 @@ export function gameStatereducer(
         questions: [],
       };
     case "setQuestions":
+      console.log(
+        "SETTINGGG QUESTIONSNSNOINOINSOINSOINSOINSOISNIOSNOISNOISNOISN",
+      );
       return {
         ...state,
         questions: action.questions,

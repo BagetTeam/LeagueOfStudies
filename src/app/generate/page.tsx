@@ -64,6 +64,7 @@ export default function StudyPage() {
           }));
 
           setQuestions(formatted);
+          console.log("-=-=-=-=-=-=-- Generated Questions -=-=-=-=-=-=-=-");
         } else {
           console.error("Parsed data is not an array:", parsed);
           alert("Could not parse questions properly.");

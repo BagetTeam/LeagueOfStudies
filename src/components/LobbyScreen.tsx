@@ -3,7 +3,7 @@
 import { GameMode, Question } from "@/types/types";
 import { Button } from "@/ui";
 import { ArrowLeft, Copy, Play, Share2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PlayerList from "./PlayerList";
 import { useGame } from "@/app/GameContext";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -82,29 +82,44 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
     }
   }, [gameStarted, state.gameMode]);
 
+  const fetchingRef = useRef(false);
   useEffect(() => {
-    console.log("CHANGE HAS HAPPENED??? HUH");
-    if (currentPlayer.isHost) {
-      if (questions.length === 0 && subject) {
-        (async () => {
-          try {
-            setLoading(true);
-            const questions = (await getQuestions(
-              subject,
-            )) satisfies Question[];
-            console.log("questions:", questions);
+    console.log(
+      "CHANGE HAS HAPPENED??? HUH " +
+        questions.length +
+        " -=-=-=-=-=-=-=-=-=---=-=-=-=-=-=",
+    );
+    if (!currentPlayer.isHost) return;
 
-            dispatch({ type: "setQuestions", questions });
-            sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, questions);
-          } catch {
-          } finally {
-            setLoading(false);
+    if (questions.length === 0 && subject) {
+      console.log(
+        "Clearly there are no questions because length is " + questions.length,
+      );
+
+      if (fetchingRef.current) return;
+
+      fetchingRef.current = true;
+
+      (async () => {
+        try {
+          setLoading(true);
+          const fetchedQuestions = (await getQuestions(
+            subject,
+          )) satisfies Question[];
+
+          console.log("questions:", fetchedQuestions);
+          if (!state.gameStarted) {
+            dispatch({ type: "setQuestions", questions: fetchedQuestions });
+            sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, fetchedQuestions);
           }
-        })();
-      } else {
-      }
+        } catch {
+        } finally {
+          setLoading(false);
+          fetchingRef.current = false;
+        }
+      })();
     }
-  }, [currentPlayer.isHost, subject, dispatch, sendBroadcast]);
+  }, [currentPlayer.isHost, subject, questions, dispatch, sendBroadcast]);
 
   const startGame = () => {
     console.log("ERM");
@@ -189,12 +204,12 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
               console.log("LOADING NOW");
               setLoading(true);
               try {
-                const q = await getQuestions(studyText);
+                const q = (await getQuestions(studyText)) satisfies Question[];
                 console.log("Generated questions:", q);
                 // Dispatch locally FIRST
                 dispatch({ type: "setQuestions", questions: q });
                 // THEN Broadcast
-                sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, { questions: q });
+                sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, q);
               } catch (error) {
                 console.error("Failed to generate questions:", error);
                 // Maybe show an error message to the user
