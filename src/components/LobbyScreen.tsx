@@ -84,12 +84,12 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
 
   const fetchingRef = useRef(false);
   useEffect(() => {
+    if (!currentPlayer.isHost) return;
     console.log(
       "CHANGE HAS HAPPENED??? HUH " +
         questions.length +
         " -=-=-=-=-=-=-=-=-=---=-=-=-=-=-=",
     );
-    if (!currentPlayer.isHost) return;
 
     if (questions.length === 0 && subject) {
       console.log(
