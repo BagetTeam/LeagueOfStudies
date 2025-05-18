@@ -1,6 +1,6 @@
 // import "../../envConfig";
 import { createClient } from "@supabase/supabase-js";
-import { Database } from "@/types/types";
+import { Database } from "@/database.types";
 import * as dotenv from "dotenv";
 dotenv.config();
 

@@ -66,7 +66,7 @@ export function GameOver({
       <div className="flex flex-wrap justify-center gap-4">
         <Button
           className="bg-theme-blue hover:bg-theme-blue/80 gap-2"
-          onClick={() => router.push("/")}
+          onClick={onPlayAgain}
         >
           Play Again
         </Button>

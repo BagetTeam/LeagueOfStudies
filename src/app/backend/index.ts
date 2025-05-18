@@ -117,4 +117,4 @@ export async function getQuestions(text: string): Promise<QuestionType[]> {
   });
 }
 
-export async function broadcast(event: string) {}
+//export async function broadcast(event: string) {}
