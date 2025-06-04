@@ -97,7 +97,7 @@ importers:
         version: 3.3.0
       zod:
         specifier: ^3.24.3
-        version: 3.25.49
+        version: 3.25.50
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -3957,6 +3957,10 @@ packages:
       worker-loader:
         optional: true
 
+  pdfjs-dist@4.10.38:
+    resolution: {integrity: sha512-/Y3fcFrXEAsMjJXeL9J8+ZG9U01LbuWaYypvDW2ycW1jL269L3js3DVBjDJ0Up9Np1uqDXsDrRihHANhZOlwdQ==}
+    engines: {node: '>=20'}
+
   pdfjs-dist@4.8.69:
     resolution: {integrity: sha512-IHZsA4T7YElCKNNXtiLgqScw4zPd3pG9do8UrznC757gMd7UPeHSL2qwNNMJo4r79fl8oj1Xx+1nh2YkzdMpLQ==}
     engines: {node: '>=18'}
@@ -5100,8 +5104,8 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.25.49:
-    resolution: {integrity: sha512-JMMPMy9ZBk3XFEdbM3iL1brx4NUSejd6xr3ELrrGEfGb355gjhiAWtG3K5o+AViV/3ZfkIrCzXsZn6SbLwTR8Q==}
+  zod@3.25.50:
+    resolution: {integrity: sha512-VstOnRxf4tlSq0raIwbn0n+LA34SxVoZ8r3pkwSUM0jqNiA/HCMQEVjTuS5FZmHsge+9MDGTiAuHyml5T0um6A==}
 
 snapshots:
 
@@ -5276,8 +5280,8 @@ snapshots:
     dependencies:
       google-auth-library: 9.15.1
       ws: 8.18.2
-      zod: 3.25.49
-      zod-to-json-schema: 3.24.5(zod@3.25.49)
+      zod: 3.25.50
+      zod-to-json-schema: 3.24.5(zod@3.25.50)
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -9352,6 +9356,10 @@ snapshots:
       dommatrix: 1.0.3
       web-streams-polyfill: 3.3.3
 
+  pdfjs-dist@4.10.38:
+    optionalDependencies:
+      '@napi-rs/canvas': 0.1.70
+
   pdfjs-dist@4.8.69:
     optionalDependencies:
       canvas: 3.1.0
@@ -9613,7 +9621,7 @@ snapshots:
 
   react-pdftotext@1.3.4(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
-      pdfjs-dist: 4.8.69
+      pdfjs-dist: 4.10.38
       react-pdf: 9.2.1(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     transitivePeerDependencies:
       - '@types/react'
@@ -10790,8 +10798,8 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod-to-json-schema@3.24.5(zod@3.25.49):
+  zod-to-json-schema@3.24.5(zod@3.25.50):
     dependencies:
-      zod: 3.25.49
+      zod: 3.25.50
 
-  zod@3.25.49: {}
+  zod@3.25.50: {}
