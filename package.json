@@ -15,6 +15,7 @@
     "@next/env": "^15.3.1",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-switch": "^1.2.5",
+    "@radix-ui/react-tabs": "^1.1.12",
     "@radix-ui/themes": "^3.2.1",
     "@supabase/supabase-js": "^2.49.4",
     "@types/formidable": "^3.4.5",
