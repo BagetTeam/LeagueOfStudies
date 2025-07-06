@@ -21,6 +21,7 @@ const initialState: GameState = {
   currentPlayer: { id: 0, name: "Guest", score: 0, health: 5, isHost: false },
   players: [],
   gameMode: { type: "deathmatch", time: 15 },
+  gameSubject: "",
   gameStarted: false,
   activePlayerIndex: 0,
   currentQuestionIndex: 0,
@@ -59,15 +60,17 @@ export const BROADCAST_EVENTS = {
   RESTART_GAME: "restart_game",
 };
 
+// StartGame Broadcast
 type StartGamePayload = {
   initiatedBy: number;
   initialPlayers: Player[];
   gameMode: GameMode;
-  questions: Question[]; // You can replace `any` with a proper type for questions if you have one
+  questions: Question[];
 };
 
+// Set Question Broadcast
 type SetQuestionsPayload = {
-  questions: Question[]; // You can replace `any` with a proper type for questions if you have one
+  questions: Question[];
 };
 
 export const GameProvider = ({ children }: GameProviderProps) => {

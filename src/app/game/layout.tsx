@@ -8,5 +8,5 @@ interface GameLayoutProps {
 }
 
 export default function GameLayout({ children }: GameLayoutProps) {
-  return <GameProvider>{children}</GameProvider>;
+  return <>{children}</>;
 }

@@ -19,7 +19,7 @@ function GameScreenContent() {
   const router = useRouter();
   const searchParams = useSearchParams(); // Get URL search parameters
   const { state, dispatch } = useGame();
-  const { gameId, gameStarted, gameMode, currentPlayer } = state;
+  const { gameId, gameStarted, gameMode, currentPlayer, gameSubject } = state;
 
   useEffect(() => {
     const joinGameId = searchParams.get("join");
@@ -83,9 +83,16 @@ function GameScreenContent() {
 
     // 3. Set Default Game Mode if not set
     if (!gameMode?.type) {
+      console.log(
+        "No gamemodes??? ###############################################",
+      );
       dispatch({ type: "setGameMode", gameMode: defaultGameMode });
     }
-  }, [dispatch, gameId, currentPlayer, searchParams, gameMode]); // Dependencies for init
+
+    if (!gameSubject) {
+      dispatch({ type: "setGameSubject", subject: "Rust" });
+    }
+  }, [dispatch, gameId, currentPlayer, searchParams, gameMode, gameSubject]); // Dependencies for init
 
   // --- Navigation / Component Rendering ---
   if (!gameId || !currentPlayer || currentPlayer.id === 0) {
@@ -114,6 +121,7 @@ function GameScreenContent() {
         onBackToMenu={() => {
           router.push("/"); // Navigate to home or dashboard
         }}
+        subject={gameSubject}
       />
     );
   }

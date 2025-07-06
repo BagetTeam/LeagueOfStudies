@@ -21,8 +21,13 @@ type LobbyProps = {
   selectedMode: GameMode; // This might come from context now?
   onBackToMenu: () => void;
   isPublic: boolean;
+  subject: string;
 };
-function LobbyScreen({ onBackToMenu }: LobbyProps) {
+function LobbyScreen({
+  selectedMode,
+  onBackToMenu,
+  subject = "Rust",
+}: LobbyProps) {
   const { state, dispatch, sendBroadcast } = useGame();
   const {
     gameId,
@@ -43,9 +48,10 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
       : `/game?join=${gameId}`;
 
   const urlSearchParams = useSearchParams();
-  const gmode = urlSearchParams.get("mode") ?? "deathmatch";
-  const subject =
-    urlSearchParams.get("subject") ?? "Rust (programming language)";
+  const gmode = selectedMode.type;
+  // urlSearchParams.get("mode") ?? "deathmatch";
+  //const subject =
+  //  urlSearchParams.get("subject") ?? "Rust (programming language)";
 
   useEffect(() => {
     dispatch({
@@ -88,7 +94,10 @@ function LobbyScreen({ onBackToMenu }: LobbyProps) {
     console.log(
       "CHANGE HAS HAPPENED??? HUH " +
         questions.length +
-        " -=-=-=-=-=-=-=-=-=---=-=-=-=-=-=",
+        " -=-=-=-=-=-=-=-=-=---=-=-=-=-=-=" +
+        subject +
+        " + " +
+        gameMode.type,
     );
 
     if (!questions || (questions.length === 0 && subject)) {

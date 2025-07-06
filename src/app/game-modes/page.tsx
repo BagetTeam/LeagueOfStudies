@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { GameMode } from "../../types/types";
+import { useGame } from "../GameContext";
 
 // Mock data for available games
 const subjects = [
@@ -41,6 +43,7 @@ const subjects = [
 
 export default function GameModes() {
   const router = useRouter();
+  const { dispatch } = useGame();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
 
@@ -53,6 +56,14 @@ export default function GameModes() {
   );
 
   const handleStartGame = (mode: string, subject: string) => {
+    if (selectedMode) {
+      const mode: GameMode = { type: selectedMode, time: 15 };
+      dispatch({ type: "setGameMode", gameMode: mode });
+    }
+    if (subject) {
+      dispatch({ type: "setGameSubject", subject: subject });
+    }
+
     router.push(`/game?mode=${mode}&subject=${subject}`);
   };
 

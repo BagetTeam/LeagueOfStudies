@@ -10,6 +10,7 @@ import GameMode from "./GameModes";
 import Hero from "./Hero";
 import Link from "next/link";
 import Footer from "./Footer";
+import { GameProvider } from "./GameContext";
 
 export default function Home() {
   // const {data, error} = await supabase.from().se;

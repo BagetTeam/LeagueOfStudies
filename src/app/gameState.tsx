@@ -7,6 +7,7 @@ export type GameState = {
   currentPlayer: Player;
   players: Player[];
   gameMode: GameMode;
+  gameSubject: string;
   gameStarted: boolean;
   activePlayerIndex: number; // Index of the player whose turn it is
   currentQuestionIndex: number;
@@ -33,6 +34,10 @@ export type GameStateActions =
   | {
       type: "setGameMode";
       gameMode: GameMode;
+    }
+  | {
+      type: "setGameSubject";
+      subject: string;
     }
   | {
       type: "createLobby";
@@ -132,7 +137,15 @@ export function gameStatereducer(
         players: [...state.players, action.player],
       };
     case "setGameMode":
-      return state;
+      return {
+        ...state,
+        gameMode: action.gameMode,
+      };
+    case "setGameSubject":
+      return {
+        ...state,
+        gameSubject: action.subject,
+      };
     case "createLobby":
       return state;
     case "exitLobby":
@@ -234,7 +247,7 @@ export function gameStatereducer(
         turnStartTime: Date.now(), // Start timer for first question
         isGameOver: false,
         winnerId: null,
-        // --- Boss Fight Init ---
+        // boss fight section
         bossHealth: initialBossHealth,
         playerAnswers: {}, // Start with empty answers
         isTeamVictory: null,
