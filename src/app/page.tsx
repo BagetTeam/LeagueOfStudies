@@ -5,7 +5,7 @@ import { useEffect } from "react";
 // import { useRouter } from "next/navigation";
 
 import { Button } from "@/ui";
-import Features from "./Features";
+import Features from "@/components/Features";
 import GameMode from "./GameModes";
 import Hero from "./Hero";
 import Link from "next/link";
