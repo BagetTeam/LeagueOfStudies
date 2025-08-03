@@ -1,6 +1,6 @@
 "use server";
 
-import { Database, Tables } from "@/database.types";
+import { Database, Tables } from "./models/database.types";
 import { createClient } from "@supabase/supabase-js";
 import { GoogleGenAI, Type } from "@google/genai";
 import { z } from "zod";
