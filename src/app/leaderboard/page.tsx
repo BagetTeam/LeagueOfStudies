@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-// Create a Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_URL!,
-  process.env.NEXT_PUBLIC_ANONKEY!,
-);
+import { supabase } from "@/app/backend";
 
 interface LeaderboardEntry {
   email: string;
@@ -23,6 +17,7 @@ export default function LeaderboardPage() {
       const { data, error } = await supabase
         .from("stats")
         .select("email, level, totalXp")
+        .gt("totalXp", 0)
         .order("totalXp", { ascending: false });
 
       if (error) {

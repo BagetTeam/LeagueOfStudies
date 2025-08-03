@@ -2,7 +2,7 @@
 "use client";
 
 import LobbyScreen from "@/components/LobbyScreen";
-import { GameMode } from "@/types/types"; // Keep Player if needed
+import { GameMode, Player } from "@/types/types"; // Keep Player if needed
 import { useRouter, useSearchParams } from "next/navigation"; // Use useSearchParams
 import { useGame } from "../GameContext";
 import { useEffect } from "react";
@@ -20,63 +20,50 @@ function GameScreenContent() {
   const searchParams = useSearchParams(); // Get URL search parameters
   const { state, dispatch } = useGame();
   const { gameId, gameStarted, gameMode, currentPlayer, gameSubject } = state;
+  const joinGameId = searchParams.get("join");
 
   useEffect(() => {
-    const joinGameId = searchParams.get("join");
-    // let effectiveGameId = gameId;
-
     // --- Initialization Logic ---
-    // 1. Set Game ID (Join or Create)
     if (joinGameId && !gameId) {
       console.log(`Joining game from URL: ${joinGameId}`);
-      // effectiveGameId = joinGameId;
       dispatch({ type: "setGameId", gameId: joinGameId });
     } else if (!gameId) {
       const newGameId = "game-" + crypto.randomUUID().toString();
       console.log(`Creating new game with ID: ${newGameId}`);
-      // effectiveGameId = newGameId;
       dispatch({ type: "setGameId", gameId: newGameId });
     }
 
-    // 2. Set Current Player (should ideally happen earlier, but fallback)
+    // Setting up players
     if (!currentPlayer || currentPlayer.id === 0) {
-      // Check if player is not set or is default guest
-      const playerId = Math.floor(Math.random() * 10000) + 1; // Ensure non-zero ID
-      const playerName = "Player" + playerId; // Simple name generation
+      const playerId = Math.floor(Math.random() * 10000) + 1; // TODO have it not be random
+      const playerName = "Player" + playerId;
       console.log(
         `Initializing temporary player: ${playerName} (ID: ${playerId})`,
       );
+
+      let player: Player = {
+        id: playerId,
+        name: playerName,
+        score: 0,
+        health: 5,
+        isHost: !joinGameId,
+      };
+
       dispatch({
         type: "setCurrentPlayer",
-        player: {
-          id: playerId,
-          name: playerName,
-          score: 0,
-          health: 5, // Standard starting health
-          isHost: !joinGameId, // Assume host if creating, not if joining
-        },
+        player: player,
       });
+
       // If creating, also add self to players list and set as host
       if (!joinGameId) {
+        player = { ...player, isHost: true };
         dispatch({
           type: "addPlayer",
-          player: {
-            id: playerId,
-            name: playerName,
-            score: 0,
-            health: 5,
-            isHost: true,
-          },
+          player: player,
         });
         dispatch({
           type: "setHost",
-          player: {
-            id: playerId,
-            name: playerName,
-            score: 0,
-            health: 5,
-            isHost: true,
-          },
+          player: player,
         });
       }
     }

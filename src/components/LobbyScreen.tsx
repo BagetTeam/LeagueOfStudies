@@ -8,7 +8,7 @@ import PlayerList from "./PlayerList";
 import { useGame } from "@/app/GameContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getQuestions } from "@/app/backend";
-import PDF_reader from '@/app/pdf_reader/reader'
+import PDF_reader from "@/app/pdf_reader/reader";
 const BROADCAST_EVENTS = {
   START_GAME: "start_game",
   HEALTH_UPDATE: "health_update",
@@ -91,14 +91,6 @@ function LobbyScreen({
   const fetchingRef = useRef(false);
   useEffect(() => {
     if (!currentPlayer.isHost) return;
-    console.log(
-      "CHANGE HAS HAPPENED??? HUH " +
-        questions.length +
-        " -=-=-=-=-=-=-=-=-=---=-=-=-=-=-=" +
-        subject +
-        " + " +
-        gameMode.type,
-    );
 
     if (!questions || (questions.length === 0 && subject)) {
       console.log(
@@ -207,7 +199,7 @@ function LobbyScreen({
             className="h-56 w-full max-w-3xl resize-none rounded-lg border border-gray-300 p-4 text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           <div className="my-8">
-          <PDF_reader onExtract={(text:string) => setStudyText(text)}/>
+            <PDF_reader onExtract={(text: string) => setStudyText(text)} />
           </div>
           <button
             onClick={async () => {

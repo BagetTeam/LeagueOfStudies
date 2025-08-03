@@ -64,7 +64,6 @@ export async function getRecentGames(email: string): Promise<Tables<"game">[]> {
 export async function getQuestions(text: string): Promise<QuestionType[]> {
   const response = await ai.models.generateContent({
     model: "gemini-2.0-flash",
-    // contents: `Generate in a list form 10 study questions with 4 multiple answer choices expected answers according to this study material: ${text}. Return the index of the answer key as well. DO NOT WRITE ANY OTHER TEXT. SIMPLY RETURN A NESTED LIST, INDEX 0 IS A QUESTION AND INDEX 1 ARE THE NUMBERED ANSWERS CHOICES`,
     contents: `Generate 10 questions about this study material: ${text}. For each question, find the correct answer, then come up with 3 other potential answer that the player might think of. There should be 4 options to choose from where 1 of them is the correct answer. Return the index of the answer among the array of options.`,
     config: {
       responseMimeType: "application/json",
@@ -106,7 +105,6 @@ export async function getQuestions(text: string): Promise<QuestionType[]> {
     },
   });
 
-  // console.log(response.text);
   const ret = z.array(QuestionSchema).parse(JSON.parse(response.text ?? "[]"));
 
   return ret.map((r, i) => {
@@ -117,4 +115,45 @@ export async function getQuestions(text: string): Promise<QuestionType[]> {
   });
 }
 
-//export async function broadcast(event: string) {}
+export async function updateLeaderboard(email: string, xp: number) {
+  try {
+    const { data: currentStats, error: fetchError } = await supabase
+      .from("stats")
+      .select("totalXp")
+      .eq("email", email)
+      .single();
+
+    if (fetchError) {
+      if (fetchError.code === "PGRST116") {
+        // Supabase code for 'Not Found'
+        console.warn(
+          `No stats row found for ${email}. Cannot update XP directly.`,
+        );
+      } else {
+        console.error(`Error fetching user stats for ${email}:`, fetchError);
+        throw fetchError;
+      }
+      return;
+    }
+
+    // Make sure playing xp doesn't go negative
+    const currentXp = currentStats?.totalXp ?? 0;
+    const newXp = Math.max(0, currentXp + xp);
+
+    console.log(`Updating XP for ${email}: ${currentXp} -> ${newXp}`);
+
+    const { error: updateError } = await supabase
+      .from("stats")
+      .update({ totalXp: newXp })
+      .eq("email", email);
+
+    if (updateError) {
+      console.error(`Error updating user XP for ${email}:`, updateError);
+      throw updateError;
+    }
+
+    console.log(`Successfully updated XP for ${email} to ${newXp}`);
+  } catch (error) {
+    console.error("Failed to update user XP:", error);
+  }
+}
