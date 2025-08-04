@@ -9,7 +9,7 @@ export type DeathmatchActions = {
   newTurnStartTime: number;
 };
 
-export function DeathmatchStateReduce(
+export function deathmatchStateReduce(
   state: DeathmatchState,
   action: DeathmatchActions,
 ): DeathmatchState {

@@ -23,22 +23,6 @@ export type GameState = {
   questions: Question[];
 };
 
-export type DeathmatchState = {
-  activePlayerIndex: number;
-};
-
-export type BossFightState = {
-  turnStartTime: number | null;
-  bossHealth: number;
-  isTeamVictory: boolean | null;
-  playerAnswers: {
-    [playerId: number]: {
-      answered: boolean;
-      isCorrect: boolean | null;
-    };
-  };
-};
-
 export type GameStateActions =
   | {
       type: "addPlayer";
@@ -134,29 +118,6 @@ export type GameStateActions =
     }
   | {
       type: "restartGame";
-    };
-
-export type DeathmatchActions = {
-  type: "advanceTurn";
-  nextPlayerIndex: number;
-  nextQuestionIndex: number;
-  newTurnStartTime: number;
-};
-
-export type BossFightActions =
-  | {
-      type: "setBossFightGameOver";
-      isVictory: boolean;
-    }
-  | {
-      type: "setBossHealth";
-      newBossHealth: number;
-    }
-  | {
-      type: "recordPlayerAnswer";
-      playerId: number;
-      questionIndex: number; // Ensure it's for the current question
-      isCorrect: boolean | null;
     };
 
 export function gameStatereducer(
