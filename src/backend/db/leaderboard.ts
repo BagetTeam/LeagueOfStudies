@@ -42,3 +42,21 @@ export async function updateLeaderboard(email: string, xp: number) {
     console.error("Failed to update user XP:", error);
   }
 }
+
+export async function fetchLeaderboard() {
+  try {
+    const { data, error } = await supabase
+      .from("stats")
+      .select("email, level, totalXp")
+      .gt("totalXp", 0)
+      .order("totalXp", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching leaderboard:", error);
+    } else {
+      return data || [];
+    }
+  } catch (error) {
+    console.error("Error fetching leaderboard:", error);
+  }
+}
