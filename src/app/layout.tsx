@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Theme } from "@radix-ui/themes";
-import NavBar from "./NavBar";
+import NavBar from "../components/NavBar";
 import Wrapper from "./Wrapper";
 import { GameProvider } from "./GameContext";
 

@@ -5,9 +5,9 @@
 import { Button } from "@/ui";
 import Features from "@/components/Features";
 import GameMode from "./GameModes";
-import Hero from "./Hero";
+import Hero from "../components/Hero";
 import Link from "next/link";
-import Footer from "./Footer";
+import Footer from "../components/Footer";
 
 export default function Home() {
   return (
