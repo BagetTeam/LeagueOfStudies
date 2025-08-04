@@ -8,3 +8,10 @@ export type DeathmatchActions = {
   nextQuestionIndex: number;
   newTurnStartTime: number;
 };
+
+export function DeathmatchStateReduce(
+  state: DeathmatchState,
+  action: DeathmatchActions,
+): DeathmatchState {
+  return state;
+}
