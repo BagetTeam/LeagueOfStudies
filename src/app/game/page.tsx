@@ -18,8 +18,9 @@ const defaultGameMode: GameMode = {
 function GameScreenContent() {
   const router = useRouter();
   const searchParams = useSearchParams(); // Get URL search parameters
-  const { state, dispatch } = useGame();
-  const { gameId, gameStarted, gameMode, currentPlayer, gameSubject } = state;
+  const { gameState, dispatch } = useGame();
+  const { gameId, gameStarted, gameMode, currentPlayer, gameSubject } =
+    gameState;
   const joinGameId = searchParams.get("join");
 
   useEffect(() => {
@@ -83,7 +84,7 @@ function GameScreenContent() {
 
   // --- Navigation / Component Rendering ---
   if (!gameId || !currentPlayer || currentPlayer.id === 0) {
-    return <div>Initializing...</div>; // Show loading until basic state is set
+    return <div>Initializing...</div>; // Show loading until basic gameState is set
   }
 
   if (gameStarted) {
@@ -104,7 +105,7 @@ function GameScreenContent() {
     return (
       <LobbyScreen
         selectedMode={gameMode || defaultGameMode} // Pass current or default mode
-        isPublic={false} // Get from state if implemented: state.isPublicLobby
+        isPublic={false} // Get from gameState if implemented: gameState.isPublicLobby
         onBackToMenu={() => {
           router.push("/"); // Navigate to home or dashboard
         }}
@@ -117,6 +118,6 @@ function GameScreenContent() {
 export default function GameScreen() {
   // GameProvider should wrap this component higher up in the tree (e.g., in layout.tsx or _app.tsx)
   // If GameProvider is *only* for this screen, wrap GameScreenContent here.
-  // For global state, GameProvider should be higher.
+  // For global gameState, GameProvider should be higher.
   return <GameScreenContent />;
 }

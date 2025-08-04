@@ -10,7 +10,11 @@ import React, {
   useMemo,
   Suspense,
 } from "react";
-import { GameState, GameStateActions, gameStatereducer } from "./gameState";
+import {
+  GameState,
+  GameStateActions,
+  gameStatereducer,
+} from "./states/gameState";
 import { GameMode, Player, Question } from "../types/types";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/backend/utils/database";
@@ -31,7 +35,7 @@ const initialState: GameState = {
 };
 
 type GameContextType = {
-  state: GameState;
+  gameState: GameState;
   dispatch: React.Dispatch<GameStateActions>;
   sendBroadcast: (event: string, payload: object) => void;
 };
@@ -73,12 +77,12 @@ type SetQuestionsPayload = {
 };
 
 export const GameProvider = ({ children }: GameProviderProps) => {
-  const [state, dispatch] = useReducer(gameStatereducer, initialState);
+  const [gameState, dispatch] = useReducer(gameStatereducer, initialState);
   const channelRef = React.useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
-    console.log("GameContext State Change:", state); // Log state changes
-  }, [state]);
+    console.log("GameContext State Change:", gameState); // Log gameState changes
+  }, [gameState]);
 
   useEffect(() => {
     // Cleanup previous channel if gameId or currentPlayer.id changes
@@ -90,15 +94,15 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channelRef.current = null;
     }
 
-    if (state.gameId && state.currentPlayer.id > 0) {
+    if (gameState.gameId && gameState.currentPlayer.id > 0) {
       // Ensure valid player ID
       console.log(
-        `Setting up channel for gameId: ${state.gameId}, Player ID: ${state.currentPlayer.id}`,
+        `Setting up channel for gameId: ${gameState.gameId}, Player ID: ${gameState.currentPlayer.id}`,
       );
-      const channel = supabase.channel(state.gameId, {
+      const channel = supabase.channel(gameState.gameId, {
         config: {
           presence: {
-            key: state.currentPlayer.id.toString(), // Use valid player ID
+            key: gameState.currentPlayer.id.toString(), // Use valid player ID
           },
           broadcast: {
             ack: true, // Optional: Wait for ack from server
@@ -127,8 +131,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         if (joinedPlayerInfo && joinedPlayerInfo.id !== 0) {
           // Ensure valid player joined
           console.log("Dispatching addPlayer for:", joinedPlayerInfo);
-          // Use setPlayers to handle potential state inconsistencies on join/sync race conditions
-          const currentPlayers = state.players;
+          // Use setPlayers to handle potential gameState inconsistencies on join/sync race conditions
+          const currentPlayers = gameState.players;
           if (!currentPlayers.some((p) => p.id === joinedPlayerInfo.id)) {
             dispatch({
               type: "setPlayers",
@@ -144,7 +148,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         const leftPlayerId = parseInt(key, 10); // Key is the player ID
         if (!isNaN(leftPlayerId)) {
           console.log(`Removing player ${leftPlayerId}`);
-          const remainingPlayers = state.players.filter(
+          const remainingPlayers = gameState.players.filter(
             (p) => p.id !== leftPlayerId,
           );
           dispatch({ type: "setPlayers", players: remainingPlayers });
@@ -236,9 +240,9 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           //   typeof payload.isCorrect !== "undefined" &&
           //   payload.questionIndex >= 0
           // ) {
-          if (payload.questionIndex !== state.currentQuestionIndex) {
+          if (payload.questionIndex !== gameState.currentQuestionIndex) {
             console.log(
-              `Question index mismatch: Player answered Q${payload.questionIndex}, but current is Q${state.currentQuestionIndex}`,
+              `Question index mismatch: Player answered Q${payload.questionIndex}, but current is Q${gameState.currentQuestionIndex}`,
             );
             // Still record the answer to handle race conditions
           }
@@ -254,7 +258,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           //     "Invalid or stale PLAYER_ANSWERED payload:",
           //     payload,
           //     "Current Q:",
-          //     state.currentQuestionIndex,
+          //     gameState.currentQuestionIndex,
           //   );
           // }
         },
@@ -276,7 +280,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
               nextQuestionIndex: payload.nextQuestionIndex,
               newTurnStartTime: payload.newTurnStartTime,
             });
-            // Optionally reset local UI state in component listening to this, if needed
+            // Optionally reset local UI gameState in component listening to this, if needed
           }
         },
       );
@@ -351,23 +355,25 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       );
 
       channel.subscribe(async (status) => {
-        console.log(`Channel ${state.gameId} subscription status:`, status);
+        console.log(`Channel ${gameState.gameId} subscription status:`, status);
         if (status === "SUBSCRIBED") {
           // Track this user's presence once subscribed, ensure playerInfo is valid
-          if (state.currentPlayer.id > 0) {
-            await channel.track({ playerInfo: state.currentPlayer });
-            console.log("Tracked current player:", state.currentPlayer);
+          if (gameState.currentPlayer.id > 0) {
+            await channel.track({ playerInfo: gameState.currentPlayer });
+            console.log("Tracked current player:", gameState.currentPlayer);
           } else {
             console.warn("Attempted to track player with invalid ID (0)");
           }
         } else if (status === "CHANNEL_ERROR") {
-          console.error(`Channel Error for ${state.gameId}`);
+          console.error(`Channel Error for ${gameState.gameId}`);
           // Handle error, maybe try to resubscribe or notify user
         } else if (status === "TIMED_OUT") {
-          console.warn(`Channel subscription timed out for ${state.gameId}`);
+          console.warn(
+            `Channel subscription timed out for ${gameState.gameId}`,
+          );
           // Handle timeout
         } else if (status === "CLOSED") {
-          console.log(`Channel ${state.gameId} closed.`);
+          console.log(`Channel ${gameState.gameId} closed.`);
           // Perform cleanup if necessary
         }
       });
@@ -380,7 +386,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       };
     }
-  }, [state.gameId, state.currentPlayer.id]);
+  }, [gameState.gameId, gameState.currentPlayer.id]);
 
   const sendBroadcast = useCallback((event: string, payload: object) => {
     if (channelRef.current) {
@@ -406,11 +412,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
   const contextValue = useMemo(
     () => ({
-      state,
+      gameState,
       dispatch,
       sendBroadcast,
     }),
-    [state, dispatch, sendBroadcast],
+    [gameState, dispatch, sendBroadcast],
   ); // Include sendBroadcast here
 
   return (

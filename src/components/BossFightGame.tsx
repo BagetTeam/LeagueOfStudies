@@ -27,20 +27,20 @@ const BossFightGame = () => {
   // const searchParams = useSearchParams();
   // const subjectId = searchParams.get("subjectId") ?? "";
 
-  const { state, dispatch, sendBroadcast } = useGame();
+  const { gameState, dispatch, sendBroadcast } = useGame();
   const {
     currentPlayer,
     players = [],
     currentQuestionIndex = 0,
     turnStartTime, // Represents Question Start Time
     isGameOver,
-    bossHealth, // Get from shared state
-    playerAnswers = {}, // Get from shared state
-    isTeamVictory, // Get from shared state
+    bossHealth, // Get from shared gameState
+    playerAnswers = {}, // Get from shared gameState
+    isTeamVictory, // Get from shared gameState
     questions,
-  } = state;
+  } = gameState;
 
-  // Local state for this client's interaction & UI feedback
+  // Local gameState for this client's interaction & UI feedback
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false); // Has *this* client answered the current question?
   const [timeLeft, setTimeLeft] = useState(TURN_DURATION_SECONDS);
@@ -57,14 +57,14 @@ const BossFightGame = () => {
 
   // --- Timer Logic ---
   useEffect(() => {
-    // Reset local answered state when the question changes (new turnStartTime)
+    // Reset local answered gameState when the question changes (new turnStartTime)
     setIsAnsweredLocally(false);
     setSelectedOption(null);
     setFeedbackMessage(""); // Clear feedback
     setShowFeedback(false);
     setIsResolvingRound(false); // Ready for new round actions
     console.log(
-      `New question started (Q index: ${currentQuestionIndex}). Resetting local state.`,
+      `New question started (Q index: ${currentQuestionIndex}). Resetting local gameState.`,
     );
   }, [turnStartTime]); // Triggered by QUESTION_START broadcast setting new turnStartTime
 
@@ -332,7 +332,7 @@ const BossFightGame = () => {
     typeof bossHealth !== "number" ||
     !questions
   ) {
-    // Handle loading state or error state if question/players/bossHealth aren't available yet
+    // Handle loading gameState or error gameState if question/players/bossHealth aren't available yet
     return <div>Loading game... (Ensure game started correctly)</div>;
   }
 
@@ -388,7 +388,7 @@ const BossFightGame = () => {
                 </p>
               </div>
             )}
-            {/* Indicate waiting state */}
+            {/* Indicate waiting gameState */}
             {isAnsweredLocally && !isResolvingRound && (
               <div className="bg-muted mt-6 rounded-md p-3 text-center">
                 <p className="text-muted-foreground animate-pulse">
@@ -398,7 +398,7 @@ const BossFightGame = () => {
             )}
           </div>
         ) : (
-          // Use isTeamVictory from state
+          // Use isTeamVictory from gameState
           <GameOver
             isVictory={isTeamVictory ?? false} // Default to false if null somehow
             bossHealth={bossHealth}

@@ -1,4 +1,4 @@
-import { Player, GameMode, PublicLobby, Question } from "../types/types";
+import { Player, GameMode, PublicLobby, Question } from "../../types/types";
 
 export type GameState = {
   gameId: string;
@@ -160,104 +160,104 @@ export type BossFightActions =
     };
 
 export function gameStatereducer(
-  state: GameState,
+  gameState: GameState,
   action: GameStateActions,
 ): GameState {
   switch (action.type) {
     case "addPlayer":
-      if (state.players.find((p) => p.id === action.player.id)) {
-        return state;
+      if (gameState.players.find((p) => p.id === action.player.id)) {
+        return gameState;
       }
       return {
-        ...state,
-        players: [...state.players, action.player],
+        ...gameState,
+        players: [...gameState.players, action.player],
       };
     case "setGameMode":
       return {
-        ...state,
+        ...gameState,
         gameMode: action.gameMode,
       };
     case "setGameSubject":
       return {
-        ...state,
+        ...gameState,
         gameSubject: action.subject,
       };
     case "createLobby":
-      return state;
+      return gameState;
     case "exitLobby":
       return {
-        ...state,
+        ...gameState,
         // gameMode: { type: "time", count: 10 },
         // equations: [],
         players: [],
         gameId: crypto.randomUUID().toString(),
         currentPlayer: {
-          ...state.currentPlayer,
+          ...gameState.currentPlayer,
           score: 0,
           health: 0,
         },
       };
     case "nameChange":
-      return state;
+      return gameState;
     case "setPlayers":
       return {
-        ...state,
+        ...gameState,
         players: action.players,
       };
     case "setCurrentPlayer":
       return {
-        ...state,
+        ...gameState,
         currentPlayer: action.player,
       };
     case "setScore":
       return {
-        ...state,
-        players: state.players.map((player) =>
+        ...gameState,
+        players: gameState.players.map((player) =>
           player.id === action.playerId
             ? { ...player, score: action.score } // Create a *new* player object
             : player,
         ),
       };
     case "setHealth":
-      const newPlayers = state.players.map((player) =>
+      const newPlayers = gameState.players.map((player) =>
         player.id === action.playerId
           ? { ...player, health: Math.max(0, action.health) }
           : player,
       );
       // Update currentPlayer's health as well if it's the one being updated
       const newCurrentPlayerHealth =
-        state.currentPlayer.id === action.playerId
+        gameState.currentPlayer.id === action.playerId
           ? Math.max(0, action.health)
-          : state.currentPlayer.health;
+          : gameState.currentPlayer.health;
 
       return {
-        ...state,
+        ...gameState,
         players: newPlayers,
         currentPlayer: {
-          ...state.currentPlayer,
+          ...gameState.currentPlayer,
           health: newCurrentPlayerHealth,
         },
       };
     case "isComplete":
-      return state;
+      return gameState;
     case "setGameId":
       return {
-        ...state,
+        ...gameState,
         gameId: action.gameId,
       };
     case "changePublic":
-      return state;
+      return gameState;
     case "setPublicLobbies":
-      return state;
+      return gameState;
     case "setHost":
       return {
-        ...state,
+        ...gameState,
         currentPlayer: {
-          ...state.currentPlayer,
+          ...gameState.currentPlayer,
           isHost: action.player.isHost,
         },
-        players: state.players.map((p) =>
-          p.id === state.currentPlayer.id
+        players: gameState.players.map((p) =>
+          p.id === gameState.currentPlayer.id
             ? { ...p, isHost: action.player.isHost }
             : p,
         ),
@@ -269,9 +269,9 @@ export function gameStatereducer(
         health: 5,
       }));
       return {
-        ...state,
+        ...gameState,
         currentPlayer: {
-          ...state.currentPlayer,
+          ...gameState.currentPlayer,
           health: 5,
           score: 0,
         },
@@ -289,27 +289,27 @@ export function gameStatereducer(
         isTeamVictory: null,
       };
     case "setBossHealth":
-      if (typeof state.bossHealth !== "number") return state; // Only run in boss mode
+      if (typeof gameState.bossHealth !== "number") return gameState; // Only run in boss mode
       return {
-        ...state,
+        ...gameState,
         bossHealth: Math.max(0, action.newBossHealth), // Ensure non-negative
       };
 
     case "recordPlayerAnswer":
-      // Only record if the answer is for the current question index state
+      // Only record if the answer is for the current question index gameState
       if (
-        action.questionIndex !== state.currentQuestionIndex ||
-        !state.playerAnswers
+        action.questionIndex !== gameState.currentQuestionIndex ||
+        !gameState.playerAnswers
       ) {
         console.warn(
-          `Ignoring stale answer for Q#${action.questionIndex} (current is ${state.currentQuestionIndex})`,
+          `Ignoring stale answer for Q#${action.questionIndex} (current is ${gameState.currentQuestionIndex})`,
         );
-        return state;
+        return gameState;
       }
       return {
-        ...state,
+        ...gameState,
         playerAnswers: {
-          ...state.playerAnswers,
+          ...gameState.playerAnswers,
           [action.playerId]: {
             answered: true,
             isCorrect: action.isCorrect,
@@ -319,13 +319,13 @@ export function gameStatereducer(
 
     case "resetPlayerAnswers":
       return {
-        ...state,
+        ...gameState,
         playerAnswers: {}, // Clear answers for the new round
       };
 
     case "updateMultiplePlayerHealth":
-      if (!action.healthUpdates) return state;
-      const updatedPlayersMulti = state.players.map((player) => {
+      if (!action.healthUpdates) return gameState;
+      const updatedPlayersMulti = gameState.players.map((player) => {
         if (action.healthUpdates.hasOwnProperty(player.id)) {
           return {
             ...player,
@@ -336,22 +336,22 @@ export function gameStatereducer(
       });
       // Update currentPlayer's health as well if it's in the list
       const updatedCurrentPlayerHealthMulti =
-        action.healthUpdates.hasOwnProperty(state.currentPlayer.id)
-          ? Math.max(0, action.healthUpdates[state.currentPlayer.id])
-          : state.currentPlayer.health;
+        action.healthUpdates.hasOwnProperty(gameState.currentPlayer.id)
+          ? Math.max(0, action.healthUpdates[gameState.currentPlayer.id])
+          : gameState.currentPlayer.health;
 
       return {
-        ...state,
+        ...gameState,
         players: updatedPlayersMulti,
         currentPlayer: {
-          ...state.currentPlayer,
+          ...gameState.currentPlayer,
           health: updatedCurrentPlayerHealthMulti,
         },
       };
 
     case "setBossFightGameOver":
       return {
-        ...state,
+        ...gameState,
         isGameOver: true,
         isTeamVictory: action.isVictory,
         turnStartTime: null, // Stop timer
@@ -363,7 +363,7 @@ export function gameStatereducer(
         `Reducer: Advancing question. Next Q Index: ${action.nextQuestionIndex}`,
       );
       return {
-        ...state,
+        ...gameState,
         activePlayerIndex: action.nextPlayerIndex,
         currentQuestionIndex: action.nextQuestionIndex,
         turnStartTime: action.newTurnStartTime, // Set start time for the new question
@@ -372,7 +372,7 @@ export function gameStatereducer(
     case "setGameOver":
       console.log(`Reducer: Setting game over. Winner ID: ${action.winnerId}`);
       return {
-        ...state,
+        ...gameState,
         isGameOver: action.isGameOver,
         winnerId: action.winnerId,
         turnStartTime: null, // Stop timer
@@ -383,12 +383,12 @@ export function gameStatereducer(
         "SETTINGGG QUESTIONSNSNOINOINSOINSOINSOINSOISNIOSNOISNOISNOISN",
       );
       return {
-        ...state,
+        ...gameState,
         questions: action.questions,
       };
     case "restartGame":
       return {
-        ...state,
+        ...gameState,
         questions: [],
         currentQuestionIndex: 0,
         gameStarted: false,

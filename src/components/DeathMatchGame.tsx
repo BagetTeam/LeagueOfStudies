@@ -23,7 +23,7 @@ const DeathmatchGame = () => {
   const sp = useSearchParams();
   const subject = sp.get("subject") ?? "Rust";
 
-  const { state, dispatch, sendBroadcast } = useGame();
+  const { gameState, dispatch, sendBroadcast } = useGame();
   const {
     currentPlayer,
     players = [],
@@ -33,7 +33,7 @@ const DeathmatchGame = () => {
     isGameOver,
     winnerId,
     questions,
-  } = state;
+  } = gameState;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false); // If this client just answered
@@ -98,7 +98,7 @@ const DeathmatchGame = () => {
     isResolvingRound,
   ]); // Rerun when turn changes or game ends
 
-  // Reset local answer state when the turn changes (new turnStartTime)
+  // Reset local answer gameState when the turn changes (new turnStartTime)
   useEffect(() => {
     setIsAnsweredLocally(false);
     setSelectedOption(null);
@@ -165,7 +165,7 @@ const DeathmatchGame = () => {
     // --- Turn Advancement & Game Over Check (Simulated Host Logic) ---
     // Introduce a small delay to allow UI feedback before advancing
     setTimeout(() => {
-      // Recalculate state based on potential health updates
+      // Recalculate gameState based on potential health updates
       const updatedPlayers = players.map((p) =>
         p.id === currentPlayer.id && !isCorrect
           ? { ...p, health: Math.max(0, (p.health ?? 0) - 1) }

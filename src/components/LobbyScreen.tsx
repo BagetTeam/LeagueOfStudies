@@ -28,7 +28,7 @@ function LobbyScreen({
   onBackToMenu,
   subject = "Rust",
 }: LobbyProps) {
-  const { state, dispatch, sendBroadcast } = useGame();
+  const { gameState, dispatch, sendBroadcast } = useGame();
   const {
     gameId,
     players = [],
@@ -36,7 +36,7 @@ function LobbyScreen({
     gameStarted,
     questions,
     gameMode,
-  } = state; // Default players to []
+  } = gameState; // Default players to []
 
   const [studyText, setStudyText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -78,15 +78,15 @@ function LobbyScreen({
 
   useEffect(() => {
     console.log("Gamehas Started");
-    if (state.gameStarted) {
+    if (gameState.gameStarted) {
       console.log("Game started, navigating...");
-      if (state.gameMode.type === "deathmatch") {
+      if (gameState.gameMode.type === "deathmatch") {
         router.push("/game/deathmatch"); // Adjust path as needed
-      } else if (state.gameMode.type === "bossbattle") {
+      } else if (gameState.gameMode.type === "bossbattle") {
         router.push("/game/bossbattle"); // Adjust path as needed
       }
     }
-  }, [gameStarted, state.gameMode]);
+  }, [gameStarted, gameState.gameMode]);
 
   const fetchingRef = useRef(false);
   useEffect(() => {
@@ -109,7 +109,7 @@ function LobbyScreen({
           )) satisfies Question[];
 
           console.log("questions:", fetchedQuestions);
-          if (!state.gameStarted) {
+          if (!gameState.gameStarted) {
             dispatch({ type: "setQuestions", questions: fetchedQuestions });
             sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, fetchedQuestions);
           }
@@ -124,7 +124,7 @@ function LobbyScreen({
 
   const startGame = () => {
     console.log("ERM");
-    console.log(state);
+    console.log(gameState);
     if (currentPlayer.isHost && players.length > 0) {
       // Ensure there are players
       const hostIndex = players.findIndex(
@@ -137,7 +137,7 @@ function LobbyScreen({
       );
       dispatch({
         type: "setStartGame",
-        gameMode: state.gameMode,
+        gameMode: gameState.gameMode,
         initialPlayers: players,
         activePlayerIndex: hostIndex,
       });
@@ -257,8 +257,10 @@ function LobbyScreen({
         <h1 className="mb-2 text-center text-3xl font-bold">Game Lobby</h1>
         {/* Display Game Mode */}
         <p className="text-muted-foreground mb-6 text-center capitalize">
-          Mode: {state.gameMode.type}{" "}
-          {state.gameMode.type === "time" ? `(${state.gameMode.time}s)` : ""}
+          Mode: {gameState.gameMode.type}{" "}
+          {gameState.gameMode.type === "time"
+            ? `(${gameState.gameMode.time}s)`
+            : ""}
         </p>
 
         {/* Invite Section */}
