@@ -1,29 +1,42 @@
 import { Player, GameMode, PublicLobby, Question } from "../types/types";
 
 export type GameState = {
-  //   currentPlayer: Player;
-  //   players: Player[];
   gameId: string;
   currentPlayer: Player;
   players: Player[];
   gameMode: GameMode;
   gameSubject: string;
   gameStarted: boolean;
-  activePlayerIndex: number; // Index of the player whose turn it is
+  activePlayerIndex: number;
   currentQuestionIndex: number;
   turnStartTime: number | null; // Timestamp when the current turn started (use null initially)
   isGameOver: boolean;
   winnerId: number | null;
-  bossHealth?: number; // Optional to allow different game modes
+  bossHealth?: number;
   playerAnswers?: {
-    // Tracks answers for the *current* question
     [playerId: number]: {
       answered: boolean;
-      isCorrect: boolean | null; // null if not answered/timed out
+      isCorrect: boolean | null;
     };
   };
   isTeamVictory?: boolean | null;
   questions: Question[];
+};
+
+export type DeathmatchState = {
+  activePlayerIndex: number;
+};
+
+export type BossFightState = {
+  turnStartTime: number | null;
+  bossHealth: number;
+  isTeamVictory: boolean | null;
+  playerAnswers: {
+    [playerId: number]: {
+      answered: boolean;
+      isCorrect: boolean | null;
+    };
+  };
 };
 
 export type GameStateActions =
