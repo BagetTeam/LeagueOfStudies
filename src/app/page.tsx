@@ -4,7 +4,7 @@
 
 import { Button } from "@/ui";
 import Features from "@/components/Features";
-import GameMode from "./GameModes";
+import GameMode from "../components/GameModes";
 import Hero from "../components/Hero";
 import Link from "next/link";
 import Footer from "../components/Footer";

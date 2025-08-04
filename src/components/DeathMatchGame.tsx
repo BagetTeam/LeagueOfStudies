@@ -25,10 +25,10 @@ const DeathmatchGame = () => {
 
   const { state, dispatch, sendBroadcast } = useGame();
   const {
-    currentPlayer, // The user of this client
-    players = [], // Default to empty array
-    activePlayerIndex = 0, // Default to 0
-    currentQuestionIndex = 0, // Default to 0
+    currentPlayer,
+    players = [],
+    activePlayerIndex = 0,
+    currentQuestionIndex = 0,
     turnStartTime,
     isGameOver,
     winnerId,

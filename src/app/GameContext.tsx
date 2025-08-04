@@ -1,6 +1,5 @@
 "use client";
 
-// Example: GameContext.tsx
 import React, {
   createContext,
   useReducer,
@@ -14,7 +13,7 @@ import React, {
 import { GameState, GameStateActions, gameStatereducer } from "./gameState";
 import { GameMode, Player, Question } from "../types/types";
 import { RealtimeChannel } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/backend/utils/database";
 
 const initialState: GameState = {
   gameId: "",
@@ -46,14 +45,14 @@ type GameProviderProps = {
 export const BROADCAST_EVENTS = {
   START_GAME: "start_game",
   HEALTH_UPDATE: "health_update",
-  ANSWER_SUBMITTED: "answer_submitted", // Player submits an answer
-  TURN_ADVANCE: "turn_advance", // Server/Host advances the turn
-  GAME_OVER: "game_over", // Server/Host declares game over
+  ANSWER_SUBMITTED: "answer_submitted",
+  TURN_ADVANCE: "turn_advance",
+  GAME_OVER: "game_over",
 
-  PLAYER_ANSWERED: "player_answered", // Player submits their individual answer
-  QUESTION_START: "question_start", // Host signals start of new question & timer
-  BOSS_DAMAGED: "boss_damaged", // Host signals boss health update
-  TEAM_DAMAGED: "team_damaged", // Host signals multiple players health update
+  PLAYER_ANSWERED: "player_answered",
+  QUESTION_START: "question_start",
+  BOSS_DAMAGED: "boss_damaged",
+  TEAM_DAMAGED: "team_damaged",
   BOSS_FIGHT_GAME_OVER: "boss_fight_game_over",
   SET_QUESTIONS: "set_questions",
 
