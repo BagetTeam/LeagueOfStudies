@@ -1,18 +1,11 @@
 import { z } from "zod";
 
 export interface Player {
-  id: number;
+  playerId: number;
   name: string;
   score: number;
   health: number;
   isHost: boolean;
-}
-
-export interface GamePlayer {
-  id: string;
-  name: string;
-  score: number;
-  health: number;
 }
 
 export interface GameMode {
@@ -20,18 +13,19 @@ export interface GameMode {
   time: number;
 }
 
-export interface PublicLobby {
-  id: string;
-  hostName: string;
-  numPlayers: number;
-  gameMode: GameMode;
-}
-
 export interface Question {
   id: number;
   question: string;
   options: string[];
   correctAnswer: number;
+}
+
+export interface Lobby {
+  lobbyId: string;
+  players: Player[];
+  gameMode: GameMode;
+  gameSubject: string;
+  questions: Question[];
 }
 
 export const QuestionSchema = z.object({
