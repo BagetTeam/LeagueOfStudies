@@ -43,7 +43,7 @@ export const BROADCAST_EVENTS = {
   SET_QUESTIONS: "set_questions",
 
   RESTART_GAME: "restart_game",
-};
+} as const;
 
 // StartGame Broadcast
 type StartGamePayload = {
@@ -51,6 +51,17 @@ type StartGamePayload = {
   initialPlayers: Player[];
   gameMode: GameMode;
   questions: Question[];
+};
+
+type HealthUpdatePayload = {
+  player: Player;
+  health: number;
+};
+
+type AnswerSubmittedPayload = {
+  player: Player;
+  question: Question;
+  isCorrect: boolean;
 };
 
 // Set Question Broadcast
