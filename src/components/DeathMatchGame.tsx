@@ -4,7 +4,7 @@ import { Trophy, ArrowLeft, Heart, Clock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useGame } from "@/app/GameContext";
+import { useGame } from "@/GameContext";
 import { Button } from "@/ui";
 
 const BROADCAST_EVENTS = {

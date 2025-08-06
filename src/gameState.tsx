@@ -1,27 +1,29 @@
-import { Player, GameMode, PublicLobby, Question } from "../../types/types";
+import { Player, GameMode, Question, GameState, Lobby } from "./types/types";
 
-export type GameState = {
-  gameId: string;
-  currentPlayer: Player;
-  players: Player[];
-  gameMode: GameMode;
-  gameSubject: string;
-  gameStarted: boolean;
-  activePlayerIndex: number;
-  currentQuestionIndex: number;
-  turnStartTime: number | null; // Timestamp when the current turn started (use null initially)
-  isGameOver: boolean;
-  winnerId: number | null;
-  bossHealth?: number;
-  playerAnswers?: {
-    [playerId: number]: {
-      answered: boolean;
-      isCorrect: boolean | null;
-    };
-  };
-  isTeamVictory?: boolean | null;
-  questions: Question[];
-};
+export const defaultState = {
+  player: {
+    playerId: 0,
+    name: "",
+    score: 0,
+    health: 5,
+    isHost: false,
+    state: "lobby",
+  },
+  lobby: {
+    lobbyId: "",
+    players: [],
+    gameMode: {
+      type: "deathmatch",
+      data: { time: 15, activePlayerIndex: 0 },
+    },
+    subject: "",
+    topic: "",
+    questions: [],
+    currentQuestionIndex: 0,
+    playerAnswers: {},
+    turnStartTime: null,
+  },
+} satisfies GameState;
 
 export type GameStateActions =
   | {
@@ -37,14 +39,15 @@ export type GameStateActions =
       subject: string;
     }
   | {
-      type: "createLobby";
+      type: "joinLobby";
+      lobby: Lobby;
       host: Player;
     }
   | {
       type: "exitLobby";
     }
   | {
-      type: "nameChange";
+      type: "setName";
       name: string;
     }
   | {
@@ -66,21 +69,8 @@ export type GameStateActions =
       health: number;
     }
   | {
-      type: "isComplete";
-      playerId: number;
-      hasComplete: boolean;
-    }
-  | {
-      type: "setGameId";
-      gameId: string;
-    }
-  | {
-      type: "changePublic";
-      isPublic: boolean;
-    }
-  | {
-      type: "setPublicLobbies";
-      publicLobbies: PublicLobby[];
+      type: "setPlayerState";
+      state: Player["state"];
     }
   | {
       type: "setHost";
@@ -98,20 +88,14 @@ export type GameStateActions =
       nextQuestionIndex: number;
       newTurnStartTime: number;
     }
-  | { type: "setGameOver"; winnerId: number | null; isGameOver: boolean }
   | { type: "setBossHealth"; newBossHealth: number }
   | {
       type: "recordPlayerAnswer";
       playerId: number;
-      questionIndex: number; // Ensure it's for the current question
-      isCorrect: boolean | null;
+      questionIndex: number;
+      isCorrect: boolean;
     }
-  | { type: "resetPlayerAnswers" } // Reset for new question
-  | {
-      type: "updateMultiplePlayerHealth";
-      healthUpdates: { [playerId: number]: number };
-    }
-  | { type: "setBossFightGameOver"; isVictory: boolean }
+  | { type: "resetPlayerAnswers" }
   | {
       type: "setQuestions";
       questions: Question[];
@@ -126,24 +110,36 @@ export function gameStatereducer(
 ): GameState {
   switch (action.type) {
     case "addPlayer":
-      if (state.players.find((p) => p.id === action.player.id)) {
+      if (
+        state.lobby.players.find((p) => p.playerId === action.player.playerId)
+      ) {
         return state;
       }
       return {
         ...state,
-        players: [...state.players, action.player],
+        lobby: {
+          ...state.lobby,
+          players: [...state.lobby.players, action.player],
+        },
       };
     case "setGameMode":
       return {
         ...state,
-        gameMode: action.gameMode,
+        lobby: {
+          ...state.lobby,
+          gameMode: action.gameMode,
+        },
       };
     case "setGameSubject":
       return {
         ...state,
-        gameSubject: action.subject,
+        lobby: {
+          ...state.lobby,
+          subject: action.subject,
+        },
       };
-    case "createLobby":
+    case "joinLobby":
+      if ()
       return state;
     case "exitLobby":
       return {
@@ -151,7 +147,7 @@ export function gameStatereducer(
         // gameMode: { type: "time", count: 10 },
         // equations: [],
         players: [],
-        gameId: crypto.randomUUID().toString(),
+        lobbyId: crypto.randomUUID().toString(),
         currentPlayer: {
           ...state.currentPlayer,
           score: 0,

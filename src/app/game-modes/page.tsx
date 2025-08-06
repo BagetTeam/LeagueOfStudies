@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GameMode } from "../../types/types";
-import { useGame } from "../GameContext";
+import { useGame } from "../../GameContext";
 
 // Mock data for available games
 const subjects = [

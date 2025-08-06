@@ -5,7 +5,7 @@ import { Button } from "@/ui";
 import { ArrowLeft, Copy, Play, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import PlayerList from "./PlayerList";
-import { useGame } from "@/app/GameContext";
+import { useGame } from "@/GameContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getQuestions } from "@/app/backend";
 import PDF_reader from "@/app/pdf_reader/reader";

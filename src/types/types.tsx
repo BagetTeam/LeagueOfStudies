@@ -17,6 +17,7 @@ export interface BossFightData {
 
 export interface DeathmatchData {
   time: number;
+  activePlayerIndex: number;
 }
 
 export type GameMode =
@@ -37,6 +38,13 @@ export interface Lobby {
   subject: string;
   topic: string;
   questions: Question[];
+  currentQuestionIndex: number;
+  playerAnswers: {
+    [playerId: number]: {
+      isCorrect: boolean;
+    };
+  };
+  turnStartTime: number | null;
 }
 
 export const QuestionSchema = z.object({

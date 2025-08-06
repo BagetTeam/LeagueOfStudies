@@ -2,7 +2,7 @@ import { Button } from "@/ui";
 import { Shield, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Player } from "@/types/types";
-import { useGame } from "@/app/GameContext";
+import { useGame } from "@/GameContext";
 
 interface GameOverProps {
   isVictory: boolean;

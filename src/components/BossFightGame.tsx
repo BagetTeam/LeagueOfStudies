@@ -7,7 +7,7 @@ import { TeamStatus } from "@/components/TeamStatus";
 import { GameTimer } from "@/components/GameTimer";
 import { GameQuestion } from "@/components/GameQuestions";
 import { GameOver } from "@/components/GameOver";
-import { useGame } from "@/app/GameContext";
+import { useGame } from "@/GameContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import { updateLeaderboard } from "@/app/backend";
 

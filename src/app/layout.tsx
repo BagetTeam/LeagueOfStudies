@@ -4,7 +4,7 @@ import "./globals.css";
 import { Theme } from "@radix-ui/themes";
 import NavBar from "../components/NavBar";
 import Wrapper from "./Wrapper";
-import { GameProvider } from "./GameContext";
+import { GameProvider } from "../GameContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

@@ -10,29 +10,11 @@ import React, {
   useMemo,
   Suspense,
 } from "react";
-import {
-  GameState,
-  GameStateActions,
-  gameStatereducer,
-} from "./states/gameState";
-import { GameMode, Player, Question } from "../types/types";
+import { initialState, GameStateActions, gameStatereducer } from "./gameState";
+import { GameState } from "./types/types";
+import { GameMode, Player, Question } from "./types/types";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/backend/utils/database";
-
-const initialState: GameState = {
-  gameId: "",
-  currentPlayer: { id: 0, name: "Guest", score: 0, health: 5, isHost: false },
-  players: [],
-  gameMode: { type: "deathmatch", time: 15 },
-  gameSubject: "",
-  gameStarted: false,
-  activePlayerIndex: 0,
-  currentQuestionIndex: 0,
-  turnStartTime: null,
-  isGameOver: false,
-  winnerId: null,
-  questions: [],
-};
 
 type GameContextType = {
   gameState: GameState;
@@ -81,11 +63,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const channelRef = React.useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
-    console.log("GameContext State Change:", gameState); // Log gameState changes
-  }, [gameState]);
-
-  useEffect(() => {
-    // Cleanup previous channel if gameId or currentPlayer.id changes
+    // remove channel is already existent
     if (channelRef.current) {
       console.log(
         `Unsubscribing from previous channel: ${channelRef.current.topic}`,
@@ -94,15 +72,12 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channelRef.current = null;
     }
 
-    if (gameState.gameId && gameState.currentPlayer.id > 0) {
-      // Ensure valid player ID
-      console.log(
-        `Setting up channel for gameId: ${gameState.gameId}, Player ID: ${gameState.currentPlayer.id}`,
-      );
-      const channel = supabase.channel(gameState.gameId, {
+    // add Lobby channel to player
+    if (gameState.lobby.lobbyId && gameState.player.playerId > 0) {
+      const channel = supabase.channel(gameState.lobby.lobbyId, {
         config: {
           presence: {
-            key: gameState.currentPlayer.id.toString(), // Use valid player ID
+            key: gameState.player.playerId.toString(), // Use valid player ID
           },
           broadcast: {
             ack: true, // Optional: Wait for ack from server
@@ -390,15 +365,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
   const sendBroadcast = useCallback((event: string, payload: object) => {
     if (channelRef.current) {
-      console.log(`Sending broadcast: ${event}`, payload);
       channelRef.current
         .send({
           type: "broadcast",
           event: event,
           payload: payload,
-        })
-        .then((response) => {
-          console.log(`Broadcast ${event} sent`, response);
         })
         .catch((error) => {
           console.error(`Broadcast ${event} failed:`, error);

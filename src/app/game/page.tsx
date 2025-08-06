@@ -4,7 +4,7 @@
 import LobbyScreen from "@/components/LobbyScreen";
 import { GameMode, Player } from "@/types/types"; // Keep Player if needed
 import { useRouter, useSearchParams } from "next/navigation"; // Use useSearchParams
-import { useGame } from "../GameContext";
+import { useGame } from "../../GameContext";
 import { useEffect } from "react";
 import DeathmatchGame from "@/components/DeathMatchGame"; // Assuming path
 import BossFightGame from "@/components/BossFightGame"; // Assuming path
