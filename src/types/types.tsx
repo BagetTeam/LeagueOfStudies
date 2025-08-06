@@ -6,12 +6,22 @@ export interface Player {
   score: number;
   health: number;
   isHost: boolean;
+  state: "playing" | "lobby" | "completed";
 }
 
-export interface GameMode {
-  type: string;
+export interface BossFightData {
+  bossName: string;
+  bossHealth: number;
   time: number;
 }
+
+export interface DeathmatchData {
+  time: number;
+}
+
+export type GameMode =
+  | { type: "deathmatch"; data: DeathmatchData }
+  | { type: "bossfight"; data: BossFightData };
 
 export interface Question {
   id: number;
@@ -24,7 +34,8 @@ export interface Lobby {
   lobbyId: string;
   players: Player[];
   gameMode: GameMode;
-  gameSubject: string;
+  subject: string;
+  topic: string;
   questions: Question[];
 }
 
@@ -37,10 +48,7 @@ export const QuestionSchema = z.object({
 
 export type QuestionType = z.infer<typeof QuestionSchema>;
 
-export interface GameData {
-  subject: string;
-  topic: string;
-  bossName: string;
-  bossHealth: number;
-  questions: Question[];
+export interface GameState {
+  player: Player;
+  lobby: Lobby;
 }
