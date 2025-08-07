@@ -64,10 +64,26 @@ type AnswerSubmittedPayload = {
   isCorrect: boolean;
 };
 
+type TurnAdvancePayload = {
+  currentPlayerIndex: number;
+  currentQuestionIndex: number;
+  startTime: number;
+};
+
 // Set Question Broadcast
 type SetQuestionsPayload = {
   questions: Question[];
 };
+
+"game_over",
+
+  PLAYER_ANSWERED: "player_answered",
+  QUESTION_START: "question_start",
+  BOSS_DAMAGED: "boss_damaged",
+  TEAM_DAMAGED: "team_damaged",
+  BOSS_FIGHT_GAME_OVER: "boss_fight_game_over",
+
+  RESTART_GAME: "restart_game",
 
 export const GameProvider = ({ children }: GameProviderProps) => {
   const [gameState, dispatch] = useReducer(gameStatereducer, initialState);
