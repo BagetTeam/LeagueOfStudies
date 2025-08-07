@@ -33,13 +33,13 @@ export const BROADCAST_EVENTS = {
   HEALTH_UPDATE: "health_update",
   ANSWER_SUBMITTED: "answer_submitted",
   TURN_ADVANCE: "turn_advance",
-  GAME_OVER: "game_over",
+  GAME_OVER: "game_over", // remove maybe
 
   PLAYER_ANSWERED: "player_answered",
   QUESTION_START: "question_start",
   BOSS_DAMAGED: "boss_damaged",
   TEAM_DAMAGED: "team_damaged",
-  BOSS_FIGHT_GAME_OVER: "boss_fight_game_over",
+  BOSS_FIGHT_GAME_OVER: "boss_fight_game_over", //remove maybe
   SET_QUESTIONS: "set_questions",
 
   RESTART_GAME: "restart_game",
@@ -70,12 +70,13 @@ type TurnAdvancePayload = {
   startTime: number;
 };
 
-// Set Question Broadcast
+type GameOverPayload = {
+  winnerPlayerId: number;
+}
+
 type SetQuestionsPayload = {
   questions: Question[];
 };
-
-"game_over",
 
   PLAYER_ANSWERED: "player_answered",
   QUESTION_START: "question_start",
@@ -226,7 +227,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           // Payload might contain winnerId, or we calculate it client-side if needed
           dispatch({
             type: "setGameOver",
-            winnerId: payload.winnerId ?? null, // Use winnerId from payload or null
+            winnerId: payload.winnerId ?? null,
             isGameOver: payload.isGameOver,
           });
         },
