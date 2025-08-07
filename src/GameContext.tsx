@@ -37,7 +37,6 @@ export const BROADCAST_EVENTS = {
 
   PLAYER_ANSWERED: "player_answered",
   BOSS_DAMAGED: "boss_damaged",
-  TEAM_DAMAGED: "team_damaged",
   BOSS_FIGHT_GAME_OVER: "boss_fight_game_over", //remove maybe
   SET_QUESTIONS: "set_questions",
 
@@ -71,23 +70,21 @@ type TurnAdvancePayload = {
 
 type GameOverPayload = {
   winnerPlayerId: number;
-}
+};
 
 type PlayerAnsweredPayload = {
   playerId: number;
   questionIndex: number;
   isCorrect: boolean;
-}
+};
+
+type BossDamagePayload = {
+  bossHealth: number;
+};
 
 type SetQuestionsPayload = {
   questions: Question[];
 };
-
-  BOSS_DAMAGED: "boss_damaged",
-  TEAM_DAMAGED: "team_damaged",
-  BOSS_FIGHT_GAME_OVER: "boss_fight_game_over",
-
-  RESTART_GAME: "restart_game",
 
 export const GameProvider = ({ children }: GameProviderProps) => {
   const [gameState, dispatch] = useReducer(gameStatereducer, initialState);
