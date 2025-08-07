@@ -152,60 +152,54 @@ export function gameStatereducer(
     case "setCurrentPlayer":
       return {
         ...state,
-        currentPlayer: action.player,
+        player: action.player,
       };
     case "setScore":
       return {
         ...state,
-        players: state.players.map((player) =>
-          player.id === action.playerId
-            ? { ...player, score: action.score } // Create a *new* player object
-            : player,
-        ),
+        lobby: {
+          ...state.lobby,
+          players: state.lobby.players.map((player) =>
+            player.playerId === action.playerId
+              ? { ...player, score: action.score }
+              : player,
+          ),
+        },
       };
     case "setHealth":
-      const newPlayers = state.players.map((player) =>
-        player.id === action.playerId
+      // update health for both player and player within lobby
+      const newPlayers = state.lobby.players.map((player) =>
+        player.playerId === action.playerId
           ? { ...player, health: Math.max(0, action.health) }
           : player,
       );
-      // Update currentPlayer's health as well if it's the one being updated
       const newCurrentPlayerHealth =
-        state.currentPlayer.id === action.playerId
+        state.player.playerId === action.playerId
           ? Math.max(0, action.health)
-          : state.currentPlayer.health;
+          : state.player.health;
 
       return {
         ...state,
-        players: newPlayers,
-        currentPlayer: {
-          ...state.currentPlayer,
+        lobby: { ...state.lobby, players: newPlayers },
+        player: {
+          ...state.player,
           health: newCurrentPlayerHealth,
         },
       };
-    case "isComplete":
-      return state;
-    case "setGameId":
-      return {
-        ...state,
-        gameId: action.gameId,
-      };
-    case "changePublic":
-      return state;
-    case "setPublicLobbies":
-      return state;
+
     case "setHost":
+      if (action.player.playerId !== state.player.playerId) return state;
       return {
         ...state,
-        currentPlayer: {
-          ...state.currentPlayer,
-          isHost: action.player.isHost,
+        player: { ...state.player, isHost: action.player.isHost },
+        lobby: {
+          ...state.lobby,
+          players: state.lobby.players.map((p) =>
+            p.playerId === action.player.playerId
+              ? { ...p, isHost: action.player.isHost }
+              : p,
+          ),
         },
-        players: state.players.map((p) =>
-          p.id === state.currentPlayer.id
-            ? { ...p, isHost: action.player.isHost }
-            : p,
-        ),
       };
     case "setStartGame":
       const initialBossHealth = 100;
