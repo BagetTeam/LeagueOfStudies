@@ -29,20 +29,24 @@ export const defaultState = {
 
 export type GameStateActions =
   | {
-      type: "setGameMode";
-      gameMode: GameMode;
-    }
-  | {
-      type: "setGameSubject";
-      subject: string;
-    }
-  | {
       type: "joinLobby";
       lobby: Lobby;
       player: Player;
     }
   | {
       type: "exitLobby";
+    }
+  | {
+      type: "setHost";
+      player: Player;
+    }
+  | {
+      type: "setGameMode";
+      gameMode: GameMode;
+    }
+  | {
+      type: "setGameSubject";
+      subject: string;
     }
   | {
       type: "setName";
@@ -57,6 +61,15 @@ export type GameStateActions =
       player: Player;
     }
   | {
+      type: "setPlayerState";
+      playerId: number;
+      state: Player["state"];
+    }
+  | {
+      type: "setQuestions";
+      questions: Question[];
+    }
+  | {
       type: "setScore";
       playerId: number;
       score: number;
@@ -65,14 +78,6 @@ export type GameStateActions =
       type: "setHealth";
       playerId: number;
       health: number;
-    }
-  | {
-      type: "setPlayerState";
-      state: Player["state"];
-    }
-  | {
-      type: "setHost";
-      player: Player;
     }
   | {
       type: "setStartGame";
@@ -95,10 +100,6 @@ export type GameStateActions =
     }
   | { type: "resetPlayerAnswers" }
   | {
-      type: "setQuestions";
-      questions: Question[];
-    }
-  | {
       type: "restartGame";
     };
 
@@ -107,22 +108,6 @@ export function gameStatereducer(
   action: GameStateActions,
 ): GameState {
   switch (action.type) {
-    case "setGameMode":
-      return {
-        ...state,
-        lobby: {
-          ...state.lobby,
-          gameMode: action.gameMode,
-        },
-      };
-    case "setGameSubject":
-      return {
-        ...state,
-        lobby: {
-          ...state.lobby,
-          subject: action.subject,
-        },
-      };
     case "joinLobby":
       if (
         action.lobby.players.find((p) => p.playerId === action.player.playerId)
@@ -142,6 +127,37 @@ export function gameStatereducer(
         ...state,
         lobby: defaultLobby,
       };
+    case "setHost":
+      if (action.player.playerId !== state.player.playerId) return state;
+      return {
+        ...state,
+        player: { ...state.player, isHost: action.player.isHost },
+        lobby: {
+          ...state.lobby,
+          players: state.lobby.players.map((p) =>
+            p.playerId === action.player.playerId
+              ? { ...p, isHost: action.player.isHost }
+              : p,
+          ),
+        },
+      };
+    case "setGameMode":
+      return {
+        ...state,
+        lobby: {
+          ...state.lobby,
+          gameMode: action.gameMode,
+        },
+      };
+    case "setGameSubject":
+      return {
+        ...state,
+        lobby: {
+          ...state.lobby,
+          subject: action.subject,
+        },
+      };
+
     case "setName":
       return { ...state, player: { ...state.player, name: action.name } };
     case "setPlayers":
@@ -154,6 +170,8 @@ export function gameStatereducer(
         ...state,
         player: action.player,
       };
+    case "setPlayerState":
+      return state;
     case "setScore":
       return {
         ...state,
@@ -187,20 +205,12 @@ export function gameStatereducer(
         },
       };
 
-    case "setHost":
-      if (action.player.playerId !== state.player.playerId) return state;
+    case "setQuestions":
       return {
         ...state,
-        player: { ...state.player, isHost: action.player.isHost },
-        lobby: {
-          ...state.lobby,
-          players: state.lobby.players.map((p) =>
-            p.playerId === action.player.playerId
-              ? { ...p, isHost: action.player.isHost }
-              : p,
-          ),
-        },
+        lobby: { ...state.lobby, questions: action.questions },
       };
+
     case "setStartGame":
       const initialBossHealth = 100;
       const initialPlayersWithHealth = action.initialPlayers.map((p) => ({
@@ -271,11 +281,6 @@ export function gameStatereducer(
         playerAnswers: {},
       };
 
-    case "setQuestions":
-      return {
-        ...state,
-        questions: action.questions,
-      };
     case "restartGame":
       return {
         ...state,
