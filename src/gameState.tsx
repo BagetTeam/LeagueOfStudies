@@ -2,17 +2,17 @@ import { Player, GameMode, Question, GameState, Lobby } from "./types/types";
 
 const defaultLobby = {
   lobbyId: "",
-    players: [],
-    gameMode: {
-      type: "deathmatch",
-      data: { time: 15, activePlayerIndex: 0 },
-    },
-    subject: "",
-    topic: "",
-    questions: [],
-    currentQuestionIndex: 0,
-    playerAnswers: {},
-    turnStartTime: null,
+  players: [],
+  gameMode: {
+    type: "deathmatch",
+    data: { time: 15, activePlayerIndex: 0 },
+  },
+  subject: "",
+  topic: "",
+  questions: [],
+  currentQuestionIndex: 0,
+  playerAnswers: {},
+  turnStartTime: null,
 } satisfies Lobby;
 
 export const defaultState = {
@@ -29,10 +29,6 @@ export const defaultState = {
 
 export type GameStateActions =
   | {
-      type: "addPlayer";
-      player: Player;
-    }
-  | {
       type: "setGameMode";
       gameMode: GameMode;
     }
@@ -43,7 +39,7 @@ export type GameStateActions =
   | {
       type: "joinLobby";
       lobby: Lobby;
-      host: Player;
+      player: Player;
     }
   | {
       type: "exitLobby";
@@ -111,19 +107,6 @@ export function gameStatereducer(
   action: GameStateActions,
 ): GameState {
   switch (action.type) {
-    case "addPlayer":
-      if (
-        state.lobby.players.find((p) => p.playerId === action.player.playerId)
-      ) {
-        return state;
-      }
-      return {
-        ...state,
-        lobby: {
-          ...state.lobby,
-          players: [...state.lobby.players, action.player],
-        },
-      };
     case "setGameMode":
       return {
         ...state,
@@ -141,19 +124,30 @@ export function gameStatereducer(
         },
       };
     case "joinLobby":
-      if ()
-      return stat
+      if (
+        action.lobby.players.find((p) => p.playerId === action.player.playerId)
+      ) {
+        return state;
+      }
+      const updatedLobby: Lobby = {
+        ...action.lobby,
+        players: [...state.lobby.players, action.player],
+      };
+      return {
+        ...state,
+        lobby: updatedLobby,
+      };
     case "exitLobby":
       return {
         ...state,
-        lobby: defaultLobby
+        lobby: defaultLobby,
       };
-    case "nameChange":
-      return state;
+    case "setName":
+      return { ...state, player: { ...state.player, name: action.name } };
     case "setPlayers":
       return {
         ...state,
-        players: action.players,
+        lobby: { ...state.lobby, players: action.players },
       };
     case "setCurrentPlayer":
       return {
@@ -271,68 +265,19 @@ export function gameStatereducer(
     case "resetPlayerAnswers":
       return {
         ...state,
-        playerAnswers: {}, // Clear answers for the new round
+        lobby: { ...lobby, playerAnswers: {} },
       };
 
-    case "updateMultiplePlayerHealth":
-      if (!action.healthUpdates) return state;
-      const updatedPlayersMulti = state.players.map((player) => {
-        if (action.healthUpdates.hasOwnProperty(player.id)) {
-          return {
-            ...player,
-            health: Math.max(0, action.healthUpdates[player.id]),
-          };
-        }
-        return player;
-      });
-      // Update currentPlayer's health as well if it's in the list
-      const updatedCurrentPlayerHealthMulti =
-        action.healthUpdates.hasOwnProperty(state.currentPlayer.id)
-          ? Math.max(0, action.healthUpdates[state.currentPlayer.id])
-          : state.currentPlayer.health;
-
-      return {
-        ...state,
-        players: updatedPlayersMulti,
-        currentPlayer: {
-          ...state.currentPlayer,
-          health: updatedCurrentPlayerHealthMulti,
-        },
-      };
-
-    case "setBossFightGameOver":
-      return {
-        ...state,
-        isGameOver: true,
-        isTeamVictory: action.isVictory,
-        turnStartTime: null, // Stop timer
-      };
-
-    // Modify advanceTurn for Boss Fight context (or create a new action like 'advanceBossQuestion')
-    case "advanceTurn": // Re-purpose for advancing question
-      console.log(
-        `Reducer: Advancing question. Next Q Index: ${action.nextQuestionIndex}`,
-      );
+    case "advanceTurn":
       return {
         ...state,
         activePlayerIndex: action.nextPlayerIndex,
         currentQuestionIndex: action.nextQuestionIndex,
-        turnStartTime: action.newTurnStartTime, // Set start time for the new question
-        playerAnswers: {}, // Automatically reset answers for the new question
+        turnStartTime: action.newTurnStartTime,
+        playerAnswers: {},
       };
-    case "setGameOver":
-      console.log(`Reducer: Setting game over. Winner ID: ${action.winnerId}`);
-      return {
-        ...state,
-        isGameOver: action.isGameOver,
-        winnerId: action.winnerId,
-        turnStartTime: null, // Stop timer
-        questions: [],
-      };
+
     case "setQuestions":
-      console.log(
-        "SETTINGGG QUESTIONSNSNOINOINSOINSOINSOINSOISNIOSNOISNOISNOISN",
-      );
       return {
         ...state,
         questions: action.questions,
