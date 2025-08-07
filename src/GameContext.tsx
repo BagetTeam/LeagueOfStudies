@@ -36,7 +36,6 @@ export const BROADCAST_EVENTS = {
   GAME_OVER: "game_over", // remove maybe
 
   PLAYER_ANSWERED: "player_answered",
-  QUESTION_START: "question_start",
   BOSS_DAMAGED: "boss_damaged",
   TEAM_DAMAGED: "team_damaged",
   BOSS_FIGHT_GAME_OVER: "boss_fight_game_over", //remove maybe
@@ -84,8 +83,6 @@ type SetQuestionsPayload = {
   questions: Question[];
 };
 
-  PLAYER_ANSWERED: "player_answered",
-  QUESTION_START: "question_start",
   BOSS_DAMAGED: "boss_damaged",
   TEAM_DAMAGED: "team_damaged",
   BOSS_FIGHT_GAME_OVER: "boss_fight_game_over",
@@ -270,27 +267,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           //     gameState.currentQuestionIndex,
           //   );
           // }
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.QUESTION_START },
-        ({ payload }) => {
-          console.log("Received question_start broadcast:", payload);
-          if (
-            typeof payload.nextQuestionIndex === "number" &&
-            typeof payload.newTurnStartTime === "number"
-          ) {
-            // Use 'advanceTurn' reducer logic which now also resets answers
-            dispatch({
-              type: "advanceTurn", // Or rename action if preferred e.g., 'advanceBossQuestion'
-              nextPlayerIndex: -1, // Not relevant here
-              nextQuestionIndex: payload.nextQuestionIndex,
-              newTurnStartTime: payload.newTurnStartTime,
-            });
-            // Optionally reset local UI gameState in component listening to this, if needed
-          }
         },
       );
 
