@@ -39,7 +39,6 @@ export const BROADCAST_EVENTS = {
   BOSS_DAMAGED: "boss_damaged",
 } as const;
 
-// StartGame Broadcast
 type StartGamePayload = {
   initiatedBy: number;
   initialPlayers: Player[];
@@ -76,6 +75,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const [gameState, dispatch] = useReducer(gameStatereducer, initialState);
   const channelRef = React.useRef<RealtimeChannel | null>(null);
 
+  const { player, lobby } = gameState;
+
   useEffect(() => {
     // remove channel is already existent
     if (channelRef.current) {
@@ -87,11 +88,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     }
 
     // add Lobby channel to player
-    if (gameState.lobby.lobbyId && gameState.player.playerId > 0) {
-      const channel = supabase.channel(gameState.lobby.lobbyId, {
+    if (lobby.lobbyId && player.playerId > 0) {
+      const channel = supabase.channel(lobby.lobbyId, {
         config: {
           presence: {
-            key: gameState.player.playerId.toString(), // Use valid player ID
+            key: gameState.player.playerId.toString(),
           },
           broadcast: {
             ack: true, // Optional: Wait for ack from server
@@ -102,11 +103,12 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       // --- Presence Handlers ---
       channel.on("presence", { event: "sync" }, () => {
-        console.log("Presence sync received");
         const presenceState = channel.presenceState<{ playerInfo: Player }>();
         const updatedPlayers = Object.values(presenceState)
           .map((presence) => presence[0]?.playerInfo)
-          .filter((player): player is Player => !!player && player.id !== 0); // Filter out invalid/guest players
+          .filter(
+            (player): player is Player => !!player && player.playerId !== 0,
+          ); // Filter out invalid/guest players
 
         console.log("Synced players:", updatedPlayers);
         dispatch({ type: "setPlayers", players: updatedPlayers });
@@ -117,12 +119,16 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         const joinedPlayerInfo = newPresences[0]?.playerInfo as
           | Player
           | undefined;
-        if (joinedPlayerInfo && joinedPlayerInfo.id !== 0) {
+        if (joinedPlayerInfo && joinedPlayerInfo.playerId !== 0) {
           // Ensure valid player joined
           console.log("Dispatching addPlayer for:", joinedPlayerInfo);
           // Use setPlayers to handle potential gameState inconsistencies on join/sync race conditions
-          const currentPlayers = gameState.players;
-          if (!currentPlayers.some((p) => p.id === joinedPlayerInfo.id)) {
+          const currentPlayers = lobby.players;
+          if (
+            !currentPlayers.some(
+              (p) => p.playerId === joinedPlayerInfo.playerId,
+            )
+          ) {
             dispatch({
               type: "setPlayers",
               players: [...currentPlayers, joinedPlayerInfo],
@@ -137,8 +143,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         const leftPlayerId = parseInt(key, 10); // Key is the player ID
         if (!isNaN(leftPlayerId)) {
           console.log(`Removing player ${leftPlayerId}`);
-          const remainingPlayers = gameState.players.filter(
-            (p) => p.id !== leftPlayerId,
+          const remainingPlayers = lobby.players.filter(
+            (p) => p.playerId !== leftPlayerId,
           );
           dispatch({ type: "setPlayers", players: remainingPlayers });
         }
@@ -152,10 +158,9 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           console.log("Received start_game broadcast:", payload);
           // Host broadcasts the list of players at the start
           const hostIndex = payload.initialPlayers.findIndex(
-            (player) => player.id == payload.initiatedBy,
+            (player) => player.playerId == payload.initiatedBy,
           );
           if (payload.gameMode && payload.initialPlayers && payload.questions) {
-            console.log("Yeyyeyeyyeyeyeyeyeyeyeyeyeyyeyeyeyey");
             dispatch({
               type: "setQuestions",
               questions: payload.questions,
@@ -173,7 +178,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.HEALTH_UPDATE },
-        ({ payload }) => {
+        ({ payload }: { payload: HealthUpdatePayload }) => {
           console.log("Received health_update broadcast:", payload);
           if (payload.playerId && typeof payload.newHealth === "number") {
             dispatch({
