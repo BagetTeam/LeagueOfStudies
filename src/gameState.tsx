@@ -1,16 +1,7 @@
 import { Player, GameMode, Question, GameState, Lobby } from "./types/types";
 
-export const defaultState = {
-  player: {
-    playerId: 0,
-    name: "",
-    score: 0,
-    health: 5,
-    isHost: false,
-    state: "lobby",
-  },
-  lobby: {
-    lobbyId: "",
+const defaultLobby = {
+  lobbyId: "",
     players: [],
     gameMode: {
       type: "deathmatch",
@@ -22,7 +13,18 @@ export const defaultState = {
     currentQuestionIndex: 0,
     playerAnswers: {},
     turnStartTime: null,
+} satisfies Lobby;
+
+export const defaultState = {
+  player: {
+    playerId: 0,
+    name: "",
+    score: 0,
+    health: 5,
+    isHost: false,
+    state: "lobby",
   },
+  lobby: defaultLobby,
 } satisfies GameState;
 
 export type GameStateActions =
@@ -140,19 +142,11 @@ export function gameStatereducer(
       };
     case "joinLobby":
       if ()
-      return state;
+      return stat
     case "exitLobby":
       return {
         ...state,
-        // gameMode: { type: "time", count: 10 },
-        // equations: [],
-        players: [],
-        lobbyId: crypto.randomUUID().toString(),
-        currentPlayer: {
-          ...state.currentPlayer,
-          score: 0,
-          health: 0,
-        },
+        lobby: defaultLobby
       };
     case "nameChange":
       return state;

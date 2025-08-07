@@ -51,7 +51,7 @@ type SetQuestionsPayload = {
 };
 
 type HealthUpdatePayload = {
-  player: Player;
+  playerId: number;
   health: number;
 };
 
