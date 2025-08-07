@@ -30,17 +30,13 @@ type GameProviderProps = {
 
 export const BROADCAST_EVENTS = {
   START_GAME: "start_game",
+  RESTART_GAME: "restart_game",
+  SET_QUESTIONS: "set_questions",
   HEALTH_UPDATE: "health_update",
-  ANSWER_SUBMITTED: "answer_submitted",
   TURN_ADVANCE: "turn_advance",
-  GAME_OVER: "game_over", // remove maybe
 
   PLAYER_ANSWERED: "player_answered",
   BOSS_DAMAGED: "boss_damaged",
-  BOSS_FIGHT_GAME_OVER: "boss_fight_game_over", //remove maybe
-  SET_QUESTIONS: "set_questions",
-
-  RESTART_GAME: "restart_game",
 } as const;
 
 // StartGame Broadcast
@@ -51,25 +47,19 @@ type StartGamePayload = {
   questions: Question[];
 };
 
+type SetQuestionsPayload = {
+  questions: Question[];
+};
+
 type HealthUpdatePayload = {
   player: Player;
   health: number;
-};
-
-type AnswerSubmittedPayload = {
-  player: Player;
-  question: Question;
-  isCorrect: boolean;
 };
 
 type TurnAdvancePayload = {
   currentPlayerIndex: number;
   currentQuestionIndex: number;
   startTime: number;
-};
-
-type GameOverPayload = {
-  winnerPlayerId: number;
 };
 
 type PlayerAnsweredPayload = {
@@ -80,10 +70,6 @@ type PlayerAnsweredPayload = {
 
 type BossDamagePayload = {
   bossHealth: number;
-};
-
-type SetQuestionsPayload = {
-  questions: Question[];
 };
 
 export const GameProvider = ({ children }: GameProviderProps) => {
