@@ -74,6 +74,12 @@ type GameOverPayload = {
   winnerPlayerId: number;
 }
 
+type PlayerAnsweredPayload = {
+  playerId: number;
+  questionIndex: number;
+  isCorrect: boolean;
+}
+
 type SetQuestionsPayload = {
   questions: Question[];
 };
