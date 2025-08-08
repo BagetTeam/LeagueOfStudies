@@ -47,7 +47,7 @@ export type BroadcastingPayloads = {
   boss_damage: BossDamagePayload;
 };
 
-type GameStateActionPayloads = {
+export type GameStateActionPayloads = {
   joinLobby: { lobby: Lobby; player: Player };
   exitLobby: {};
   setHost: { player: Player };

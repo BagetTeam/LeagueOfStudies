@@ -100,7 +100,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           ) {
             dispatch({
               type: "setPlayers",
-              players: [...currentPlayers, joinedPlayerInfo],
+              payload: { players: [...currentPlayers, joinedPlayerInfo] },
             });
           }
         }
@@ -111,11 +111,10 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         // Rely on the next 'sync' event triggered by leave, or explicitly remove
         const leftPlayerId = parseInt(key, 10); // Key is the player ID
         if (!isNaN(leftPlayerId)) {
-          console.log(`Removing player ${leftPlayerId}`);
           const remainingPlayers = lobby.players.filter(
             (p) => p.playerId !== leftPlayerId,
           );
-          dispatch({ type: "setPlayers", players: remainingPlayers });
+          dispatch({ type: "setPlayers", payload: {players: remainingPlayers} });
         }
       });
 
@@ -126,9 +125,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({ payload }: { payload: BroadcastingPayloads["start_game"] }) => {
           dispatch({
             type: "setStartGame",
-            gameMode: payload.gameMode,
-            initialPlayers: payload.initialPlayers, // maybe have a spectating - playing state
-            questions: payload.questions,
+            payload: payload
           });
         },
       );
@@ -139,8 +136,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({ payload }: { payload: BroadcastingPayloads["health_update"] }) => {
           dispatch({
             type: "setHealth",
-            playerId: payload.playerId,
-            health: payload.health,
+            payload: payload,
           });
         },
       );
@@ -155,9 +151,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }) => {
           dispatch({
             type: "advanceTurnDeathmatch",
-            nextPlayerIndex: payload.currentPlayerIndex,
-            nextQuestionIndex: payload.currentQuestionIndex,
-            newTurnStartTime: payload.startTime,
+            payload: payload,
           });
         },
       );
@@ -171,8 +165,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }) => {
           dispatch({
             type: "advanceTurnBossfight",
-            nextQuestionIndex: payload.currentQuestionIndex,
-            newTurnStartTime: payload.startTime,
+            payload: payload,
           });
         },
       );

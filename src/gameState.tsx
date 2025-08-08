@@ -1,3 +1,4 @@
+import { GameStateActionPayloads } from "./types/gameStatePayloads";
 import { Player, GameMode, Question, GameState, Lobby } from "./types/types";
 
 const defaultLobby = {
@@ -30,7 +31,7 @@ export const defaultState = {
 export type GameStateActions =
   | {
       type: "joinLobby";
-      payload: { lobby: Lobby; player: Player };
+      payload: GameStateActionPayloads["joinLobby"];
     }
   | {
       type: "exitLobby";
@@ -38,68 +39,60 @@ export type GameStateActions =
     }
   | {
       type: "setHost";
-      payload: { player: Player };
+      payload: GameStateActionPayloads["setHost"];
     }
   | {
       type: "setGameMode";
-      payload: { gameMode: GameMode };
+      payload: GameStateActionPayloads["setGameMode"];
     }
   | {
       type: "setGameSubject";
-      payload: { subject: string };
+      payload: GameStateActionPayloads["setGameSubject"];
     }
   | {
       type: "setName";
-      payload: { name: string };
+      payload: GameStateActionPayloads["setName"];
     }
   | {
       type: "setPlayers";
-      payload: { players: Player[] };
+      payload: GameStateActionPayloads["setPlayers"];
     }
   | {
       type: "setCurrentPlayer";
-      payload: { player: Player };
+      payload: GameStateActionPayloads["setCurrentPlayer"];
     }
   | {
       type: "setPlayerState";
-      payload: { playerId: number; state: Player["state"] };
+      payload: GameStateActionPayloads["setPlayerState"];
     }
   | {
       type: "setQuestions";
-      payload: { questions: Question[] };
+      payload: GameStateActionPayloads["setQuestions"];
     }
   | {
       type: "setScore";
-      payload: { playerId: number; score: number };
+      payload: GameStateActionPayloads["setScore"];
     }
   | {
       type: "setHealth";
-      payload: { playerId: number; health: number };
+      payload: GameStateActionPayloads["setHealth"];
     }
   | {
       type: "setStartGame";
-      payload: {
-        gameMode: GameMode;
-        initialPlayers: Player[];
-        questions: Question[];
-      };
+      payload: GameStateActionPayloads["setStartGame"];
     }
   | {
       type: "advanceTurnDeathmatch";
-      payload: {
-        nextPlayerIndex: number;
-        nextQuestionIndex: number;
-        newTurnStartTime: number;
-      };
+      payload: GameStateActionPayloads["advanceTurnDeathmatch"];
     }
   | {
       type: "advanceTurnBossfight";
-      payload: { nextQuestionIndex: number; newTurnStartTime: number };
+      payload: GameStateActionPayloads["advanceTurnBossfight"];
     }
-  | { type: "setBossHealth"; payload: { newBossHealth: number } }
+  | { type: "setBossHealth"; payload: GameStateActionPayloads["setBossHealth"] }
   | {
       type: "recordPlayerAnswer";
-      payload: { playerId: number; questionIndex: number; isCorrect: boolean };
+      payload: GameStateActionPayloads["recordPlayerAnswer"];
     }
   | { type: "resetPlayerAnswers"; payload: {} }
   | {
@@ -257,7 +250,7 @@ export function gameStatereducer(
             ...state.lobby.gameMode,
             data: {
               ...state.lobby.gameMode.data,
-              bossHealth: Math.max(0, action.payload.newBossHealth),
+              bossHealth: Math.max(0, action.payload.bossHealth),
             },
           },
         },
@@ -297,11 +290,11 @@ export function gameStatereducer(
             ...state.lobby.gameMode,
             data: {
               ...state.lobby.gameMode.data,
-              activePlayerIndex: action.payload.nextPlayerIndex,
+              activePlayerIndex: action.payload.currentPlayerIndex,
             },
           },
-          currentQuestionIndex: action.payload.nextQuestionIndex,
-          turnStartTime: action.payload.newTurnStartTime,
+          currentQuestionIndex: action.payload.currentQuestionIndex,
+          turnStartTime: action.payload.startTime,
           playerAnswers: {},
         },
       };
@@ -311,8 +304,8 @@ export function gameStatereducer(
         ...state,
         lobby: {
           ...state.lobby,
-          currentQuestionIndex: action.payload.nextQuestionIndex,
-          turnStartTime: action.payload.newTurnStartTime,
+          currentQuestionIndex: action.payload.currentQuestionIndex,
+          turnStartTime: action.payload.startTime,
           playerAnswers: {},
         },
       };
