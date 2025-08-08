@@ -212,30 +212,27 @@ export function gameStatereducer(
       };
 
     case "setStartGame":
-      const initialBossHealth = 100;
       const initialPlayersWithHealth = action.initialPlayers.map((p) => ({
         ...p,
         health: 5,
+        state: "playing" as const,
       }));
+
       return {
         ...state,
-        currentPlayer: {
-          ...state.currentPlayer,
+        player: {
+          ...state.player,
           health: 5,
           score: 0,
         },
-        gameMode: action.gameMode,
-        players: initialPlayersWithHealth,
-        gameStarted: true,
-        activePlayerIndex: action.activePlayerIndex,
-        currentQuestionIndex: 0,
-        turnStartTime: Date.now(), // Start timer for first question
-        isGameOver: false,
-        winnerId: null,
-        // boss fight section
-        bossHealth: initialBossHealth,
-        playerAnswers: {}, // Start with empty answers
-        isTeamVictory: null,
+        lobby: {
+          ...state.lobby,
+          gameMode: action.gameMode,
+          players: initialPlayersWithHealth,
+          currentQuestionIndex: 0,
+          turnStartTime: Date.now(),
+          playerAnswers: {},
+        },
       };
     case "setBossHealth":
       if (typeof state.bossHealth !== "number") return state; // Only run in boss mode
