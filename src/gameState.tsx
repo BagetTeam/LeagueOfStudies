@@ -235,30 +235,35 @@ export function gameStatereducer(
         },
       };
     case "setBossHealth":
-      if (typeof state.bossHealth !== "number") return state; // Only run in boss mode
+      if (state.lobby.gameMode.type !== "bossfight") return state; // Only run in boss mode
       return {
         ...state,
-        bossHealth: Math.max(0, action.newBossHealth), // Ensure non-negative
+        lobby: {
+          ...state.lobby,
+          gameMode: {
+            ...state.lobby.gameMode,
+            data: {
+              ...state.lobby.gameMode.data,
+              bossHealth: Math.max(0, action.newBossHealth),
+            },
+          },
+        },
       };
 
     case "recordPlayerAnswer":
       // Only record if the answer is for the current question index state
-      if (
-        action.questionIndex !== state.currentQuestionIndex ||
-        !state.playerAnswers
-      ) {
-        console.warn(
-          `Ignoring stale answer for Q#${action.questionIndex} (current is ${state.currentQuestionIndex})`,
-        );
+      if (action.questionIndex !== state.lobby.currentQuestionIndex) {
         return state;
       }
       return {
         ...state,
-        playerAnswers: {
-          ...state.playerAnswers,
-          [action.playerId]: {
-            answered: true,
-            isCorrect: action.isCorrect,
+        lobby: {
+          ...state.lobby,
+          playerAnswers: {
+            ...state.lobby.playerAnswers,
+            [action.playerId]: {
+              isCorrect: action.isCorrect,
+            },
           },
         },
       };
