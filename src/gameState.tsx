@@ -30,82 +30,81 @@ export const defaultState = {
 export type GameStateActions =
   | {
       type: "joinLobby";
-      lobby: Lobby;
-      player: Player;
+      payload: { lobby: Lobby; player: Player };
     }
   | {
       type: "exitLobby";
+      payload: {};
     }
   | {
       type: "setHost";
-      player: Player;
+      payload: { player: Player };
     }
   | {
       type: "setGameMode";
-      gameMode: GameMode;
+      payload: { gameMode: GameMode };
     }
   | {
       type: "setGameSubject";
-      subject: string;
+      payload: { subject: string };
     }
   | {
       type: "setName";
-      name: string;
+      payload: { name: string };
     }
   | {
       type: "setPlayers";
-      players: Player[];
+      payload: { players: Player[] };
     }
   | {
       type: "setCurrentPlayer";
-      player: Player;
+      payload: { player: Player };
     }
   | {
       type: "setPlayerState";
-      playerId: number;
-      state: Player["state"];
+      payload: { playerId: number; state: Player["state"] };
     }
   | {
       type: "setQuestions";
-      questions: Question[];
+      payload: { questions: Question[] };
     }
   | {
       type: "setScore";
-      playerId: number;
-      score: number;
+      payload: { playerId: number; score: number };
     }
   | {
       type: "setHealth";
-      playerId: number;
-      health: number;
+      payload: { playerId: number; health: number };
     }
   | {
       type: "setStartGame";
-      gameMode: GameMode;
-      initialPlayers: Player[];
-      questions: Question[];
+      payload: {
+        gameMode: GameMode;
+        initialPlayers: Player[];
+        questions: Question[];
+      };
     }
   | {
       type: "advanceTurnDeathmatch";
-      nextPlayerIndex: number;
-      nextQuestionIndex: number;
-      newTurnStartTime: number;
+      payload: {
+        nextPlayerIndex: number;
+        nextQuestionIndex: number;
+        newTurnStartTime: number;
+      };
     }
   | {
       type: "advanceTurnBossfight";
-      nextQuestionIndex: number;
-      newTurnStartTime: number;
+      payload: { nextQuestionIndex: number; newTurnStartTime: number };
     }
-  | { type: "setBossHealth"; newBossHealth: number }
+  | { type: "setBossHealth"; payload: { newBossHealth: number } }
   | {
       type: "recordPlayerAnswer";
-      playerId: number;
-      questionIndex: number;
-      isCorrect: boolean;
+      payload: { playerId: number; questionIndex: number; isCorrect: boolean };
     }
-  | { type: "resetPlayerAnswers" }
+  | { type: "resetPlayerAnswers"; payload: {} }
   | {
       type: "restartGame";
+      payload: {};
     };
 
 export function gameStatereducer(
@@ -115,13 +114,15 @@ export function gameStatereducer(
   switch (action.type) {
     case "joinLobby":
       if (
-        action.lobby.players.find((p) => p.playerId === action.player.playerId)
+        action.payload.lobby.players.find(
+          (p) => p.playerId === action.payload.player.playerId,
+        )
       ) {
         return state;
       }
       const updatedLobby: Lobby = {
-        ...action.lobby,
-        players: [...state.lobby.players, action.player],
+        ...action.payload.lobby,
+        players: [...state.lobby.players, action.payload.player],
       };
       return {
         ...state,
@@ -133,15 +134,16 @@ export function gameStatereducer(
         lobby: defaultLobby,
       };
     case "setHost":
-      if (action.player.playerId !== state.player.playerId) return state;
+      if (action.payload.player.playerId !== state.player.playerId)
+        return state;
       return {
         ...state,
-        player: { ...state.player, isHost: action.player.isHost },
+        player: { ...state.player, isHost: action.payload.player.isHost },
         lobby: {
           ...state.lobby,
           players: state.lobby.players.map((p) =>
-            p.playerId === action.player.playerId
-              ? { ...p, isHost: action.player.isHost }
+            p.playerId === action.payload.player.playerId
+              ? { ...p, isHost: action.payload.player.isHost }
               : p,
           ),
         },
@@ -151,7 +153,7 @@ export function gameStatereducer(
         ...state,
         lobby: {
           ...state.lobby,
-          gameMode: action.gameMode,
+          gameMode: action.payload.gameMode,
         },
       };
     case "setGameSubject":
@@ -159,21 +161,24 @@ export function gameStatereducer(
         ...state,
         lobby: {
           ...state.lobby,
-          subject: action.subject,
+          subject: action.payload.subject,
         },
       };
 
     case "setName":
-      return { ...state, player: { ...state.player, name: action.name } };
+      return {
+        ...state,
+        player: { ...state.player, name: action.payload.name },
+      };
     case "setPlayers":
       return {
         ...state,
-        lobby: { ...state.lobby, players: action.players },
+        lobby: { ...state.lobby, players: action.payload.players },
       };
     case "setCurrentPlayer":
       return {
         ...state,
-        player: action.player,
+        player: action.payload.player,
       };
     case "setPlayerState":
       return state;
@@ -183,8 +188,8 @@ export function gameStatereducer(
         lobby: {
           ...state.lobby,
           players: state.lobby.players.map((player) =>
-            player.playerId === action.playerId
-              ? { ...player, score: action.score }
+            player.playerId === action.payload.playerId
+              ? { ...player, score: action.payload.score }
               : player,
           ),
         },
@@ -192,13 +197,13 @@ export function gameStatereducer(
     case "setHealth":
       // update health for both player and player within lobby
       const newPlayers = state.lobby.players.map((player) =>
-        player.playerId === action.playerId
-          ? { ...player, health: Math.max(0, action.health) }
+        player.playerId === action.payload.playerId
+          ? { ...player, health: Math.max(0, action.payload.health) }
           : player,
       );
       const newCurrentPlayerHealth =
-        state.player.playerId === action.playerId
-          ? Math.max(0, action.health)
+        state.player.playerId === action.payload.playerId
+          ? Math.max(0, action.payload.health)
           : state.player.health;
 
       return {
@@ -213,15 +218,17 @@ export function gameStatereducer(
     case "setQuestions":
       return {
         ...state,
-        lobby: { ...state.lobby, questions: action.questions },
+        lobby: { ...state.lobby, questions: action.payload.questions },
       };
 
     case "setStartGame":
-      const initialPlayersWithHealth = action.initialPlayers.map((p) => ({
-        ...p,
-        health: 5,
-        state: "playing" as const,
-      }));
+      const initialPlayersWithHealth = action.payload.initialPlayers.map(
+        (p) => ({
+          ...p,
+          health: 5,
+          state: "playing" as const,
+        }),
+      );
 
       return {
         ...state,
@@ -232,12 +239,12 @@ export function gameStatereducer(
         },
         lobby: {
           ...state.lobby,
-          gameMode: action.gameMode,
+          gameMode: action.payload.gameMode,
           players: initialPlayersWithHealth,
           currentQuestionIndex: 0,
           turnStartTime: Date.now(),
           playerAnswers: {},
-          questions: action.questions,
+          questions: action.payload.questions,
         },
       };
     case "setBossHealth":
@@ -250,7 +257,7 @@ export function gameStatereducer(
             ...state.lobby.gameMode,
             data: {
               ...state.lobby.gameMode.data,
-              bossHealth: Math.max(0, action.newBossHealth),
+              bossHealth: Math.max(0, action.payload.newBossHealth),
             },
           },
         },
@@ -258,7 +265,7 @@ export function gameStatereducer(
 
     case "recordPlayerAnswer":
       // Only record if the answer is for the current question index state
-      if (action.questionIndex !== state.lobby.currentQuestionIndex) {
+      if (action.payload.questionIndex !== state.lobby.currentQuestionIndex) {
         return state;
       }
       return {
@@ -267,8 +274,8 @@ export function gameStatereducer(
           ...state.lobby,
           playerAnswers: {
             ...state.lobby.playerAnswers,
-            [action.playerId]: {
-              isCorrect: action.isCorrect,
+            [action.payload.playerId]: {
+              isCorrect: action.payload.isCorrect,
             },
           },
         },
@@ -290,11 +297,11 @@ export function gameStatereducer(
             ...state.lobby.gameMode,
             data: {
               ...state.lobby.gameMode.data,
-              activePlayerIndex: action.nextPlayerIndex,
+              activePlayerIndex: action.payload.nextPlayerIndex,
             },
           },
-          currentQuestionIndex: action.nextQuestionIndex,
-          turnStartTime: action.newTurnStartTime,
+          currentQuestionIndex: action.payload.nextQuestionIndex,
+          turnStartTime: action.payload.newTurnStartTime,
           playerAnswers: {},
         },
       };
@@ -304,8 +311,8 @@ export function gameStatereducer(
         ...state,
         lobby: {
           ...state.lobby,
-          currentQuestionIndex: action.nextQuestionIndex,
-          turnStartTime: action.newTurnStartTime,
+          currentQuestionIndex: action.payload.nextQuestionIndex,
+          turnStartTime: action.payload.newTurnStartTime,
           playerAnswers: {},
         },
       };

@@ -307,7 +307,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       sendBroadcast,
     }),
     [gameState, dispatch, sendBroadcast],
-  ); // Include sendBroadcast here
+  );
 
   return (
     <GameContext.Provider value={contextValue}>
