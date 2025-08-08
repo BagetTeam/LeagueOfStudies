@@ -28,77 +28,12 @@ export const defaultState = {
   lobby: defaultLobby,
 } satisfies GameState;
 
-export type GameStateActions =
-  | {
-      type: "joinLobby";
-      payload: GameStateActionPayloads["joinLobby"];
-    }
-  | {
-      type: "exitLobby";
-      payload: {};
-    }
-  | {
-      type: "setHost";
-      payload: GameStateActionPayloads["setHost"];
-    }
-  | {
-      type: "setGameMode";
-      payload: GameStateActionPayloads["setGameMode"];
-    }
-  | {
-      type: "setGameSubject";
-      payload: GameStateActionPayloads["setGameSubject"];
-    }
-  | {
-      type: "setName";
-      payload: GameStateActionPayloads["setName"];
-    }
-  | {
-      type: "setPlayers";
-      payload: GameStateActionPayloads["setPlayers"];
-    }
-  | {
-      type: "setCurrentPlayer";
-      payload: GameStateActionPayloads["setCurrentPlayer"];
-    }
-  | {
-      type: "setPlayerState";
-      payload: GameStateActionPayloads["setPlayerState"];
-    }
-  | {
-      type: "setQuestions";
-      payload: GameStateActionPayloads["setQuestions"];
-    }
-  | {
-      type: "setScore";
-      payload: GameStateActionPayloads["setScore"];
-    }
-  | {
-      type: "setHealth";
-      payload: GameStateActionPayloads["setHealth"];
-    }
-  | {
-      type: "setStartGame";
-      payload: GameStateActionPayloads["setStartGame"];
-    }
-  | {
-      type: "advanceTurnDeathmatch";
-      payload: GameStateActionPayloads["advanceTurnDeathmatch"];
-    }
-  | {
-      type: "advanceTurnBossfight";
-      payload: GameStateActionPayloads["advanceTurnBossfight"];
-    }
-  | { type: "setBossHealth"; payload: GameStateActionPayloads["setBossHealth"] }
-  | {
-      type: "recordPlayerAnswer";
-      payload: GameStateActionPayloads["recordPlayerAnswer"];
-    }
-  | { type: "resetPlayerAnswers"; payload: {} }
-  | {
-      type: "restartGame";
-      payload: {};
-    };
+export type GameStateActions = {
+  [K in keyof GameStateActionPayloads]: {
+    type: K;
+    payload: GameStateActionPayloads[K];
+  };
+}[keyof GameStateActionPayloads];
 
 export function gameStatereducer(
   state: GameState,

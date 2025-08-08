@@ -15,7 +15,7 @@ import { GameState } from "./types/types";
 import { GameMode, Player, Question } from "./types/types";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/backend/utils/database";
-import { BroadcastingPayloads } from "./types/gameStatePayloads";
+import { BroadcastingPayloads, GameStateActionPayloads } from "./types/gameStatePayloads";
 
 type GameContextType = {
   gameState: GameState;
@@ -176,9 +176,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({ payload }: { payload: BroadcastingPayloads["player_answered"] }) => {
           dispatch({
             type: "recordPlayerAnswer",
-            playerId: payload.playerId,
-            questionIndex: payload.questionIndex,
-            isCorrect: payload.isCorrect,
+            payload: payload,
           });
         },
       );
@@ -191,7 +189,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           if (typeof payload.bossHealth === "number") {
             dispatch({
               type: "setBossHealth",
-              newBossHealth: payload.bossHealth,
+              payload: payload,
             });
           }
         },
@@ -203,7 +201,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({ payload }: { payload: BroadcastingPayloads["set_questions"] }) => {
           dispatch({
             type: "setQuestions",
-            questions: payload.questions,
+            payload: payload,
           });
         },
       );
@@ -247,6 +245,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     }
   }, [gameState.lobby, gameState.player.playerId]);
 
+  function specialDispatch<K extends keyof GameStateActionPayloads>(event: K, payload: GameStateActionPayloads[K]) {
+    const action = { type: event, payload } as GameStateActions;
+    dispatch(action);
+  }
+
   const sendBroadcast = useCallback((event: string, payload: object) => {
     if (channelRef.current) {
       channelRef.current
@@ -257,8 +260,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         })
         .catch((error) => {
           console.error(`Broadcast ${event} failed:`, error);
-        })
-        .then(dispatch({ type: event, payload: payload }));
+        });
+        dispatch({ type: event, payload: payload };
     } else {
       console.warn(
         "Cannot send broadcast, channel not available or not subscribed yet.",
