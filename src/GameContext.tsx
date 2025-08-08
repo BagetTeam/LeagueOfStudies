@@ -15,6 +15,7 @@ import { GameState } from "./types/types";
 import { GameMode, Player, Question } from "./types/types";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/backend/utils/database";
+import { BroadcastingPayloads } from "./types/gameStatePayloads";
 
 type GameContextType = {
   gameState: GameState;
@@ -38,43 +39,6 @@ export const BROADCAST_EVENTS = {
   PLAYER_ANSWERED: "recordPlayerAnswer",
   BOSS_DAMAGED: "setBossHealth",
 } as const;
-
-type StartGamePayload = {
-  initiatedBy: number;
-  initialPlayers: Player[];
-  gameMode: GameMode;
-  questions: Question[];
-};
-
-type SetQuestionsPayload = {
-  questions: Question[];
-};
-
-type HealthUpdatePayload = {
-  playerId: number;
-  health: number;
-};
-
-type TurnAdvanceDeathmatchPayload = {
-  currentPlayerIndex: number;
-  currentQuestionIndex: number;
-  startTime: number;
-};
-
-type TurnAdvanceBossfightPayload = {
-  currentQuestionIndex: number;
-  startTime: number;
-};
-
-type PlayerAnsweredPayload = {
-  playerId: number;
-  questionIndex: number;
-  isCorrect: boolean;
-};
-
-type BossDamagePayload = {
-  bossHealth: number;
-};
 
 export const GameProvider = ({ children }: GameProviderProps) => {
   const [gameState, dispatch] = useReducer(gameStatereducer, initialState);
@@ -159,7 +123,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.START_GAME },
-        ({ payload }: { payload: StartGamePayload }) => {
+        ({ payload }: { payload: BroadcastingPayloads["start_game"] }) => {
           dispatch({
             type: "setStartGame",
             gameMode: payload.gameMode,
@@ -172,7 +136,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.HEALTH_UPDATE },
-        ({ payload }: { payload: HealthUpdatePayload }) => {
+        ({ payload }: { payload: BroadcastingPayloads["health_update"] }) => {
           dispatch({
             type: "setHealth",
             playerId: payload.playerId,
@@ -184,7 +148,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.TURN_ADVANCE_DEATHMATCH },
-        ({ payload }: { payload: TurnAdvanceDeathmatchPayload }) => {
+        ({
+          payload,
+        }: {
+          payload: BroadcastingPayloads["turn_advance_deathmatch"];
+        }) => {
           dispatch({
             type: "advanceTurnDeathmatch",
             nextPlayerIndex: payload.currentPlayerIndex,
@@ -196,7 +164,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.TURN_ADVANCE_BOSSFIGHT },
-        ({ payload }: { payload: TurnAdvanceBossfightPayload }) => {
+        ({
+          payload,
+        }: {
+          payload: BroadcastingPayloads["turn_advance_bossfight"];
+        }) => {
           dispatch({
             type: "advanceTurnBossfight",
             nextQuestionIndex: payload.currentQuestionIndex,
@@ -208,7 +180,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.PLAYER_ANSWERED },
-        ({ payload }: { payload: PlayerAnsweredPayload }) => {
+        ({ payload }: { payload: BroadcastingPayloads["player_answered"] }) => {
           dispatch({
             type: "recordPlayerAnswer",
             playerId: payload.playerId,
@@ -221,7 +193,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.BOSS_DAMAGED },
-        ({ payload }: { payload: BossDamagePayload }) => {
+        ({ payload }: { payload: BroadcastingPayloads["boss_damage"] }) => {
           console.log("Received boss_damaged broadcast:", payload);
           if (typeof payload.bossHealth === "number") {
             dispatch({
@@ -235,7 +207,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.SET_QUESTIONS },
-        ({ payload }: { payload: SetQuestionsPayload }) => {
+        ({ payload }: { payload: BroadcastingPayloads["set_questions"] }) => {
           dispatch({
             type: "setQuestions",
             questions: payload.questions,
@@ -249,6 +221,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({}) => {
           dispatch({
             type: "restartGame",
+            payload: {},
           });
         },
       );
