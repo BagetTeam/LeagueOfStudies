@@ -10,12 +10,15 @@ import React, {
   useMemo,
   Suspense,
 } from "react";
-import { initialState, GameStateActions, gameStatereducer } from "./gameState";
+import { defaultState, GameStateActions, gameStatereducer } from "./gameState";
 import { GameState } from "./types/types";
 import { GameMode, Player, Question } from "./types/types";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/backend/utils/database";
-import { BroadcastingPayloads, GameStateActionPayloads } from "./types/gameStatePayloads";
+import {
+  BroadcastingPayloads,
+  GameStateActionPayloads,
+} from "./types/gameStatePayloads";
 
 type GameContextType = {
   gameState: GameState;
@@ -40,8 +43,11 @@ export const BROADCAST_EVENTS = {
   BOSS_DAMAGED: "setBossHealth",
 } as const;
 
+type BroadcastEventType =
+  (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
+
 export const GameProvider = ({ children }: GameProviderProps) => {
-  const [gameState, dispatch] = useReducer(gameStatereducer, initialState);
+  const [gameState, dispatch] = useReducer(gameStatereducer, defaultState);
   const channelRef = React.useRef<RealtimeChannel | null>(null);
 
   const { player, lobby } = gameState;
@@ -114,7 +120,10 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           const remainingPlayers = lobby.players.filter(
             (p) => p.playerId !== leftPlayerId,
           );
-          dispatch({ type: "setPlayers", payload: {players: remainingPlayers} });
+          dispatch({
+            type: "setPlayers",
+            payload: { players: remainingPlayers },
+          });
         }
       });
 
@@ -125,7 +134,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({ payload }: { payload: BroadcastingPayloads["start_game"] }) => {
           dispatch({
             type: "setStartGame",
-            payload: payload
+            payload: payload,
           });
         },
       );
@@ -245,29 +254,38 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     }
   }, [gameState.lobby, gameState.player.playerId]);
 
-  function specialDispatch<K extends keyof GameStateActionPayloads>(event: K, payload: GameStateActionPayloads[K]) {
+  function specialDispatch<K extends keyof GameStateActionPayloads>(
+    event: K,
+    payload: GameStateActionPayloads[K],
+  ) {
     const action = { type: event, payload } as GameStateActions;
     dispatch(action);
   }
 
-  const sendBroadcast = useCallback((event: string, payload: object) => {
-    if (channelRef.current) {
-      channelRef.current
-        .send({
-          type: "broadcast",
-          event: event,
-          payload: payload,
-        })
-        .catch((error) => {
-          console.error(`Broadcast ${event} failed:`, error);
-        });
-        dispatch({ type: event, payload: payload };
-    } else {
-      console.warn(
-        "Cannot send broadcast, channel not available or not subscribed yet.",
-      );
-    }
-  }, []);
+  const sendBroadcast = useCallback(
+    (
+      event: BroadcastEventType,
+      payload: GameStateActionPayloads[typeof event],
+    ) => {
+      if (channelRef.current) {
+        channelRef.current
+          .send({
+            type: "broadcast",
+            event: event,
+            payload: payload,
+          })
+          .catch((error) => {
+            console.error(`Broadcast ${event} failed:`, error);
+          });
+        specialDispatch(event as keyof GameStateActionPayloads, payload);
+      } else {
+        console.warn(
+          "Cannot send broadcast, channel not available or not subscribed yet.",
+        );
+      }
+    },
+    [],
+  );
 
   const contextValue = useMemo(
     () => ({
