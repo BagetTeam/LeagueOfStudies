@@ -43,7 +43,7 @@ export const BROADCAST_EVENTS = {
   BOSS_DAMAGED: "setBossHealth",
 } as const;
 
-type BroadcastEventType =
+type BroadcastEventType = keyof GameStateActionPayloads &
   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
 
 export const GameProvider = ({ children }: GameProviderProps) => {
