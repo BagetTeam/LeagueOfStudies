@@ -7,6 +7,8 @@ type StartGamePayload = {
   questions: Question[];
 };
 
+type RestartGamePayload = {};
+
 type SetQuestionsPayload = {
   questions: Question[];
 };
@@ -38,13 +40,14 @@ type BossDamagePayload = {
 };
 
 export type BroadcastingPayloads = {
-  start_game: StartGamePayload;
-  set_questions: SetQuestionsPayload;
-  health_update: HealthUpdatePayload;
-  turn_advance_deathmatch: TurnAdvanceDeathmatchPayload;
-  turn_advance_bossfight: TurnAdvanceBossfightPayload;
-  player_answered: PlayerAnsweredPayload;
-  boss_damage: BossDamagePayload;
+  START_GAME: StartGamePayload;
+  RESTART_GAME: RestartGamePayload;
+  SET_QUESTIONS: SetQuestionsPayload;
+  HEALTH_UPDATE: HealthUpdatePayload;
+  TURN_ADVANCE_DEATHMATCH: TurnAdvanceDeathmatchPayload;
+  TURN_ADVANCE_BOSSFIGHT: TurnAdvanceBossfightPayload;
+  PLAYER_ANSWERED: PlayerAnsweredPayload;
+  BOSS_DAMAGED: BossDamagePayload;
 };
 
 export type GameStateActionPayloads = {
@@ -66,5 +69,5 @@ export type GameStateActionPayloads = {
   setBossHealth: BossDamagePayload;
   recordPlayerAnswer: PlayerAnsweredPayload;
   resetPlayerAnswers: {};
-  restartGame: {};
+  restartGame: RestartGamePayload;
 };
