@@ -160,15 +160,10 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         "broadcast",
         { event: BROADCAST_EVENTS.START_GAME },
         ({ payload }: { payload: StartGamePayload }) => {
-          console.log("Received start_game broadcast:", payload);
-          // Host broadcasts the list of players at the start
-          const hostIndex = payload.initialPlayers.findIndex(
-            (player) => player.playerId == payload.initiatedBy,
-          );
           dispatch({
             type: "setStartGame",
             gameMode: payload.gameMode,
-            initialPlayers: payload.initialPlayers, // Use the player list from the host
+            initialPlayers: payload.initialPlayers, // maybe have a spectating - playing state
             questions: payload.questions,
           });
         },
@@ -178,7 +173,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         "broadcast",
         { event: BROADCAST_EVENTS.HEALTH_UPDATE },
         ({ payload }: { payload: HealthUpdatePayload }) => {
-          console.log("Received health_update broadcast:", payload);
           dispatch({
             type: "setHealth",
             playerId: payload.playerId,
@@ -221,29 +215,19 @@ export const GameProvider = ({ children }: GameProviderProps) => {
             questionIndex: payload.questionIndex,
             isCorrect: payload.isCorrect,
           });
-
-          // } else {
-          //   console.warn(
-          //     "Invalid or stale PLAYER_ANSWERED payload:",
-          //     payload,
-          //     "Current Q:",
-          //     gameState.currentQuestionIndex,
-          //   );
-          // }
         },
       );
 
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.BOSS_DAMAGED },
-        ({ payload }) => {
+        ({ payload }: { payload: BossDamagePayload }) => {
           console.log("Received boss_damaged broadcast:", payload);
-          if (typeof payload.newBossHealth === "number") {
+          if (typeof payload.bossHealth === "number") {
             dispatch({
               type: "setBossHealth",
-              newBossHealth: payload.newBossHealth,
+              newBossHealth: payload.bossHealth,
             });
-            // Trigger UI feedback in component
           }
         },
       );
@@ -252,7 +236,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         "broadcast",
         { event: BROADCAST_EVENTS.SET_QUESTIONS },
         ({ payload }: { payload: SetQuestionsPayload }) => {
-          console.log("EYEYYEYEYEYEYYEYEYEYYEYEYEYYEE");
           dispatch({
             type: "setQuestions",
             questions: payload.questions,
@@ -270,27 +253,21 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         },
       );
 
+      // Add player to lobby connections
       channel.subscribe(async (status) => {
-        console.log(`Channel ${gameState.gameId} subscription status:`, status);
         if (status === "SUBSCRIBED") {
-          // Track this user's presence once subscribed, ensure playerInfo is valid
-          if (gameState.currentPlayer.id > 0) {
-            await channel.track({ playerInfo: gameState.currentPlayer });
-            console.log("Tracked current player:", gameState.currentPlayer);
-          } else {
-            console.warn("Attempted to track player with invalid ID (0)");
+          // Track this user's presence once subscribed, and sync other players
+          if (gameState.player.playerId > 0) {
+            await channel.track({ playerInfo: gameState.player });
           }
         } else if (status === "CHANNEL_ERROR") {
-          console.error(`Channel Error for ${gameState.gameId}`);
-          // Handle error, maybe try to resubscribe or notify user
+          console.error(`Channel Error for ${gameState.lobby.lobbyId}`);
         } else if (status === "TIMED_OUT") {
           console.warn(
-            `Channel subscription timed out for ${gameState.gameId}`,
+            `Channel subscription timed out for ${gameState.lobby.lobbyId}`,
           );
-          // Handle timeout
         } else if (status === "CLOSED") {
-          console.log(`Channel ${gameState.gameId} closed.`);
-          // Perform cleanup if necessary
+          console.log(`Channel ${gameState.lobby.lobbyId} closed.`);
         }
       });
 
@@ -302,7 +279,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       };
     }
-  }, [gameState.gameId, gameState.currentPlayer.id]);
+  }, [gameState.lobby, gameState.player.playerId]);
 
   const sendBroadcast = useCallback((event: string, payload: object) => {
     if (channelRef.current) {
@@ -314,8 +291,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         })
         .catch((error) => {
           console.error(`Broadcast ${event} failed:`, error);
-        });
-      dispatch();
+        })
+        .then(dispatch({ type: event, payload: payload }));
     } else {
       console.warn(
         "Cannot send broadcast, channel not available or not subscribed yet.",
