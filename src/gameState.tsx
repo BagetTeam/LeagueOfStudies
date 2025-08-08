@@ -83,7 +83,7 @@ export type GameStateActions =
       type: "setStartGame";
       gameMode: GameMode;
       initialPlayers: Player[];
-      activePlayerIndex: number;
+      questions: Question[];
     }
   | {
       type: "advanceTurnDeathmatch";
@@ -237,6 +237,7 @@ export function gameStatereducer(
           currentQuestionIndex: 0,
           turnStartTime: Date.now(),
           playerAnswers: {},
+          questions: action.questions,
         },
       };
     case "setBossHealth":

@@ -29,14 +29,14 @@ type GameProviderProps = {
 };
 
 export const BROADCAST_EVENTS = {
-  START_GAME: "start_game",
-  RESTART_GAME: "restart_game",
-  SET_QUESTIONS: "set_questions",
-  HEALTH_UPDATE: "health_update",
-  TURN_ADVANCE: "turn_advance",
-
-  PLAYER_ANSWERED: "player_answered",
-  BOSS_DAMAGED: "boss_damaged",
+  START_GAME: "setStartGame",
+  RESTART_GAME: "restartGame",
+  SET_QUESTIONS: "setQuestions",
+  HEALTH_UPDATE: "setHealth",
+  TURN_ADVANCE_DEATHMATCH: "advanceTurnDeathmatch",
+  TURN_ADVANCE_BOSSFIGHT: "advanceTurnBossfight",
+  PLAYER_ANSWERED: "recordPlayerAnswer",
+  BOSS_DAMAGED: "setBossHealth",
 } as const;
 
 type StartGamePayload = {
@@ -55,8 +55,13 @@ type HealthUpdatePayload = {
   health: number;
 };
 
-type TurnAdvancePayload = {
+type TurnAdvanceDeathmatchPayload = {
   currentPlayerIndex: number;
+  currentQuestionIndex: number;
+  startTime: number;
+};
+
+type TurnAdvanceBossfightPayload = {
   currentQuestionIndex: number;
   startTime: number;
 };
@@ -160,18 +165,12 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           const hostIndex = payload.initialPlayers.findIndex(
             (player) => player.playerId == payload.initiatedBy,
           );
-          if (payload.gameMode && payload.initialPlayers && payload.questions) {
-            dispatch({
-              type: "setQuestions",
-              questions: payload.questions,
-            });
-            dispatch({
-              type: "setStartGame",
-              gameMode: payload.gameMode,
-              initialPlayers: payload.initialPlayers, // Use the player list from the host
-              activePlayerIndex: hostIndex,
-            });
-          }
+          dispatch({
+            type: "setStartGame",
+            gameMode: payload.gameMode,
+            initialPlayers: payload.initialPlayers, // Use the player list from the host
+            questions: payload.questions,
+          });
         },
       );
 
@@ -180,46 +179,34 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         { event: BROADCAST_EVENTS.HEALTH_UPDATE },
         ({ payload }: { payload: HealthUpdatePayload }) => {
           console.log("Received health_update broadcast:", payload);
-          if (payload.playerId && typeof payload.newHealth === "number") {
-            dispatch({
-              type: "setHealth",
-              playerId: payload.playerId,
-              health: payload.newHealth,
-            });
-          }
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.TURN_ADVANCE },
-        ({ payload }) => {
-          console.log("Received turn_advance broadcast:", payload);
-          if (
-            typeof payload.nextPlayerIndex === "number" &&
-            typeof payload.nextQuestionIndex === "number" &&
-            typeof payload.newTurnStartTime === "number"
-          ) {
-            dispatch({
-              type: "advanceTurn",
-              nextPlayerIndex: payload.nextPlayerIndex,
-              nextQuestionIndex: payload.nextQuestionIndex,
-              newTurnStartTime: payload.newTurnStartTime,
-            });
-          }
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.GAME_OVER },
-        ({ payload }) => {
-          console.log("Received game_over broadcast:", payload);
-          // Payload might contain winnerId, or we calculate it client-side if needed
           dispatch({
-            type: "setGameOver",
-            winnerId: payload.winnerId ?? null,
-            isGameOver: payload.isGameOver,
+            type: "setHealth",
+            playerId: payload.playerId,
+            health: payload.health,
+          });
+        },
+      );
+
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.TURN_ADVANCE_DEATHMATCH },
+        ({ payload }: { payload: TurnAdvanceDeathmatchPayload }) => {
+          dispatch({
+            type: "advanceTurnDeathmatch",
+            nextPlayerIndex: payload.currentPlayerIndex,
+            nextQuestionIndex: payload.currentQuestionIndex,
+            newTurnStartTime: payload.startTime,
+          });
+        },
+      );
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.TURN_ADVANCE_BOSSFIGHT },
+        ({ payload }: { payload: TurnAdvanceBossfightPayload }) => {
+          dispatch({
+            type: "advanceTurnBossfight",
+            nextQuestionIndex: payload.currentQuestionIndex,
+            newTurnStartTime: payload.startTime,
           });
         },
       );
@@ -227,19 +214,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.PLAYER_ANSWERED },
-        ({ payload }) => {
-          console.log("Received player_answered broadcast:", payload);
-          // if (
-          //   payload.playerId &&
-          //   typeof payload.isCorrect !== "undefined" &&
-          //   payload.questionIndex >= 0
-          // ) {
-          if (payload.questionIndex !== gameState.currentQuestionIndex) {
-            console.log(
-              `Question index mismatch: Player answered Q${payload.questionIndex}, but current is Q${gameState.currentQuestionIndex}`,
-            );
-            // Still record the answer to handle race conditions
-          }
+        ({ payload }: { payload: PlayerAnsweredPayload }) => {
           dispatch({
             type: "recordPlayerAnswer",
             playerId: payload.playerId,
@@ -269,38 +244,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
               newBossHealth: payload.newBossHealth,
             });
             // Trigger UI feedback in component
-          }
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.TEAM_DAMAGED },
-        ({ payload }) => {
-          console.log("Received team_damaged broadcast:", payload);
-          if (
-            payload.healthUpdates &&
-            typeof payload.healthUpdates === "object"
-          ) {
-            dispatch({
-              type: "updateMultiplePlayerHealth",
-              healthUpdates: payload.healthUpdates,
-            });
-            // Trigger UI feedback in component
-          }
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER },
-        ({ payload }) => {
-          console.log("Received boss_fight_game_over broadcast:", payload);
-          if (typeof payload.isVictory === "boolean") {
-            dispatch({
-              type: "setBossFightGameOver",
-              isVictory: payload.isVictory,
-            });
           }
         },
       );
@@ -372,6 +315,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         .catch((error) => {
           console.error(`Broadcast ${event} failed:`, error);
         });
+      dispatch();
     } else {
       console.warn(
         "Cannot send broadcast, channel not available or not subscribed yet.",
