@@ -86,8 +86,13 @@ export type GameStateActions =
       activePlayerIndex: number;
     }
   | {
-      type: "advanceTurn";
+      type: "advanceTurnDeathmatch";
       nextPlayerIndex: number;
+      nextQuestionIndex: number;
+      newTurnStartTime: number;
+    }
+  | {
+      type: "advanceTurnBossfight";
       nextQuestionIndex: number;
       newTurnStartTime: number;
     }
@@ -271,24 +276,43 @@ export function gameStatereducer(
     case "resetPlayerAnswers":
       return {
         ...state,
-        lobby: { ...lobby, playerAnswers: {} },
+        lobby: { ...state.lobby, playerAnswers: {} },
       };
 
-    case "advanceTurn":
+    case "advanceTurnDeathmatch":
+      if (state.lobby.gameMode.type !== "deathmatch") return state;
       return {
         ...state,
-        activePlayerIndex: action.nextPlayerIndex,
-        currentQuestionIndex: action.nextQuestionIndex,
-        turnStartTime: action.newTurnStartTime,
-        playerAnswers: {},
+        lobby: {
+          ...state.lobby,
+          gameMode: {
+            ...state.lobby.gameMode,
+            data: {
+              ...state.lobby.gameMode.data,
+              activePlayerIndex: action.nextPlayerIndex,
+            },
+          },
+          currentQuestionIndex: action.nextQuestionIndex,
+          turnStartTime: action.newTurnStartTime,
+          playerAnswers: {},
+        },
+      };
+    case "advanceTurnBossfight":
+      if (state.lobby.gameMode.type !== "bossfight") return state;
+      return {
+        ...state,
+        lobby: {
+          ...state.lobby,
+          currentQuestionIndex: action.nextQuestionIndex,
+          turnStartTime: action.newTurnStartTime,
+          playerAnswers: {},
+        },
       };
 
     case "restartGame":
       return {
         ...state,
-        questions: [],
-        currentQuestionIndex: 0,
-        gameStarted: false,
+        lobby: { ...state.lobby, questions: [], currentQuestionIndex: 0 },
       };
   }
 }
