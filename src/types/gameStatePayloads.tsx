@@ -1,4 +1,4 @@
-import { GameMode, Player, Question } from "./types";
+import { GameMode, Lobby, Player, Question } from "./types";
 
 type StartGamePayload = {
   initiatedBy: number;
@@ -45,4 +45,26 @@ export type BroadcastingPayloads = {
   turn_advance_bossfight: TurnAdvanceBossfightPayload;
   player_answered: PlayerAnsweredPayload;
   boss_damage: BossDamagePayload;
+};
+
+type GameStateActionPayloads = {
+  joinLobby: { lobby: Lobby; player: Player };
+  exitLobby: {};
+  setHost: { player: Player };
+  setGameMode: { gameMode: GameMode };
+  setGameSubject: { subject: string };
+  setName: { name: string };
+  setPlayers: { players: Player[] };
+  setCurrentPlayer: { player: Player };
+  setPlayerState: { playerId: number; state: Player["state"] };
+  setQuestions: SetQuestionsPayload;
+  setScore: { playerId: number; score: number };
+  setHealth: HealthUpdatePayload;
+  setStartGame: StartGamePayload;
+  advanceTurnDeathmatch: TurnAdvanceDeathmatchPayload;
+  advanceTurnBossfight: TurnAdvanceBossfightPayload;
+  setBossHealth: BossDamagePayload;
+  recordPlayerAnswer: PlayerAnsweredPayload;
+  resetPlayerAnswers: {};
+  restartGame: {};
 };

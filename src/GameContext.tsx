@@ -80,7 +80,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           ); // Filter out invalid/guest players
 
         console.log("Synced players:", updatedPlayers);
-        dispatch({ type: "setPlayers", players: updatedPlayers });
+        dispatch({ type: "setPlayers", payload: { players: updatedPlayers } });
       });
 
       channel.on("presence", { event: "join" }, ({ key, newPresences }) => {
