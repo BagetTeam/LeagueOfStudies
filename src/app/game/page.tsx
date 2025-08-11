@@ -12,23 +12,23 @@ import BossFightGame from "@/components/BossFightGame"; // Assuming path
 // Define initial/default game mode if needed
 const defaultGameMode: GameMode = {
   type: "deathmatch", // Or your most common mode
-  time: 15, // Corresponds to TURN_DURATION_SECONDS
+  data: { activePlayerIndex: 0, time: 15 }, // Corresponds to TURN_DURATION_SECONDS
 };
 
 function GameScreenContent() {
   const router = useRouter();
   const searchParams = useSearchParams(); // Get URL search parameters
   const { gameState, dispatch } = useGame();
-  const { gameId, gameStarted, gameMode, currentPlayer, gameSubject } =
-    gameState;
+  const { player, lobby } = gameState;
+  const { lobbyId, gameMode, subject } = lobby;
   const joinGameId = searchParams.get("join");
 
   useEffect(() => {
     // --- Initialization Logic ---
-    if (joinGameId && !gameId) {
+    if (joinGameId && !lobbyId) {
       console.log(`Joining game from URL: ${joinGameId}`);
       dispatch({ type: "setGameId", gameId: joinGameId });
-    } else if (!gameId) {
+    } else if (!lobbyId) {
       const newGameId = "game-" + crypto.randomUUID().toString();
       console.log(`Creating new game with ID: ${newGameId}`);
       dispatch({ type: "setGameId", gameId: newGameId });
@@ -80,10 +80,10 @@ function GameScreenContent() {
     if (!gameSubject) {
       dispatch({ type: "setGameSubject", subject: "Rust" });
     }
-  }, [dispatch, gameId, currentPlayer, searchParams, gameMode, gameSubject]); // Dependencies for init
+  }, [dispatch, lobbyId, currentPlayer, searchParams, gameMode, gameSubject]); // Dependencies for init
 
   // --- Navigation / Component Rendering ---
-  if (!gameId || !currentPlayer || currentPlayer.id === 0) {
+  if (!lobbyId || !currentPlayer || currentPlayer.id === 0) {
     return <div>Initializing...</div>; // Show loading until basic gameState is set
   }
 
@@ -109,7 +109,7 @@ function GameScreenContent() {
         onBackToMenu={() => {
           router.push("/"); // Navigate to home or dashboard
         }}
-        subject={gameSubject}
+        subject={subject}
       />
     );
   }
