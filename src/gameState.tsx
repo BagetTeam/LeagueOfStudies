@@ -48,6 +48,13 @@ export function gameStatereducer(
       ) {
         return state;
       }
+      // set new player Id
+      for (let i = 1; i <= state.lobby.players.length; i++) {
+        if (state.lobby.players.at(i - 1)?.playerId != i) {
+          action.payload.player.playerId = i;
+        }
+      }
+      action.payload.player.state = "lobby";
       const updatedLobby: Lobby = {
         ...action.payload.lobby,
         players: [...state.lobby.players, action.payload.player],

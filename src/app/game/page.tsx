@@ -1,7 +1,7 @@
 // GameScreen.tsx
 "use client";
 
-import LobbyScreen from "@/components/LobbyScreen";
+import LobbyScreen from "@/app/game/LobbyScreen";
 import { GameMode, Player } from "@/types/types"; // Keep Player if needed
 import { useRouter, useSearchParams } from "next/navigation"; // Use useSearchParams
 import { useGame } from "../../GameContext";
@@ -26,12 +26,14 @@ function GameScreenContent() {
   useEffect(() => {
     // --- Initialization Logic ---
     if (joinGameId && !lobbyId) {
-      console.log(`Joining game from URL: ${joinGameId}`);
-      dispatch({ type: "setGameId", gameId: joinGameId });
+      dispatch({
+        type: "joinLobby",
+        payload: { lobby: lobby, player: player },
+      }); // TODO fix this
     } else if (!lobbyId) {
+      // create new lobby
       const newGameId = "game-" + crypto.randomUUID().toString();
-      console.log(`Creating new game with ID: ${newGameId}`);
-      dispatch({ type: "setGameId", gameId: newGameId });
+      dispatch({ type: "joinLobby", gameId: newGameId });
     }
 
     // Setting up players
