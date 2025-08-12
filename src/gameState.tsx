@@ -18,7 +18,7 @@ const defaultLobby = {
 
 export const defaultState = {
   player: {
-    playerId: 0,
+    playerId: "",
     name: "",
     score: 0,
     health: 5,

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export interface Player {
-  playerId: number;
+  playerId: string;
   name: string;
   score: number;
   health: number;

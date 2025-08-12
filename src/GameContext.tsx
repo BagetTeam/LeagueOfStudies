@@ -66,7 +66,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     }
 
     // add Lobby channel to player
-    if (lobby.lobbyId && player.playerId > 0) {
+    if (lobby.lobbyId && player.playerId.length > 0) {
       const channel = supabase.channel(lobby.lobbyId, {
         config: {
           presence: {
@@ -85,7 +85,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         const updatedPlayers = Object.values(presenceState)
           .map((presence) => presence[0]?.playerInfo)
           .filter(
-            (player): player is Player => !!player && player.playerId !== 0,
+            (player): player is Player => !!player && player.playerId !== "",
           ); // Filter out invalid/guest players
 
         console.log("Synced players:", updatedPlayers);
@@ -97,7 +97,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         const joinedPlayerInfo = newPresences[0]?.playerInfo as
           | Player
           | undefined;
-        if (joinedPlayerInfo && joinedPlayerInfo.playerId !== 0) {
+        if (joinedPlayerInfo && joinedPlayerInfo.playerId !== "") {
           // Ensure valid player joined
           console.log("Dispatching addPlayer for:", joinedPlayerInfo);
           // Use setPlayers to handle potential gameState inconsistencies on join/sync race conditions
@@ -121,7 +121,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         const leftPlayerId = parseInt(key, 10); // Key is the player ID
         if (!isNaN(leftPlayerId)) {
           const remainingPlayers = lobby.players.filter(
-            (p) => p.playerId !== leftPlayerId,
+            (p) => p.playerId !== leftPlayerId.toString(),
           );
           dispatch({
             type: "setPlayers",
@@ -233,7 +233,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
           // Track this user's presence once subscribed, and sync other players
-          if (gameState.player.playerId > 0) {
+          if (gameState.player.playerId.length > 0) {
             await channel.track({ playerInfo: gameState.player });
           }
         } else if (status === "CHANNEL_ERROR") {

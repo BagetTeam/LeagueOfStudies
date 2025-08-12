@@ -14,7 +14,7 @@ type SetQuestionsPayload = {
 };
 
 type HealthUpdatePayload = {
-  playerId: number;
+  playerId: string;
   health: number;
 };
 
@@ -30,7 +30,7 @@ type TurnAdvanceBossfightPayload = {
 };
 
 type PlayerAnsweredPayload = {
-  playerId: number;
+  playerId: string;
   questionIndex: number;
   isCorrect: boolean;
 };
@@ -59,9 +59,9 @@ export type GameStateActionPayloads = {
   setName: { name: string };
   setPlayers: { players: Player[] };
   setCurrentPlayer: { player: Player };
-  setPlayerState: { playerId: number; state: Player["state"] };
+  setPlayerState: { playerId: string; state: Player["state"] };
   setQuestions: SetQuestionsPayload;
-  setScore: { playerId: number; score: number };
+  setScore: { playerId: string; score: number };
   setHealth: HealthUpdatePayload;
   setStartGame: StartGamePayload;
   advanceTurnDeathmatch: TurnAdvanceDeathmatchPayload;
