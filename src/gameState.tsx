@@ -49,11 +49,8 @@ export function gameStatereducer(
         return state;
       }
       // set new player Id
-      for (let i = 1; i <= state.lobby.players.length; i++) {
-        if (state.lobby.players.at(i - 1)?.playerId != i) {
-          action.payload.player.playerId = i;
-        }
-      }
+      let id = 1;
+      state.lobby.players.forEach((p) => {});
       action.payload.player.state = "lobby";
       const updatedLobby: Lobby = {
         ...action.payload.lobby,
