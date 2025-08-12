@@ -48,8 +48,6 @@ export function gameStatereducer(
       ) {
         return state;
       }
-      // set new player Id
-      let id = 1;
       action.payload.player.state = "lobby";
       const updatedLobby: Lobby = {
         ...action.payload.lobby,
@@ -57,6 +55,7 @@ export function gameStatereducer(
       };
       return {
         ...state,
+        player: action.payload.player,
         lobby: updatedLobby,
       };
     case "exitLobby":

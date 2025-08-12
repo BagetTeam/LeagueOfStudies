@@ -12,7 +12,7 @@ import React, {
 } from "react";
 import { defaultState, GameStateActions, gameStatereducer } from "./gameState";
 import { GameState } from "./types/types";
-import { GameMode, Player, Question } from "./types/types";
+import { Player } from "./types/types";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/backend/utils/database";
 import {
