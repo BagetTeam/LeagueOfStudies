@@ -52,7 +52,7 @@ export default function GameModes() {
       dispatch({ type: "setGameSubject", payload: { subject: subject } });
     }
 
-    router.push("/game");
+    router.push("/lobby");
   };
 
   return (
