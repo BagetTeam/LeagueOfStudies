@@ -36,12 +36,10 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} bg-primary/10 w-[100vw] overflow-x-hidden antialiased`}
       >
         <Wrapper domain={domain} client_id={cliend_id}>
-          <GameProvider>
-            <Theme>
-              <NavBar />
-              {children}
-            </Theme>
-          </GameProvider>
+          <Theme>
+            <NavBar />
+            {children}
+          </Theme>
         </Wrapper>
       </body>
     </html>

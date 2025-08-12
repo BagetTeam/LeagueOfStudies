@@ -1,7 +1,7 @@
 import { GameStateActionPayloads } from "./types/gameStatePayloads";
 import { Player, GameMode, Question, GameState, Lobby } from "./types/types";
 
-const defaultLobby = {
+export const defaultLobby = {
   lobbyId: "",
   players: [],
   gameMode: {
@@ -50,7 +50,6 @@ export function gameStatereducer(
       }
       // set new player Id
       let id = 1;
-      state.lobby.players.forEach((p) => {});
       action.payload.player.state = "lobby";
       const updatedLobby: Lobby = {
         ...action.payload.lobby,
