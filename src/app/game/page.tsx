@@ -16,10 +16,9 @@ import { useGame } from "../../GameContext";
 import { GameMode } from "@/types/types";
 import { subjects } from "@/test-data/gameModeData";
 
-// Define initial/default game mode if needed
 const defaultGameMode: GameMode = {
-  type: "deathmatch", // Or your most common mode
-  data: { activePlayerIndex: 0, time: 15 }, // Corresponds to TURN_DURATION_SECONDS
+  type: "deathmatch",
+  data: { activePlayerIndex: 0, time: 15 },
 };
 
 export default function GameModes() {
@@ -36,16 +35,24 @@ export default function GameModes() {
       ),
   );
 
-  const handleStartGame = (mode: string, subject: string) => {
+  const handlePickSubject = (subject: string) => {
+    let mode: GameMode = defaultGameMode;
     if (selectedMode) {
-      const mode: GameMode = { type: selectedMode, time: 15 };
-      dispatch({ type: "setGameMode", gameMode: mode });
+      if (selectedMode === "deathmatch")
+        mode = { type: selectedMode, data: { activePlayerIndex: 0, time: 15 } };
+      else if (selectedMode === "bossfight")
+        mode = {
+          type: selectedMode,
+          data: { bossName: "teacher Bob", bossHealth: 5, time: 15 },
+        };
     }
+    dispatch({ type: "setGameMode", payload: { gameMode: mode } });
+
     if (subject) {
-      dispatch({ type: "setGameSubject", subject: subject });
+      dispatch({ type: "setGameSubject", payload: { subject: subject } });
     }
 
-    router.push(`/game?mode=${mode}&subject=${subject}`);
+    router.push("/game");
   };
 
   return (
@@ -170,7 +177,7 @@ export default function GameModes() {
 
                 <Button
                   className={`text-background w-full gap-2 ${selectedMode === "deathmatch" ? "bg-theme-orange hover:bg-theme-orange/80" : "bg-theme-blue hover:bg-theme-blue/80"}`}
-                  onClick={() => handleStartGame(selectedMode, subject.name)}
+                  onClick={() => handlePickSubject(subject.name)}
                 >
                   <Play className="h-4 w-4" />
                   Start Game
@@ -194,7 +201,7 @@ export default function GameModes() {
         </>
       )}
 
-      {/* Call-to-action for creating custom game */}
+      {/* Placeholder -- Call-to-action for creating custom game */}
       <div className="bg-theme-purple/10 rounded-xl p-6 md:p-8">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row"></div>
       </div>
