@@ -1,6 +1,8 @@
 import { GameMode, Lobby, Player, Question } from "./types";
 
-type SetLobbyPayload = {};
+type SetLobbyPayload = {
+  lobby: Lobby;
+};
 
 type StartGamePayload = {
   initiatedBy: number;
@@ -42,6 +44,7 @@ type BossDamagePayload = {
 };
 
 export type BroadcastingPayloads = {
+  SET_LOBBY_CONFIG: SetLobbyPayload;
   START_GAME: StartGamePayload;
   RESTART_GAME: RestartGamePayload;
   SET_QUESTIONS: SetQuestionsPayload;
@@ -55,7 +58,7 @@ export type BroadcastingPayloads = {
 export type GameStateActionPayloads = {
   joinLobby: { lobby: Lobby; player: Player };
   exitLobby: {};
-  setLobby: { lobby: Lobby };
+  setLobby: SetLobbyPayload;
   setHost: { player: Player };
   setGameMode: { gameMode: GameMode };
   setGameSubject: { subject: string };

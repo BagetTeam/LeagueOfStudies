@@ -98,19 +98,18 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         const joinedPlayerInfo = newPresences[0]?.playerInfo as
           | Player
           | undefined;
+        // Ensure valid player joined
         if (joinedPlayerInfo && joinedPlayerInfo.playerId !== "") {
-          // Ensure valid player joined
-          console.log("Dispatching addPlayer for:", joinedPlayerInfo);
-          // Use setPlayers to handle potential gameState inconsistencies on join/sync race conditions
           const currentPlayers = lobby.players;
           if (
+            player.isHost &&
             !currentPlayers.some(
               (p) => p.playerId === joinedPlayerInfo.playerId,
             )
           ) {
-            dispatch({
-              type: "setPlayers",
-              payload: { players: [...currentPlayers, joinedPlayerInfo] },
+            sendBroadcast(BROADCAST_EVENTS.SET_LOBBY_CONFIG, {
+              ...lobby,
+              players: [...currentPlayers, joinedPlayerInfo],
             });
           }
         }
@@ -132,6 +131,21 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       });
 
       // --- Broadcast Handlers ---
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.SET_LOBBY_CONFIG },
+        ({
+          payload,
+        }: {
+          payload: BroadcastingPayloads["SET_LOBBY_CONFIG"];
+        }) => {
+          dispatch({
+            type: "setLobby",
+            payload: payload,
+          });
+        },
+      );
+
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.START_GAME },
