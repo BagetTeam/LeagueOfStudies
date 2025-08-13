@@ -40,6 +40,8 @@ export function gameStatereducer(
   action: GameStateActions,
 ): GameState {
   switch (action.type) {
+    case "setLobby":
+      return { ...state, lobby: action.payload.lobby };
     case "joinLobby":
       if (
         action.payload.lobby.players.find(
