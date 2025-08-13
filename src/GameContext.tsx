@@ -21,6 +21,7 @@ import {
 } from "./types/gameStatePayloads";
 
 export const BROADCAST_EVENTS = {
+  SET_LOBBY_CONFIG: "setLobby",
   START_GAME: "setStartGame",
   RESTART_GAME: "restartGame",
   SET_QUESTIONS: "setQuestions",

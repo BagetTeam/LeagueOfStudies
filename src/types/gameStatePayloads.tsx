@@ -1,5 +1,7 @@
 import { GameMode, Lobby, Player, Question } from "./types";
 
+type SetLobbyPayload = {};
+
 type StartGamePayload = {
   initiatedBy: number;
   initialPlayers: Player[];
@@ -53,6 +55,7 @@ export type BroadcastingPayloads = {
 export type GameStateActionPayloads = {
   joinLobby: { lobby: Lobby; player: Player };
   exitLobby: {};
+  setLobby: { lobby: Lobby };
   setHost: { player: Player };
   setGameMode: { gameMode: GameMode };
   setGameSubject: { subject: string };
