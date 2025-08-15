@@ -67,16 +67,15 @@ export default function LobbyScreen() {
   }, []);
 
   useEffect(() => {
-    console.log("Gamehas Started");
-    if (gameState.gameStarted) {
-      console.log("Game started, navigating...");
-      if (gameState.gameMode.type === "deathmatch") {
+    // starting game
+    if (player.state === "playing") {
+      if (lobby.gameMode.type === "deathmatch") {
         router.push("/game/deathmatch"); // Adjust path as needed
-      } else if (gameState.gameMode.type === "bossbattle") {
+      } else if (lobby.gameMode.type === "bossfight") {
         router.push("/game/bossbattle"); // Adjust path as needed
       }
     }
-  }, [gameStarted, gameState.gameMode]);
+  }, [player.state]);
 
   const fetchingRef = useRef(false);
   useEffect(() => {
