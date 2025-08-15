@@ -134,11 +134,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.SET_LOBBY_CONFIG },
-        ({
-          payload,
-        }: {
-          payload: BroadcastingPayloads["SET_LOBBY_CONFIG"];
-        }) => {
+        ({ payload }: { payload: BroadcastingPayloads["setLobby"] }) => {
           dispatch({
             type: "setLobby",
             payload: payload,
@@ -149,7 +145,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.START_GAME },
-        ({ payload }: { payload: BroadcastingPayloads["START_GAME"] }) => {
+        ({ payload }: { payload: BroadcastingPayloads["setStartGame"] }) => {
           dispatch({
             type: "setStartGame",
             payload: payload,
@@ -160,7 +156,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.HEALTH_UPDATE },
-        ({ payload }: { payload: BroadcastingPayloads["HEALTH_UPDATE"] }) => {
+        ({ payload }: { payload: BroadcastingPayloads["setHealth"] }) => {
           dispatch({
             type: "setHealth",
             payload: payload,
@@ -174,7 +170,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({
           payload,
         }: {
-          payload: BroadcastingPayloads["TURN_ADVANCE_DEATHMATCH"];
+          payload: BroadcastingPayloads["advanceTurnDeathmatch"];
         }) => {
           dispatch({
             type: "advanceTurnDeathmatch",
@@ -188,7 +184,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({
           payload,
         }: {
-          payload: BroadcastingPayloads["TURN_ADVANCE_BOSSFIGHT"];
+          payload: BroadcastingPayloads["advanceTurnBossfight"];
         }) => {
           dispatch({
             type: "advanceTurnBossfight",
@@ -200,7 +196,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.PLAYER_ANSWERED },
-        ({ payload }: { payload: BroadcastingPayloads["PLAYER_ANSWERED"] }) => {
+        ({
+          payload,
+        }: {
+          payload: BroadcastingPayloads["recordPlayerAnswer"];
+        }) => {
           dispatch({
             type: "recordPlayerAnswer",
             payload: payload,
@@ -211,7 +211,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.BOSS_DAMAGED },
-        ({ payload }: { payload: BroadcastingPayloads["BOSS_DAMAGED"] }) => {
+        ({ payload }: { payload: BroadcastingPayloads["setBossHealth"] }) => {
           console.log("Received boss_damaged broadcast:", payload);
           if (typeof payload.bossHealth === "number") {
             dispatch({
@@ -225,7 +225,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.SET_QUESTIONS },
-        ({ payload }: { payload: BroadcastingPayloads["SET_QUESTIONS"] }) => {
+        ({ payload }: { payload: BroadcastingPayloads["setQuestions"] }) => {
           dispatch({
             type: "setQuestions",
             payload: payload,
@@ -236,7 +236,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.RESTART_GAME },
-        ({ payload }: { payload: BroadcastingPayloads["RESTART_GAME"] }) => {
+        ({ payload }: { payload: BroadcastingPayloads["restartGame"] }) => {
           dispatch({
             type: "restartGame",
             payload: payload,

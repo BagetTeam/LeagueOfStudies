@@ -44,15 +44,15 @@ type BossDamagePayload = {
 };
 
 export type BroadcastingPayloads = {
-  SET_LOBBY_CONFIG: SetLobbyPayload;
-  START_GAME: StartGamePayload;
-  RESTART_GAME: RestartGamePayload;
-  SET_QUESTIONS: SetQuestionsPayload;
-  HEALTH_UPDATE: HealthUpdatePayload;
-  TURN_ADVANCE_DEATHMATCH: TurnAdvanceDeathmatchPayload;
-  TURN_ADVANCE_BOSSFIGHT: TurnAdvanceBossfightPayload;
-  PLAYER_ANSWERED: PlayerAnsweredPayload;
-  BOSS_DAMAGED: BossDamagePayload;
+  setLobby: SetLobbyPayload;
+  setStartGame: StartGamePayload;
+  restartGame: RestartGamePayload;
+  setQuestions: SetQuestionsPayload;
+  setHealth: HealthUpdatePayload;
+  advanceTurnDeathmatch: TurnAdvanceDeathmatchPayload;
+  advanceTurnBossfight: TurnAdvanceBossfightPayload;
+  recordPlayerAnswer: PlayerAnsweredPayload;
+  setBossHealth: BossDamagePayload;
 };
 
 export type GameStateActionPayloads = {

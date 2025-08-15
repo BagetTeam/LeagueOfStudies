@@ -11,6 +11,7 @@ import { getQuestions } from "@/backend/services/game-questions";
 import PDF_reader from "@/app/pdf_reader/reader";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { defaultLobby } from "@/gameState";
+import { BroadcastingPayloads } from "@/types/gameStatePayloads";
 
 export default function LobbyScreen() {
   const { gameState, dispatch, sendBroadcast } = useGame();
@@ -66,8 +67,8 @@ export default function LobbyScreen() {
     }
   }, []);
 
+  // starting game
   useEffect(() => {
-    // starting game
     if (player.state === "playing") {
       if (lobby.gameMode.type === "deathmatch") {
         router.push("/game/deathmatch"); // Adjust path as needed
@@ -77,15 +78,12 @@ export default function LobbyScreen() {
     }
   }, [player.state]);
 
+  // generate quetions
   const fetchingRef = useRef(false);
   useEffect(() => {
-    if (!currentPlayer.isHost) return;
+    if (!player.isHost) return;
 
     if (!questions || (questions.length === 0 && subject)) {
-      console.log(
-        "Clearly there are no questions because length is " + questions.length,
-      );
-
       if (fetchingRef.current) return;
 
       fetchingRef.current = true;
@@ -97,10 +95,17 @@ export default function LobbyScreen() {
             subject,
           )) satisfies Question[];
 
+          const payload: BroadcastingPayloads["SET_QUESTIONS"] = {
+            questions: fetchedQuestions,
+          };
+
           console.log("questions:", fetchedQuestions);
-          if (!gameState.gameStarted) {
-            dispatch({ type: "setQuestions", questions: fetchedQuestions });
-            sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, fetchedQuestions);
+          if (player.state === "lobby") {
+            dispatch({
+              type: "setQuestions",
+              payload: payload,
+            });
+            sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, payload);
           }
         } catch {
         } finally {
@@ -109,16 +114,14 @@ export default function LobbyScreen() {
         }
       })();
     }
-  }, [currentPlayer.isHost, subject, questions, dispatch, sendBroadcast]);
+  }, [player.isHost, subject, questions, dispatch, sendBroadcast]);
 
   const startGame = () => {
     console.log("ERM");
     console.log(gameState);
-    if (currentPlayer.isHost && players.length > 0) {
+    if (player.isHost && players.length > 0) {
       // Ensure there are players
-      const hostIndex = players.findIndex(
-        (player) => player.id == currentPlayer.id,
-      );
+      const hostIndex = players.findIndex((player) => player.id == player.id);
 
       console.log(
         "Host starting game. Broadcasting START_GAME with players:",
