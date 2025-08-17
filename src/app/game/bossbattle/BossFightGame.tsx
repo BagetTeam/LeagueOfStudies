@@ -140,7 +140,6 @@ const BossFightGame = () => {
     const activePlayers = players.filter((p) => p.state === "playing"); // Get currently living players
     const allAnsweredPlayerId = new Set(Object.keys(playerAnswers));
 
-    // Check if round needs resolution
     const timeExpired = timeLeft <= 0;
     const allPlayersAnswered = activePlayers.every((p) =>
       allAnsweredPlayerId.has(p.playerId),
@@ -148,33 +147,11 @@ const BossFightGame = () => {
 
     // resolve round -> advance to next round
     if (timeExpired || allPlayersAnswered) {
-      setIsResolvingRound(true); // Prevent further actions during resolution broadcast cascade
+      setIsResolvingRound(true);
 
-      let allCorrect = true;
-      const healthUpdates: { [playerId: number]: number } = {};
-
-      // Evaluate answers of living players
-      activePlayers.forEach((player) => {
-        const answer = playerAnswers[player.id];
-        // If time expired and player didn't answer, OR if they answered incorrectly
-        if (
-          (timeExpired && (!answer || !answer.answered)) ||
-          (answer?.answered && answer.isCorrect === false)
-        ) {
-          allCorrect = false;
-          console.log(
-            `Player ${player.id} failed (Expired: ${timeExpired && !answer?.answered}, Incorrect: ${answer?.answered && answer.isCorrect === false})`,
-          );
-        } else if (!answer?.answered && !timeExpired) {
-          // Should not happen if triggered by allLivingPlayersAnswered, but safety check
-          allCorrect = false;
-          console.warn(
-            `Player ${player.id} has not answered, but resolution triggered early?`,
-          );
-        } else {
-          console.log(`Player ${player.id} succeeded.`);
-        }
-      });
+      const allPlayerAnswersCorrect = activePlayers.every(
+        (p) => playerAnswers[p.playerId].isCorrect,
+      );
 
       // Determine outcome
       if (allCorrect && activePlayers.length > 0) {
