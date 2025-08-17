@@ -79,7 +79,7 @@ export default function GameOver({
         ) : gameMode.type === "deathmatch" ? (
           <div></div>
         ) : (
-          <div></div>
+          <div>Something went wrong...</div>
         )}
       </div>
       <div className="flex flex-wrap justify-center gap-4">
