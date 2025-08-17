@@ -36,13 +36,6 @@ const PlayerList: React.FC<PlayerListProps> = ({
           <div className="flex-grow overflow-hidden">
             <div className="truncate font-medium">{player.name}</div>
           </div>
-
-          {showScores && (
-            <div className="ml-auto flex items-center">
-              <div className="text-xl font-bold">{player.score}</div>
-              <div className="text-muted-foreground ml-1 text-xs"></div>
-            </div>
-          )}
         </div>
       ))}
     </div>
