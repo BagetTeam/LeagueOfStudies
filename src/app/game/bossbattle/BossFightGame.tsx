@@ -11,12 +11,14 @@ import { useGame } from "@/GameContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import { updateLeaderboard } from "@/backend/db/leaderboard";
 import { BROADCAST_EVENTS } from "@/GameContext";
+import { createBroadcastPayload } from "@/utils/utils";
 
 const XP_GAIN_ON_WIN = 500;
 const XP_LOSS_ON_LOSE = -200;
 
 const BossFightGame = () => {
-  const { gameState, dispatch, sendBroadcast } = useGame();
+  const { gameState, dispatch, sendBroadcast, broadcastAndDispatch } =
+    useGame();
   const { player, lobby } = gameState;
   const {
     players,
@@ -27,11 +29,15 @@ const BossFightGame = () => {
     questions,
   } = lobby;
 
-  const { time, bossName, bossHealth } = gameMode.data;
+  if (gameMode.type !== "bossfight") {
+    return <div>ERROR!! RESTART GAME</div>;
+  }
+
+  const { time: TURN_DURATION_SECONDS, bossName, bossHealth } = gameMode.data;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(gameMode.data.time);
+  const [timeLeft, setTimeLeft] = useState(TURN_DURATION_SECONDS);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
   const [isResolvingRound, setIsResolvingRound] = useState(false);
@@ -43,6 +49,8 @@ const BossFightGame = () => {
     [currentQuestionIndex],
   );
 
+  const isGameOver = !players.find((p) => p.state === "playing");
+
   // clear all states when question changes (turnStartTime change)
   useEffect(() => {
     setIsAnsweredLocally(false);
@@ -52,11 +60,11 @@ const BossFightGame = () => {
     setIsResolvingRound(false);
   }, [turnStartTime]);
 
-  const isGameOver = () => {};
+  // handle setting and calculating Time
   useEffect(() => {
     if (isGameOver || turnStartTime === null || isResolvingRound) {
       setTimeLeft(0);
-      return; // Stop timer if game over, question not started, or round is resolving
+      return;
     }
 
     const calculateRemainingTime = () => {
@@ -65,16 +73,13 @@ const BossFightGame = () => {
       const remaining = TURN_DURATION_SECONDS - elapsed;
       setTimeLeft(Math.max(0, remaining));
 
-      // Check if time ran out *for this client*
+      // Check if time ran out
       if (
         remaining <= 0 &&
         !isAnsweredLocally &&
         !isGameOver &&
         !isResolvingRound
       ) {
-        console.log(
-          `Time ran out for local player ${currentPlayer.id} on Q#${currentQuestionIndex}`,
-        );
         handleAnswer(null); // Submit a timeout answer (null = incorrect)
       }
     };
@@ -87,7 +92,6 @@ const BossFightGame = () => {
     turnStartTime,
     isGameOver,
     isAnsweredLocally,
-    currentPlayer.id,
     currentQuestionIndex,
     isResolvingRound,
   ]);
@@ -96,47 +100,37 @@ const BossFightGame = () => {
   const handleAnswer = (optionIndex: number | null) => {
     if (
       isAnsweredLocally ||
-      currentPlayer.health <= 0 ||
+      player.health <= 0 ||
       isResolvingRound ||
       isGameOver
     ) {
-      console.log("Answer prevented:", {
-        isAnsweredLocally,
-        health: currentPlayer.health,
-        isResolvingRound,
-        isGameOver,
-      });
       return;
     }
 
-    setIsAnsweredLocally(true); // Mark locally as answered
+    setIsAnsweredLocally(true);
     setSelectedOption(optionIndex);
 
     const isCorrect = optionIndex === currentQuestion.correctAnswer;
-    console.log(
-      `Local Player ${currentPlayer.id} answered Q#${currentQuestionIndex}. Correct: ${isCorrect} (Option: ${optionIndex})`,
-    );
+
     setFeedbackMessage("Answer submitted! Waiting for team...");
     setShowFeedback(true);
 
     // Broadcast the answer
-    dispatch({
-      type: "recordPlayerAnswer",
-      playerId: currentPlayer.id,
-      questionIndex: currentQuestionIndex,
-      isCorrect: isCorrect,
-    });
-    sendBroadcast(BROADCAST_EVENTS.PLAYER_ANSWERED, {
-      playerId: currentPlayer.id,
-      questionIndex: currentQuestionIndex, // Send index to prevent processing stale answers
-      isCorrect: isCorrect,
-    });
+    const { event, payload } = createBroadcastPayload(
+      BROADCAST_EVENTS.PLAYER_ANSWERED,
+      {
+        playerId: player.playerId,
+        questionIndex: currentQuestionIndex,
+        isCorrect: isCorrect,
+      },
+    );
+    broadcastAndDispatch(event, payload);
   };
 
   // --- HOST ONLY: Round Resolution Logic ---
   useEffect(() => {
     if (
-      !currentPlayer.isHost ||
+      !player.isHost ||
       isGameOver ||
       turnStartTime === null ||
       isResolvingRound
@@ -145,7 +139,7 @@ const BossFightGame = () => {
     }
 
     const activePlayers = players.filter((p) => p.health > 0); // Get currently living players
-    const activePlayers_ids = new Set(activePlayers.map((p) => p.id));
+    const activePlayers_ids = new Set(activePlayers.map((p) => p.playerId));
 
     // Check if round needs resolution
     const timeExpired =
