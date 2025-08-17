@@ -15,6 +15,7 @@ import {
   BroadcastingPayloads,
   GameStateActionPayloads,
 } from "@/types/gameStatePayloads";
+import { createBroadcastPayload } from "@/utils/utils";
 
 export default function LobbyScreen() {
   const { gameState, dispatch, sendBroadcast } = useGame();
@@ -98,10 +99,10 @@ export default function LobbyScreen() {
             subject,
           )) satisfies Question[];
 
-          const payload: BroadcastingPayloads[typeof BROADCAST_EVENTS.SET_QUESTIONS] =
-            {
-              questions: fetchedQuestions,
-            };
+          const { event, payload } = createBroadcastPayload(
+            BROADCAST_EVENTS.SET_QUESTIONS,
+            { questions: fetchedQuestions },
+          );
 
           console.log("questions:", fetchedQuestions);
           if (player.state === "lobby") {
@@ -109,7 +110,7 @@ export default function LobbyScreen() {
             //   type: "setQuestions",
             //   payload: payload,
             // });
-            sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, payload);
+            sendBroadcast(event, payload);
           }
         } catch {
         } finally {

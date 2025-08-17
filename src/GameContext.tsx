@@ -41,9 +41,9 @@ export type BroadcastEventType =
 type GameContextType = {
   gameState: GameState;
   dispatch: React.Dispatch<GameStateActions>;
-  sendBroadcast: (
-    event: BroadcastEventType,
-    payload: BroadcastingPayloads,
+  sendBroadcast: <E extends BroadcastEventType>(
+    event: E,
+    payload: BroadcastingPayloads[E],
   ) => void;
 };
 
