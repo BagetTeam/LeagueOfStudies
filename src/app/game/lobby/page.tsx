@@ -35,6 +35,27 @@ export default function LobbyScreen() {
   const urlSearchParams = useSearchParams();
   const joinLobbyId = urlSearchParams.get("join");
 
+  const generateQuestions = async (topic: string | null) => {
+    try {
+      setLoading(true);
+      topic = topic ?? subject;
+
+      const fetchedQuestions = (await getQuestions(topic)) satisfies Question[];
+
+      if (player.state === "lobby") {
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.SET_QUESTIONS,
+          { questions: fetchedQuestions },
+        );
+
+        broadcastAndDispatch(event, payload);
+      }
+    } catch {
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Initialize Lobby
   useEffect(() => {
     if (lobbyId == "") {
@@ -72,39 +93,9 @@ export default function LobbyScreen() {
     }
   }, []);
 
-  // starting game
-  useEffect(() => {
-    if (player.state === "playing") {
-      if (lobby.gameMode.type === "deathmatch") {
-        router.push("/game/deathmatch"); // Adjust path as needed
-      } else if (lobby.gameMode.type === "bossfight") {
-        router.push("/game/bossbattle"); // Adjust path as needed
-      }
-    }
-  }, [player.state]);
-
-  const generateQuestions = async (topic: string | null) => {
-    try {
-      setLoading(true);
-      topic = topic ?? subject;
-
-      const fetchedQuestions = (await getQuestions(topic)) satisfies Question[];
-
-      if (player.state === "lobby") {
-        const { event, payload } = createBroadcastPayload(
-          BROADCAST_EVENTS.SET_QUESTIONS,
-          { questions: fetchedQuestions },
-        );
-
-        broadcastAndDispatch(event, payload);
-      }
-    } catch {
-    } finally {
-      setLoading(false);
-    }
-  };
   const fetchingRef = useRef(false);
 
+  // initialize questions
   useEffect(() => {
     if (!player.isHost) return;
 
@@ -117,6 +108,17 @@ export default function LobbyScreen() {
       fetchingRef.current = false;
     }
   }, [player.isHost, subject, questions, dispatch, broadcastAndDispatch]);
+
+  // starting game
+  useEffect(() => {
+    if (player.state === "playing") {
+      if (lobby.gameMode.type === "deathmatch") {
+        router.push("/game/deathmatch"); // Adjust path as needed
+      } else if (lobby.gameMode.type === "bossfight") {
+        router.push("/game/bossbattle"); // Adjust path as needed
+      }
+    }
+  }, [player.state]);
 
   const startGame = () => {
     if (player.isHost && players.length > 0) {
@@ -187,20 +189,11 @@ export default function LobbyScreen() {
             onClick={async () => {
               if (!studyText) return; // Prevent empty submissions
               setLoading(true);
-              try {
-                const q = (await getQuestions(studyText)) satisfies Question[];
-                console.log("Generated questions:", q);
-                // Dispatch locally FIRST
-                dispatch({ type: "setQuestions", payload: { questions: q } });
-                // THEN Broadcast
-                sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, q);
-              } catch (error) {
-                console.error("Failed to generate questions:", error);
-                // Maybe show an error message to the user
-              } finally {
-                setLoading(false);
-                console.log("LOADING STOP");
-              }
+              dispatch({
+                type: "setGameSubject",
+                payload: { subject: studyText },
+              });
+              setLoading(false);
             }}
             disabled={loading || !studyText} // Disable if loading or no text
             className="..."
