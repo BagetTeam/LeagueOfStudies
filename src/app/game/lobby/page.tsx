@@ -83,12 +83,12 @@ export default function LobbyScreen() {
     }
   }, [player.state]);
 
-  const generateQuestions= async () => {
+  const generateQuestions = async (topic: string | null) => {
     try {
       setLoading(true);
-      const fetchedQuestions = (await getQuestions(
-        subject,
-      )) satisfies Question[];
+      topic = topic ?? subject;
+
+      const fetchedQuestions = (await getQuestions(topic)) satisfies Question[];
 
       if (player.state === "lobby") {
         const { event, payload } = createBroadcastPayload(
@@ -101,10 +101,10 @@ export default function LobbyScreen() {
     } catch {
     } finally {
       setLoading(false);
-      fetchingRef.current = false;
     }
-  }
+  };
   const fetchingRef = useRef(false);
+
   useEffect(() => {
     if (!player.isHost) return;
 
@@ -113,27 +113,8 @@ export default function LobbyScreen() {
 
       fetchingRef.current = true;
 
-      (async () => {
-        try {
-          setLoading(true);
-          const fetchedQuestions = (await getQuestions(
-            subject,
-          )) satisfies Question[];
-
-          if (player.state === "lobby") {
-            const { event, payload } = createBroadcastPayload(
-              BROADCAST_EVENTS.SET_QUESTIONS,
-              { questions: fetchedQuestions },
-            );
-
-            broadcastAndDispatch(event, payload);
-          }
-        } catch {
-        } finally {
-          setLoading(false);
-          fetchingRef.current = false;
-        }
-      })();
+      generateQuestions();
+      fetchingRef.current = false;
     }
   }, [player.isHost, subject, questions, dispatch, broadcastAndDispatch]);
 
@@ -211,7 +192,7 @@ export default function LobbyScreen() {
                 const q = (await getQuestions(studyText)) satisfies Question[];
                 console.log("Generated questions:", q);
                 // Dispatch locally FIRST
-                dispatch({ type: "setQuestions", payload: {questions: q} });
+                dispatch({ type: "setQuestions", payload: { questions: q } });
                 // THEN Broadcast
                 sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, q);
               } catch (error) {
@@ -258,9 +239,9 @@ export default function LobbyScreen() {
         <h1 className="mb-2 text-center text-3xl font-bold">Game Lobby</h1>
         {/* Display Game Mode */}
         <p className="text-muted-foreground mb-6 text-center capitalize">
-          Mode: {gameState.gameMode.type}{" "}
-          {gameState.gameMode.type === "time"
-            ? `(${gameState.gameMode.time}s)`
+          Mode: {lobby.gameMode.type}{" "}
+          {lobby.gameMode.type === "deathmatch"
+            ? `(${lobby.gameMode.data.time}s)`
             : ""}
         </p>
 
@@ -303,7 +284,7 @@ export default function LobbyScreen() {
               Players ({players.length})
             </h2>
             {/* Start Game Button for Host */}
-            {player..isHost && (
+            {player.isHost && (
               <Button
                 onClick={startGame}
                 disabled={
@@ -328,7 +309,7 @@ export default function LobbyScreen() {
 
           {/* Player List Component */}
           {players.length > 0 ? (
-            <PlayerList players={players} player.Id={player..id} />
+            <PlayerList players={players} currentPlayerId={player.playerId} />
           ) : (
             <p className="text-muted-foreground py-4 text-center">
               Waiting for players...

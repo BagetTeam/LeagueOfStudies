@@ -6,7 +6,7 @@ import cn from "@/utils/cn";
 interface PlayerListProps {
   players: Player[];
   showScores?: boolean;
-  currentPlayerId: number;
+  currentPlayerId: string;
   //isResults: boolean;
 }
 
