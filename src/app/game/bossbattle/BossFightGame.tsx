@@ -138,19 +138,19 @@ const BossFightGame = () => {
       return;
     }
 
-    const activePlayers = players.filter((p) => p.health > 0); // Get currently living players
+    const activePlayers = players.filter((p) => p.state === "playing"); // Get currently living players
     const activePlayers_ids = new Set(activePlayers.map((p) => p.playerId));
 
     // Check if round needs resolution
     const timeExpired =
       Date.now() >= turnStartTime + TURN_DURATION_SECONDS * 1000;
     const allLivingPlayersAnswered = activePlayers.every(
-      (p) => playerAnswers[p.id]?.answered,
+      (p) => playerAnswers[p.playerId]?.answered,
     );
 
     if (timeExpired || allLivingPlayersAnswered) {
       console.log(
-        `--- Host ${currentPlayer.id}: Resolving Round Q#${currentQuestionIndex} ---`,
+        `--- Host ${player.playerId}: Resolving Round Q#${currentQuestionIndex} ---`,
       );
       console.log(
         "Reason:",
