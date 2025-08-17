@@ -100,13 +100,12 @@ export default function LobbyScreen() {
             subject,
           )) satisfies Question[];
 
-          const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.SET_QUESTIONS,
-            { questions: fetchedQuestions },
-          );
-
-          console.log("questions:", fetchedQuestions);
           if (player.state === "lobby") {
+            const { event, payload } = createBroadcastPayload(
+              BROADCAST_EVENTS.SET_QUESTIONS,
+              { questions: fetchedQuestions },
+            );
+
             broadcastAndDispatch(event, payload);
           }
         } catch {
@@ -119,22 +118,16 @@ export default function LobbyScreen() {
   }, [player.isHost, subject, questions, dispatch, broadcastAndDispatch]);
 
   const startGame = () => {
-    console.log("ERM");
-    console.log(gameState);
     if (player.isHost && players.length > 0) {
-      const payload = createBroadcastPayload(BROADCAST_EVENTS.START_GAME, {});
-      dispatch({
-        type: "setStartGame",
-        gameMode: gameState.gameMode,
-        initialPlayers: players,
-        activePlayerIndex: hostIndex,
-      });
-      sendBroadcast(BROADCAST_EVENTS.START_GAME, {
-        gameMode: gameMode, // Send the confirmed game mode
-        initialPlayers: players, // Send the list of players currently in the lobby
-        initiatedBy: currentPlayer.id,
-        questions: questions,
-      });
+      const { event, payload } = createBroadcastPayload(
+        BROADCAST_EVENTS.START_GAME,
+        {
+          initialPlayers: lobby.players,
+          gameMode: lobby.gameMode,
+          questions: lobby.questions,
+        },
+      );
+      broadcastAndDispatch(event, payload);
     } else {
       console.warn("Cannot start game: Not host or no players.");
     }
@@ -142,8 +135,8 @@ export default function LobbyScreen() {
 
   const handleBackToMenuClick = () => {
     console.log("Leaving lobby...");
-    dispatch({ type: "exitLobby" });
-    onBackToMenu();
+    dispatch({ type: "exitLobby", payload: {} });
+    router.push("/");
   };
 
   const copyInviteLink = () => {
@@ -177,7 +170,7 @@ export default function LobbyScreen() {
 
   return (
     <div className="flex w-full basis-full gap-8 p-4">
-      {currentPlayer.isHost && (
+      {player.isHost && (
         <div className="flex h-full basis-full flex-col items-center justify-start bg-gray-100 p-8">
           <h1 className="mb-8 text-3xl font-bold">Study Question Generator</h1>
           <textarea
@@ -198,7 +191,7 @@ export default function LobbyScreen() {
                 const q = (await getQuestions(studyText)) satisfies Question[];
                 console.log("Generated questions:", q);
                 // Dispatch locally FIRST
-                dispatch({ type: "setQuestions", questions: q });
+                dispatch({ type: "setQuestions", payload: {questions: q} });
                 // THEN Broadcast
                 sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, q);
               } catch (error) {
@@ -290,7 +283,7 @@ export default function LobbyScreen() {
               Players ({players.length})
             </h2>
             {/* Start Game Button for Host */}
-            {currentPlayer.isHost && (
+            {player..isHost && (
               <Button
                 onClick={startGame}
                 disabled={
@@ -315,7 +308,7 @@ export default function LobbyScreen() {
 
           {/* Player List Component */}
           {players.length > 0 ? (
-            <PlayerList players={players} currentPlayerId={currentPlayer.id} />
+            <PlayerList players={players} player.Id={player..id} />
           ) : (
             <p className="text-muted-foreground py-4 text-center">
               Waiting for players...
