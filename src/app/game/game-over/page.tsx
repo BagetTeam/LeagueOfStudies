@@ -11,7 +11,7 @@ interface GameOverProps {
   players: Player[];
 }
 
-export function GameOver({
+export default function GameOver({
   isVictory,
   bossHealth,
   maxBossHealth,

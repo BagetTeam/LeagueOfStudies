@@ -153,21 +153,17 @@ const BossFightGame = () => {
         (p) => playerAnswers[p.playerId].isCorrect,
       );
 
-      // Determine outcome
-      if (allCorrect && activePlayers.length > 0) {
-        // --- SUCCESS: Damage Boss ---
-        const damage = 10 * activePlayers.length; // Example: Damage scales with living players
+      // -- Determine outcome --
+      if (allPlayerAnswersCorrect && activePlayers.length > 0) {
+        // SUCCESS -> Damage Boss
+        const damage = 10 * activePlayers.length;
         const newBossHealth = Math.max(0, (bossHealth ?? 0) - damage);
-        console.log(
-          `Host: All correct! Damaging boss. New health: ${newBossHealth}`,
+
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.BOSS_DAMAGED,
+          { bossHealth: newBossHealth },
         );
-        dispatch({
-          type: "setBossHealth",
-          newBossHealth: newBossHealth,
-        });
-        setTimeout(() => {
-          sendBroadcast(BROADCAST_EVENTS.BOSS_DAMAGED, { newBossHealth });
-        }, 500);
+        broadcastAndDispatch(event, payload);
 
         if (newBossHealth <= 0) {
           console.log("Host: Boss defeated! Broadcasting Game Over.");
