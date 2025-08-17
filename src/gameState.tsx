@@ -35,7 +35,7 @@ export type GameStateActions = {
   };
 }[keyof GameStateActionPayloads];
 
-export type GameStateActionsType = {};
+export type GameStateActionsType = keyof GameStateActionPayloads;
 
 export function gameStatereducer(
   state: GameState,

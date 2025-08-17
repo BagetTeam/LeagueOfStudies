@@ -10,7 +10,12 @@ import React, {
   useMemo,
   Suspense,
 } from "react";
-import { defaultState, GameStateActions, gameStatereducer } from "./gameState";
+import {
+  defaultState,
+  GameStateActions,
+  GameStateActionsType,
+  gameStatereducer,
+} from "./gameState";
 import { GameState } from "./types/types";
 import { Player } from "./types/types";
 import { RealtimeChannel } from "@supabase/supabase-js";
@@ -302,15 +307,14 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           .catch((error) => {
             console.error(`Broadcast ${event} failed:`, error);
           });
-        
-          const action = {
-            type: event as keyof GameStateActionPayloads,
-            payload:
-              payload as GameStateActionPayloads[keyof GameStateActionPayloads],
-          } as GameStateActions;
 
-          dispatch(action);
-        
+        const action = {
+          type: event as keyof GameStateActionPayloads,
+          payload:
+            payload as GameStateActionPayloads[keyof GameStateActionPayloads],
+        } as GameStateActions;
+
+        dispatch(action);
       } else {
         console.warn(
           "Cannot send broadcast, channel not available or not subscribed yet.",
@@ -321,8 +325,18 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   );
 
   const broadcastAndDispatch = useCallback(
-    <E extends keyof BroadcastEventType & Gamest
-  )
+    <E extends keyof BroadcastEventType & keyof GameStateActionsType>(
+      event: E,
+      payload: BroadcastingPayloads[E] & GameStateActionPayloads[E],
+    ) => {
+      sendBroadcast(event, payload);
+      dispatch({
+        type: event,
+        payload: payload,
+      } as GameStateActions);
+    },
+    [],
+  );
 
   const contextValue = useMemo(
     () => ({
