@@ -83,7 +83,27 @@ export default function LobbyScreen() {
     }
   }, [player.state]);
 
-  // generate quetions
+  const generateQuestions= async () => {
+    try {
+      setLoading(true);
+      const fetchedQuestions = (await getQuestions(
+        subject,
+      )) satisfies Question[];
+
+      if (player.state === "lobby") {
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.SET_QUESTIONS,
+          { questions: fetchedQuestions },
+        );
+
+        broadcastAndDispatch(event, payload);
+      }
+    } catch {
+    } finally {
+      setLoading(false);
+      fetchingRef.current = false;
+    }
+  }
   const fetchingRef = useRef(false);
   useEffect(() => {
     if (!player.isHost) return;
