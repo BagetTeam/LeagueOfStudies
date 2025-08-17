@@ -12,7 +12,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { updateLeaderboard } from "@/backend/db/leaderboard";
 import { BROADCAST_EVENTS } from "@/GameContext";
 
-const TURN_DURATION_SECONDS = 10;
 const XP_GAIN_ON_WIN = 500;
 const XP_LOSS_ON_LOSE = -200;
 
@@ -28,9 +27,11 @@ const BossFightGame = () => {
     questions,
   } = lobby;
 
+  const { time, bossName, bossHealth } = gameMode.data;
+
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(TURN_DURATION_SECONDS);
+  const [timeLeft, setTimeLeft] = useState(gameMode.data.time);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
   const [isResolvingRound, setIsResolvingRound] = useState(false);
