@@ -113,7 +113,7 @@ export default function LobbyScreen() {
 
       fetchingRef.current = true;
 
-      generateQuestions();
+      generateQuestions(subject);
       fetchingRef.current = false;
     }
   }, [player.isHost, subject, questions, dispatch, broadcastAndDispatch]);
