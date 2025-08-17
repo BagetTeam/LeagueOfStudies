@@ -1,7 +1,7 @@
 import React from "react";
 import { User } from "lucide-react";
 import { Player } from "@/types/types";
-import cn from "@/lib/cn";
+import cn from "@/utils/cn";
 
 interface PlayerListProps {
   players: Player[];
