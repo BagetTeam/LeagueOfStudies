@@ -106,10 +106,6 @@ export default function LobbyScreen() {
 
           console.log("questions:", fetchedQuestions);
           if (player.state === "lobby") {
-            // dispatch({
-            //   type: "setQuestions",
-            //   payload: payload,
-            // });
             sendBroadcast(event, payload);
           }
         } catch {
