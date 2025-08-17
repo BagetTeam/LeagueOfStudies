@@ -35,10 +35,9 @@ export const BROADCAST_EVENTS = {
 // type BroadcastEventType = keyof GameStateActionPayloads &
 //   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
 
-export type GameStateActionType = keyof GameStateActionPayloads;
-
 export type BroadcastEventType =
   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
+
 type GameContextType = {
   gameState: GameState;
   dispatch: React.Dispatch<GameStateActions>;
