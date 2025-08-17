@@ -2,7 +2,8 @@ import { Button } from "@/ui";
 import { Shield, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Player } from "@/types/types";
-import { useGame } from "@/GameContext";
+import { BROADCAST_EVENTS, useGame } from "@/GameContext";
+import { createBroadcastPayload } from "@/utils/utils";
 
 interface GameOverProps {
   isVictory: boolean;
@@ -18,13 +19,14 @@ export default function GameOver({
   players,
 }: GameOverProps) {
   const router = useRouter();
-  const { dispatch, sendBroadcast } = useGame();
+  const { broadcastAndDispatch } = useGame();
 
   const onPlayAgain = () => {
-    dispatch({
-      type: "restartGame",
-    });
-    sendBroadcast("restart_game", {});
+    const { event, payload } = createBroadcastPayload(
+      BROADCAST_EVENTS.RESTART_GAME,
+      {},
+    );
+    broadcastAndDispatch(event, payload);
   };
 
   return (
