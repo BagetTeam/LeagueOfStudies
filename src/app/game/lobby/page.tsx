@@ -261,7 +261,6 @@ export default function LobbyScreen() {
               <span>Copy</span>
             </Button>
             {
-              // Only show share if supported
               <Button
                 onClick={shareInviteLink}
                 className="flex items-center gap-1"
@@ -297,7 +296,7 @@ export default function LobbyScreen() {
                 <Play size={16} />
                 {loading ? (
                   <span>Loading...</span>
-                ) : players.length < 2 ? (
+                ) : players.length < 2 && gameMode.type === "deathmatch" ? (
                   <span>Waiting for players...</span>
                 ) : (
                   <span>Start Game</span>
@@ -314,11 +313,6 @@ export default function LobbyScreen() {
               Waiting for players...
             </p>
           )}
-
-          {/* Host Indicator (Optional) */}
-          {/* <div className="text-center text-sm mt-2">
-                  {currentPlayer.isHost ? "You are the host" : "Waiting for host to start..."}
-              </div> */}
         </div>
       </div>
     </div>
