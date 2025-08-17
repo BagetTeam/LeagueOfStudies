@@ -122,13 +122,7 @@ export default function LobbyScreen() {
     console.log("ERM");
     console.log(gameState);
     if (player.isHost && players.length > 0) {
-      // Ensure there are players
-      const hostIndex = players.findIndex((player) => player.id == player.id);
-
-      console.log(
-        "Host starting game. Broadcasting START_GAME with players:",
-        players,
-      );
+      const payload = createBroadcastPayload(BROADCAST_EVENTS.START_GAME, {});
       dispatch({
         type: "setStartGame",
         gameMode: gameState.gameMode,

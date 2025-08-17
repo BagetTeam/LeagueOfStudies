@@ -160,6 +160,7 @@ export function gameStatereducer(
         (p) => ({
           ...p,
           health: 5,
+          score: 0,
           state: "playing" as const,
         }),
       );

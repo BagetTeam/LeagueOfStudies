@@ -5,7 +5,6 @@ type SetLobbyPayload = {
 };
 
 type StartGamePayload = {
-  initiatedBy: number;
   initialPlayers: Player[];
   gameMode: GameMode;
   questions: Question[];
