@@ -29,7 +29,10 @@ const PlayerList: React.FC<PlayerListProps> = ({
           </div>
 
           <div className="flex-grow overflow-hidden">
-            <div className="truncate font-medium">{player.name}</div>
+            <div className="truncate font-medium">
+              {player.name}
+              {player.isHost ? "(Host)" : ""}
+            </div>
           </div>
         </div>
       ))}
