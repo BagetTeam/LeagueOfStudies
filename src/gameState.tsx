@@ -1,5 +1,5 @@
 import { GameStateActionPayloads } from "./types/gameStatePayloads";
-import { Player, GameMode, Question, GameState, Lobby } from "./types/types";
+import { GameState, Lobby } from "./types/types";
 
 export const defaultLobby = {
   lobbyId: "",
@@ -182,6 +182,23 @@ export function gameStatereducer(
           questions: action.payload.questions,
         },
       };
+
+    case "restartGame":
+      const players = state.lobby.players.map((p) => ({
+        ...p,
+        state: "lobby" as const,
+      }));
+      return {
+        ...state,
+        player: { ...state.player, state: "lobby" },
+        lobby: {
+          ...state.lobby,
+          players: players,
+          questions: [],
+          currentQuestionIndex: 0,
+        },
+      };
+
     case "setBossHealth":
       if (state.lobby.gameMode.type !== "bossfight") return state; // Only run in boss mode
       return {
@@ -250,12 +267,6 @@ export function gameStatereducer(
           turnStartTime: action.payload.startTime,
           playerAnswers: {},
         },
-      };
-
-    case "restartGame":
-      return {
-        ...state,
-        lobby: { ...state.lobby, questions: [], currentQuestionIndex: 0 },
       };
   }
 }
