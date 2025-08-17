@@ -9,7 +9,6 @@ export const defaultLobby = {
     data: { time: 15, activePlayerIndex: 0 },
   },
   subject: "",
-  topic: "",
   questions: [],
   currentQuestionIndex: 0,
   playerAnswers: {},

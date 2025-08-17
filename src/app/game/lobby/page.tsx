@@ -186,7 +186,6 @@ export default function LobbyScreen() {
           <button
             onClick={async () => {
               if (!studyText) return; // Prevent empty submissions
-              console.log("LOADING NOW");
               setLoading(true);
               try {
                 const q = (await getQuestions(studyText)) satisfies Question[];

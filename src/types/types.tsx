@@ -36,7 +36,6 @@ export interface Lobby {
   players: Player[];
   gameMode: GameMode;
   subject: string;
-  topic: string;
   questions: Question[];
   currentQuestionIndex: number;
   playerAnswers: {
