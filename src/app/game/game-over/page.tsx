@@ -13,17 +13,22 @@ interface GameOverProps {
   players: Player[];
 }
 
-export default function GameOver({
-  isVictory,
-  bossHealth,
-  players,
-  winner,
-  winnerId,
-}: GameOverProps) {
+export default function GameOver({}: GameOverProps) {
   const router = useRouter();
   const { gameState, broadcastAndDispatch } = useGame();
-  const { player } = gameState;
-  const { gameMode } = gameState.lobby;
+  const { player, lobby } = gameState;
+  const { gameMode, players } = lobby;
+
+  let isVictory, bossHealth, winner;
+  if (gameMode.type === "bossfight") {
+    bossHealth = gameMode.data.bossHealth;
+    if (bossHealth <= 0) isVictory = true;
+    else isVictory = false;
+  } else if (gameMode.type === "deathmatch") {
+    winner = players.find((p) => {
+      p.health > 0 && p.state === "completed";
+    });
+  }
 
   const onPlayAgain = () => {
     const { event, payload } = createBroadcastPayload(
