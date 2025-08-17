@@ -6,16 +6,15 @@ import { BROADCAST_EVENTS, useGame } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
 
 interface GameOverProps {
-  isVictory: boolean;
-  bossHealth: number;
-  maxBossHealth: number;
+  isVictory: boolean | undefined;
+  bossHealth: number | undefined;
+  winner: string | undefined;
   players: Player[];
 }
 
 export default function GameOver({
   isVictory,
   bossHealth,
-  maxBossHealth,
   players,
 }: GameOverProps) {
   const router = useRouter();
@@ -43,7 +42,7 @@ export default function GameOver({
                 <Users className="text-theme-blue mx-auto mb-4 h-16 w-16" />
                 <h2 className="mb-2 text-3xl font-bold">Victory!</h2>
                 <p className="text-xl">
-                  Your team has defeated {gameState.lobby.gameMode.data.time}!
+                  Your team has defeated {gameMode.data.bossName}!
                 </p>
               </>
             ) : (
@@ -51,7 +50,7 @@ export default function GameOver({
                 <Shield className="text-theme-purple mx-auto mb-4 h-16 w-16" />
                 <h2 className="mb-2 text-3xl font-bold">Defeat!</h2>
                 <p className="text-xl">
-                  Professor Chronos has bested your team!
+                  {gameMode.data.bossName} has bested your team!
                 </p>
               </>
             )}
@@ -59,7 +58,7 @@ export default function GameOver({
               <h3 className="font-semibold">Final Results</h3>
               <div className="flex items-center gap-3 text-lg">
                 <span>
-                  Boss Health: {bossHealth}/{maxBossHealth} remaining
+                  Boss Health: {bossHealth}/{gameMode.data.bossHealth} remaining
                 </span>
               </div>
               <h3 className="mt-2 font-semibold">Team Status</h3>
@@ -70,7 +69,7 @@ export default function GameOver({
                 >
                   <span>
                     {player.name}: {player.health}{" "}
-                    {player.health === 1 ? "health" : "health"} remaining
+                    {player.health === 1 ? "health" : "healths"} remaining
                   </span>
                 </div>
               ))}
