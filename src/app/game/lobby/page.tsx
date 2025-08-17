@@ -116,7 +116,7 @@ export default function LobbyScreen() {
         }
       })();
     }
-  }, [player.isHost, subject, questions, dispatch, sendBroadcast]);
+  }, [player.isHost, subject, questions, dispatch, broadcastAndDispatch]);
 
   const startGame = () => {
     console.log("ERM");
