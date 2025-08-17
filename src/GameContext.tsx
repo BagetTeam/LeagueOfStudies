@@ -111,10 +111,14 @@ export const GameProvider = ({ children }: GameProviderProps) => {
               (p) => p.playerId === joinedPlayerInfo.playerId,
             )
           ) {
-            sendBroadcast(BROADCAST_EVENTS.SET_LOBBY_CONFIG, {
-              ...lobby,
-              players: [...currentPlayers, joinedPlayerInfo],
-            });
+            const payload: BroadcastingPayloads[typeof BROADCAST_EVENTS.SET_LOBBY_CONFIG] =
+              {
+                lobby: {
+                  ...lobby,
+                  players: [...currentPlayers, joinedPlayerInfo],
+                },
+              };
+            sendBroadcast(BROADCAST_EVENTS.SET_LOBBY_CONFIG, payload);
           }
         }
       });
