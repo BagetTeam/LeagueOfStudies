@@ -35,7 +35,11 @@ export const BROADCAST_EVENTS = {
 // type BroadcastEventType = keyof GameStateActionPayloads &
 //   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
 
-export type BroadcastEventType = keyof GameStateActionPayloads;
+export type GameStateActionType = keyof GameStateActionPayloads;
+
+export type BroadcastEventType =
+  | (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS]
+  | GameStateActionType;
 
 type GameContextType = {
   gameState: GameState;
@@ -283,9 +287,13 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   }
 
   const sendBroadcast = useCallback(
-    (
-      event: BroadcastEventType,
-      payload: GameStateActionPayloads[typeof event],
+    <E extends BroadcastEventType>(
+      event: E,
+      payload: E extends keyof BroadcastingPayloads
+        ? BroadcastingPayloads[E]
+        : E extends keyof GameStateActionPayloads
+          ? GameStateActionPayloads[E]
+          : never,
     ) => {
       if (channelRef.current) {
         channelRef.current
@@ -297,14 +305,21 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           .catch((error) => {
             console.error(`Broadcast ${event} failed:`, error);
           });
-        specialDispatch(event, payload);
+
+        const action = {
+          type: event as keyof GameStateActionPayloads,
+          payload:
+            payload as GameStateActionPayloads[keyof GameStateActionPayloads],
+        } as GameStateActions;
+
+        dispatch(action);
       } else {
         console.warn(
           "Cannot send broadcast, channel not available or not subscribed yet.",
         );
       }
     },
-    [],
+    [dispatch],
   );
 
   const contextValue = useMemo(
