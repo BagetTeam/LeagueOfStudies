@@ -1,6 +1,6 @@
 "use client";
 
-import DeathmatchGame from "@/components/DeathMatchGame";
+import DeathmatchGame from "@/app/game/deathmatch/DeathMatchGame";
 
 export default function DeathmatchPage() {
   return <DeathmatchGame />;

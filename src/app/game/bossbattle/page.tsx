@@ -1,5 +1,5 @@
 "use client";
-import BossFightGame from "@/components/BossFightGame";
+import BossFightGame from "@/app/game/bossbattle/BossFightGame";
 
 export default function BossBattlePage() {
   return <BossFightGame />;
