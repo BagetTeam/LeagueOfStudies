@@ -170,6 +170,7 @@ export function gameStatereducer(
           ...state.player,
           health: 5,
           score: 0,
+          state: "playing",
         },
         lobby: {
           ...state.lobby,
