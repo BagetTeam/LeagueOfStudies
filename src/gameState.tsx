@@ -128,16 +128,16 @@ export function gameStatereducer(
         },
       };
     case "setHealth":
-      // update health for both player and player within lobby
+      if (state.player.playerId === action.payload.playerId) {
+        return state;
+      }
+      const newCurrentPlayerHealth = Math.max(0, action.payload.health);
+
       const newPlayers = state.lobby.players.map((player) =>
         player.playerId === action.payload.playerId
           ? { ...player, health: Math.max(0, action.payload.health) }
           : player,
       );
-      const newCurrentPlayerHealth =
-        state.player.playerId === action.payload.playerId
-          ? Math.max(0, action.payload.health)
-          : state.player.health;
 
       return {
         ...state,
