@@ -33,27 +33,30 @@ export default function GameOver({
 
   return (
     <div className="game-card bg-card mx-auto max-w-2xl rounded-lg border p-8 text-center shadow-lg">
-      <div className="mb-6">
+      <>
         {/* BossFight Game Over Screen */}
         {gameMode.type === "bossfight" ? (
           <>
-            {isVictory ? (
-              <>
-                <Users className="text-theme-blue mx-auto mb-4 h-16 w-16" />
-                <h2 className="mb-2 text-3xl font-bold">Victory!</h2>
-                <p className="text-xl">
-                  Your team has defeated {gameMode.data.bossName}!
-                </p>
-              </>
-            ) : (
-              <>
-                <Shield className="text-theme-purple mx-auto mb-4 h-16 w-16" />
-                <h2 className="mb-2 text-3xl font-bold">Defeat!</h2>
-                <p className="text-xl">
-                  {gameMode.data.bossName} has bested your team!
-                </p>
-              </>
-            )}
+            <div className="mb-6">
+              {isVictory ? (
+                <>
+                  <Users className="text-theme-blue mx-auto mb-4 h-16 w-16" />
+                  <h2 className="mb-2 text-3xl font-bold">Victory!</h2>
+                  <p className="text-xl">
+                    Your team has defeated {gameMode.data.bossName}!
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Shield className="text-theme-purple mx-auto mb-4 h-16 w-16" />
+                  <h2 className="mb-2 text-3xl font-bold">Defeat!</h2>
+                  <p className="text-xl">
+                    {gameMode.data.bossName} has bested your team!
+                  </p>
+                </>
+              )}
+            </div>
+
             <div className="mb-6 flex flex-col items-center gap-4">
               <h3 className="font-semibold">Final Results</h3>
               <div className="flex items-center gap-3 text-lg">
@@ -80,18 +83,18 @@ export default function GameOver({
         ) : (
           <div>Something went wrong...</div>
         )}
-      </div>
-      <div className="flex flex-wrap justify-center gap-4">
-        <Button
-          className="bg-theme-blue hover:bg-theme-blue/80 gap-2"
-          onClick={onPlayAgain}
-        >
-          Play Again
-        </Button>
-        <Button variant="special" onClick={() => router.push("/dashboard")}>
-          Back to Dashboard
-        </Button>
-      </div>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Button
+            className="bg-theme-blue hover:bg-theme-blue/80 gap-2"
+            onClick={onPlayAgain}
+          >
+            Play Again
+          </Button>
+          <Button variant="special" onClick={() => router.push("/dashboard")}>
+            Back to Dashboard
+          </Button>
+        </div>
+      </>
     </div>
   );
 }
