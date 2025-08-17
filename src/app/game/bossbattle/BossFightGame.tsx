@@ -138,25 +138,16 @@ const BossFightGame = () => {
     }
 
     const activePlayers = players.filter((p) => p.state === "playing"); // Get currently living players
-    const activePlayers_ids = new Set(activePlayers.map((p) => p.playerId));
+    const allAnsweredPlayerId = new Set(Object.keys(playerAnswers));
 
     // Check if round needs resolution
     const timeExpired = timeLeft <= 0;
-    const allPlayersAnswered = activePlayers.every(
-      (p) => playerAnswers[p.playerId]?.isCorrect,
+    const allPlayersAnswered = activePlayers.every((p) =>
+      allAnsweredPlayerId.has(p.playerId),
     );
 
+    // resolve round -> advance to next round
     if (timeExpired || allPlayersAnswered) {
-      console.log(
-        `--- Host ${player.playerId}: Resolving Round Q#${currentQuestionIndex} ---`,
-      );
-      console.log(
-        "Reason:",
-        timeExpired ? "Time Expired" : "All Living Players Answered",
-      );
-      console.log("Living Players:", activePlayers_ids);
-      console.log("Current Answers State:", playerAnswers);
-
       setIsResolvingRound(true); // Prevent further actions during resolution broadcast cascade
 
       let allCorrect = true;
