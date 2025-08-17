@@ -11,7 +11,10 @@ import { getQuestions } from "@/backend/services/game-questions";
 import PDF_reader from "@/app/pdf_reader/reader";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { defaultLobby } from "@/gameState";
-import { BroadcastingPayloads } from "@/types/gameStatePayloads";
+import {
+  BroadcastingPayloads,
+  GameStateActionPayloads,
+} from "@/types/gameStatePayloads";
 
 export default function LobbyScreen() {
   const { gameState, dispatch, sendBroadcast } = useGame();
@@ -95,9 +98,10 @@ export default function LobbyScreen() {
             subject,
           )) satisfies Question[];
 
-          const payload: BroadcastingPayloads["SET_QUESTIONS"] = {
-            questions: fetchedQuestions,
-          };
+          const payload: BroadcastingPayloads[typeof BROADCAST_EVENTS.SET_QUESTIONS] =
+            {
+              questions: fetchedQuestions,
+            };
 
           console.log("questions:", fetchedQuestions);
           if (player.state === "lobby") {

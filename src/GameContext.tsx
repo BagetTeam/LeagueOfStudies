@@ -32,8 +32,10 @@ export const BROADCAST_EVENTS = {
   BOSS_DAMAGED: "setBossHealth",
 } as const;
 
-type BroadcastEventType = keyof GameStateActionPayloads &
-  (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
+// type BroadcastEventType = keyof GameStateActionPayloads &
+//   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
+
+export type BroadcastEventType = keyof GameStateActionPayloads;
 
 type GameContextType = {
   gameState: GameState;
@@ -295,7 +297,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           .catch((error) => {
             console.error(`Broadcast ${event} failed:`, error);
           });
-        specialDispatch(event as keyof GameStateActionPayloads, payload);
+        specialDispatch(event, payload);
       } else {
         console.warn(
           "Cannot send broadcast, channel not available or not subscribed yet.",
