@@ -19,7 +19,8 @@ export default function GameOver({
   players,
 }: GameOverProps) {
   const router = useRouter();
-  const { broadcastAndDispatch } = useGame();
+  const { gameState, broadcastAndDispatch } = useGame();
+  const { gameMode } = gameState.lobby;
 
   const onPlayAgain = () => {
     const { event, payload } = createBroadcastPayload(
@@ -27,44 +28,60 @@ export default function GameOver({
       {},
     );
     broadcastAndDispatch(event, payload);
+
+    router.push("/game");
   };
 
   return (
-    <div className="game-card mx-auto max-w-2xl text-center">
+    <div className="game-card bg-card mx-auto max-w-2xl rounded-lg border p-8 text-center shadow-lg">
       <div className="mb-6">
-        {isVictory ? (
+        {/* BossFight Game Over Screen */}
+        {gameMode.type === "bossfight" ? (
           <>
-            <Users className="text-theme-blue mx-auto mb-4 h-16 w-16" />
-            <h2 className="mb-2 text-3xl font-bold">Victory!</h2>
-            <p className="text-xl">Your team has defeated Professor Chronos!</p>
+            {isVictory ? (
+              <>
+                <Users className="text-theme-blue mx-auto mb-4 h-16 w-16" />
+                <h2 className="mb-2 text-3xl font-bold">Victory!</h2>
+                <p className="text-xl">
+                  Your team has defeated {gameState.lobby.gameMode.data.time}!
+                </p>
+              </>
+            ) : (
+              <>
+                <Shield className="text-theme-purple mx-auto mb-4 h-16 w-16" />
+                <h2 className="mb-2 text-3xl font-bold">Defeat!</h2>
+                <p className="text-xl">
+                  Professor Chronos has bested your team!
+                </p>
+              </>
+            )}
+            <div className="mb-6 flex flex-col items-center gap-4">
+              <h3 className="font-semibold">Final Results</h3>
+              <div className="flex items-center gap-3 text-lg">
+                <span>
+                  Boss Health: {bossHealth}/{maxBossHealth} remaining
+                </span>
+              </div>
+              <h3 className="mt-2 font-semibold">Team Status</h3>
+              {players.map((player) => (
+                <div
+                  key={player.playerId}
+                  className="flex items-center gap-3 text-lg"
+                >
+                  <span>
+                    {player.name}: {player.health}{" "}
+                    {player.health === 1 ? "health" : "health"} remaining
+                  </span>
+                </div>
+              ))}
+            </div>
           </>
+        ) : gameMode.type === "deathmatch" ? (
+          <div></div>
         ) : (
-          <>
-            <Shield className="text-theme-purple mx-auto mb-4 h-16 w-16" />
-            <h2 className="mb-2 text-3xl font-bold">Defeat!</h2>
-            <p className="text-xl">Professor Chronos has bested your team!</p>
-          </>
+          <div></div>
         )}
       </div>
-
-      <div className="mb-6 flex flex-col items-center gap-4">
-        <h3 className="font-semibold">Final Results</h3>
-        <div className="flex items-center gap-3 text-lg">
-          <span>
-            Boss Health: {bossHealth}/{maxBossHealth} remaining
-          </span>
-        </div>
-        <h3 className="mt-2 font-semibold">Team Status</h3>
-        {players.map((player) => (
-          <div key={player.id} className="flex items-center gap-3 text-lg">
-            <span>
-              {player.name}: {player.health}{" "}
-              {player.health === 1 ? "health" : "health"} remaining
-            </span>
-          </div>
-        ))}
-      </div>
-
       <div className="flex flex-wrap justify-center gap-4">
         <Button
           className="bg-theme-blue hover:bg-theme-blue/80 gap-2"
