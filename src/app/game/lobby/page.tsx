@@ -188,12 +188,12 @@ export default function LobbyScreen() {
           <button
             onClick={async () => {
               if (!studyText) return; // Prevent empty submissions
-              setLoading(true);
+
               dispatch({
                 type: "setGameSubject",
                 payload: { subject: studyText },
               });
-              setLoading(false);
+              generateQuestions(studyText);
             }}
             disabled={loading || !studyText} // Disable if loading or no text
             className="..."
