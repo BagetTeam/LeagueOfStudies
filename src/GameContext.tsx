@@ -37,11 +37,10 @@ export const BROADCAST_EVENTS = {
   BOSS_DAMAGED: "setBossHealth",
 } as const;
 
-// type BroadcastEventType = keyof GameStateActionPayloads &
-//   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
+type BroadcastEventType = keyof BroadcastingPayloads;
 
-export type BroadcastEventType =
-  (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
+// export type BroadcastEventType =
+//   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
 
 type GameContextType = {
   gameState: GameState;
@@ -49,6 +48,10 @@ type GameContextType = {
   sendBroadcast: <E extends BroadcastEventType>(
     event: E,
     payload: BroadcastingPayloads[E],
+  ) => void;
+  broadcastAndDispatch: <E extends BroadcastEventType & GameStateActionsType>(
+    event: E,
+    payload: BroadcastingPayloads[E] & GameStateActionPayloads[E],
   ) => void;
 };
 
@@ -307,14 +310,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           .catch((error) => {
             console.error(`Broadcast ${event} failed:`, error);
           });
-
-        const action = {
-          type: event as keyof GameStateActionPayloads,
-          payload:
-            payload as GameStateActionPayloads[keyof GameStateActionPayloads],
-        } as GameStateActions;
-
-        dispatch(action);
       } else {
         console.warn(
           "Cannot send broadcast, channel not available or not subscribed yet.",
@@ -325,7 +320,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   );
 
   const broadcastAndDispatch = useCallback(
-    <E extends keyof BroadcastEventType & keyof GameStateActionsType>(
+    <E extends BroadcastEventType & GameStateActionsType>(
       event: E,
       payload: BroadcastingPayloads[E] & GameStateActionPayloads[E],
     ) => {
@@ -343,8 +338,9 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       gameState,
       dispatch,
       sendBroadcast,
+      broadcastAndDispatch,
     }),
-    [gameState, dispatch, sendBroadcast],
+    [gameState, dispatch, sendBroadcast, broadcastAndDispatch],
   );
 
   return (
