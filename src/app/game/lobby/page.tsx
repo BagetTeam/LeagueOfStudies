@@ -18,7 +18,8 @@ import {
 import { createBroadcastPayload } from "@/utils/utils";
 
 export default function LobbyScreen() {
-  const { gameState, dispatch, sendBroadcast } = useGame();
+  const { gameState, dispatch, sendBroadcast, broadcastAndDispatch } =
+    useGame();
   const { player, lobby } = gameState;
   const { lobbyId, gameMode, subject, questions, players } = lobby;
 
@@ -106,7 +107,7 @@ export default function LobbyScreen() {
 
           console.log("questions:", fetchedQuestions);
           if (player.state === "lobby") {
-            sendBroadcast(event, payload);
+            broadcastAndDispatch(event, payload);
           }
         } catch {
         } finally {
