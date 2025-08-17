@@ -38,9 +38,7 @@ export const BROADCAST_EVENTS = {
 export type GameStateActionType = keyof GameStateActionPayloads;
 
 export type BroadcastEventType =
-  | (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS]
-  | GameStateActionType;
-
+  (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
 type GameContextType = {
   gameState: GameState;
   dispatch: React.Dispatch<GameStateActions>;
@@ -289,11 +287,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const sendBroadcast = useCallback(
     <E extends BroadcastEventType>(
       event: E,
-      payload: E extends keyof BroadcastingPayloads
-        ? BroadcastingPayloads[E]
-        : E extends keyof GameStateActionPayloads
-          ? GameStateActionPayloads[E]
-          : never,
+      payload: BroadcastingPayloads[E],
     ) => {
       if (channelRef.current) {
         channelRef.current
