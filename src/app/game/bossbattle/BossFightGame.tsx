@@ -96,7 +96,6 @@ const BossFightGame = () => {
     isResolvingRound,
   ]);
 
-  // --- Handle Local Answer Submission ---
   const handleAnswer = (optionIndex: number | null) => {
     if (
       isAnsweredLocally ||
@@ -142,13 +141,12 @@ const BossFightGame = () => {
     const activePlayers_ids = new Set(activePlayers.map((p) => p.playerId));
 
     // Check if round needs resolution
-    const timeExpired =
-      Date.now() >= turnStartTime + TURN_DURATION_SECONDS * 1000;
-    const allLivingPlayersAnswered = activePlayers.every(
-      (p) => playerAnswers[p.playerId]?.answered,
+    const timeExpired = timeLeft <= 0;
+    const allPlayersAnswered = activePlayers.every(
+      (p) => playerAnswers[p.playerId]?.isCorrect,
     );
 
-    if (timeExpired || allLivingPlayersAnswered) {
+    if (timeExpired || allPlayersAnswered) {
       console.log(
         `--- Host ${player.playerId}: Resolving Round Q#${currentQuestionIndex} ---`,
       );

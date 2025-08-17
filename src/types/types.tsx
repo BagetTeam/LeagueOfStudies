@@ -39,7 +39,7 @@ export interface Lobby {
   questions: Question[];
   currentQuestionIndex: number;
   playerAnswers: {
-    [playerId: number]: {
+    [playerId: string]: {
       isCorrect: boolean;
     };
   };
