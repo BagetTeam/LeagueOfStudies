@@ -6,7 +6,7 @@ import { BossStatus } from "@/app/game/bossbattle/components/BossStatus";
 import { TeamStatus } from "@/app/game/bossbattle/components/TeamStatus";
 import { GameTimer } from "@/components/GameTimer";
 import { GameQuestion } from "@/components/GameQuestions";
-import { GameOver } from "@/components/GameOver";
+import { GameOver } from "@/app/game/game-over/page";
 import { useGame } from "@/GameContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import { updateLeaderboard } from "@/backend/db/leaderboard";
