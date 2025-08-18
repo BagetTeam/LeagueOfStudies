@@ -36,6 +36,7 @@ export const BROADCAST_EVENTS = {
   PLAYER_ANSWERED: "recordPlayerAnswer",
   BOSS_DAMAGED: "setBossHealth",
   BOSS_FIGHT_GAME_OVER: "setBossfightGameOver",
+  TEAM_DAMAGE: "teamDamage",
 } as const;
 
 type BroadcastEventType = keyof BroadcastingPayloads;
@@ -228,13 +229,21 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         "broadcast",
         { event: BROADCAST_EVENTS.BOSS_DAMAGED },
         ({ payload }: { payload: BroadcastingPayloads["setBossHealth"] }) => {
-          console.log("Received boss_damaged broadcast:", payload);
-          if (typeof payload.bossHealth === "number") {
-            dispatch({
-              type: "setBossHealth",
-              payload: payload,
-            });
-          }
+          dispatch({
+            type: "setBossHealth",
+            payload: payload,
+          });
+        },
+      );
+
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.TEAM_DAMAGE },
+        ({ payload }: { payload: BroadcastingPayloads["teamDamage"] }) => {
+          dispatch({
+            type: "teamDamage",
+            payload: payload,
+          });
         },
       );
 

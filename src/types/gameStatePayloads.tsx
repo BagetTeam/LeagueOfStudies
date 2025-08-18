@@ -44,7 +44,9 @@ type BossDamagePayload = {
 
 type BossfightGameOverPayload = {};
 
-type TeamDamagePayload = {};
+type TeamDamagePayload = {
+  damage: number;
+};
 
 export type BroadcastingPayloads = {
   setLobby: SetLobbyPayload;
