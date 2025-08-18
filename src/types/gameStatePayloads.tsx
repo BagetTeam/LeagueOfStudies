@@ -45,7 +45,7 @@ type BossDamagePayload = {
 type BossfightGameOverPayload = {};
 
 type TeamDamagePayload = {
-  damage: number;
+  playerHealths: { [playerId: string]: number };
 };
 
 export type BroadcastingPayloads = {

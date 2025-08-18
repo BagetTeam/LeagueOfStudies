@@ -296,14 +296,21 @@ export function gameStatereducer(
       };
 
     case "teamDamage": {
-      const newPlayers = state.lobby.players.map((p) => ({
-        ...p,
-        health: Math.max(0, p.health - action.payload.damage),
-      }));
-      const curPlayer = {
-        ...state.player,
-        health: Math.max(0, state.player.health - action.payload.damage),
-      };
+      const newPlayers = state.lobby.players.map((p) =>
+        p.playerId in action.payload.playerHealths
+          ? {
+              ...p,
+              health: action.payload.playerHealths[p.playerId],
+            }
+          : p,
+      );
+      const curPlayer =
+        state.player.playerId in action.payload.playerHealths
+          ? {
+              ...state.player,
+              health: action.payload.playerHealths[p.playerId],
+            }
+          : state.player;
       return {
         ...state,
         player: curPlayer,

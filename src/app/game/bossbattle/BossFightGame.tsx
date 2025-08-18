@@ -175,14 +175,13 @@ const BossFightGame = () => {
         }
       } else {
         //  FAILURE -> Damage Team
-        activePlayers.forEach((player) => {
-          healthUpdates[player.id] = Math.max(0, player.health - 1); // Calculate damage
-        });
-        dispatch({
-          type: "updateMultiplePlayerHealth",
-          healthUpdates: healthUpdates,
-        });
-        sendBroadcast(BROADCAST_EVENTS.TEAM_DAMAGED, { healthUpdates });
+        const healthUpdates: { [playerId: number]: number } = {};
+
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.TEAM_DAMAGE,
+          { damage: 1 },
+        );
+        broadcastAndDispatch(event, payload);
 
         // Check if team wiped
         const teamWiped = activePlayers.every(
