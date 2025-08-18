@@ -166,18 +166,15 @@ const BossFightGame = () => {
         broadcastAndDispatch(event, payload);
 
         if (newBossHealth <= 0) {
-          dispatch({
-            type: "setBossFightGameOver",
-            isVictory: true,
-          });
-          sendBroadcast(BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER, {
-            isVictory: true,
-          });
+          const { event, payload } = createBroadcastPayload(
+            BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER,
+            { bossHealth: newBossHealth },
+          );
+          broadcastAndDispatch(event, payload);
           return;
         }
       } else {
-        // --- FAILURE: Damage Team ---
-        console.log("Host: Someone failed! Damaging team.");
+        //  FAILURE -> Damage Team
         activePlayers.forEach((player) => {
           healthUpdates[player.id] = Math.max(0, player.health - 1); // Calculate damage
         });
