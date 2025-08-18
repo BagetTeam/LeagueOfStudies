@@ -297,20 +297,21 @@ export function gameStatereducer(
 
     case "teamDamage": {
       const newPlayers = state.lobby.players.map((p) =>
-        p.playerId in action.payload.playerHealths
+        action.payload.playerHealths.hasOwnProperty(p.playerId)
           ? {
               ...p,
               health: action.payload.playerHealths[p.playerId],
             }
           : p,
       );
-      const curPlayer =
-        state.player.playerId in action.payload.playerHealths
-          ? {
-              ...state.player,
-              health: action.payload.playerHealths[state.player.playerId],
-            }
-          : state.player;
+      const curPlayer = action.payload.playerHealths.hasOwnProperty(
+        state.player.playerId,
+      )
+        ? {
+            ...state.player,
+            health: action.payload.playerHealths[state.player.playerId],
+          }
+        : state.player;
       return {
         ...state,
         player: curPlayer,
