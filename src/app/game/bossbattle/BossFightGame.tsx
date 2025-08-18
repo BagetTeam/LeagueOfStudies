@@ -166,7 +166,6 @@ const BossFightGame = () => {
         broadcastAndDispatch(event, payload);
 
         if (newBossHealth <= 0) {
-          console.log("Host: Boss defeated! Broadcasting Game Over.");
           dispatch({
             type: "setBossFightGameOver",
             isVictory: true,
@@ -174,8 +173,7 @@ const BossFightGame = () => {
           sendBroadcast(BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER, {
             isVictory: true,
           });
-          // No need to start next question
-          return; // Exit useEffect early
+          return;
         }
       } else {
         // --- FAILURE: Damage Team ---

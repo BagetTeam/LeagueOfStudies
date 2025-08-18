@@ -42,6 +42,8 @@ type BossDamagePayload = {
   bossHealth: number;
 };
 
+type BossfightGameOver = {};
+
 export type BroadcastingPayloads = {
   setLobby: SetLobbyPayload;
   setStartGame: StartGamePayload;
@@ -52,6 +54,7 @@ export type BroadcastingPayloads = {
   advanceTurnBossfight: TurnAdvanceBossfightPayload;
   recordPlayerAnswer: PlayerAnsweredPayload;
   setBossHealth: BossDamagePayload;
+  setBossfightGameOver: BossfightGameOver;
 };
 
 export type GameStateActionPayloads = {
@@ -73,6 +76,7 @@ export type GameStateActionPayloads = {
   advanceTurnBossfight: TurnAdvanceBossfightPayload;
   setBossHealth: BossDamagePayload;
   recordPlayerAnswer: PlayerAnsweredPayload;
+  setBossfightGameOver: BossfightGameOver;
   resetPlayerAnswers: {};
   restartGame: RestartGamePayload;
 };

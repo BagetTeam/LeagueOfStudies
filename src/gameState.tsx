@@ -43,7 +43,7 @@ export function gameStatereducer(
   switch (action.type) {
     case "setLobby":
       return { ...state, lobby: action.payload.lobby };
-    case "joinLobby":
+    case "joinLobby": {
       if (
         action.payload.lobby.players.find(
           (p) => p.playerId === action.payload.player.playerId,
@@ -61,26 +61,30 @@ export function gameStatereducer(
         player: action.payload.player,
         lobby: updatedLobby,
       };
+    }
     case "exitLobby":
       return {
         ...state,
         lobby: defaultLobby,
       };
-    case "setHost":
+    case "setHost": {
       if (action.payload.player.playerId !== state.player.playerId)
         return state;
+
+      const newPlayers = state.lobby.players.map((p) =>
+        p.playerId === action.payload.player.playerId
+          ? { ...p, isHost: action.payload.player.isHost }
+          : p,
+      );
       return {
         ...state,
         player: { ...state.player, isHost: action.payload.player.isHost },
         lobby: {
           ...state.lobby,
-          players: state.lobby.players.map((p) =>
-            p.playerId === action.payload.player.playerId
-              ? { ...p, isHost: action.payload.player.isHost }
-              : p,
-          ),
+          players: newPlayers,
         },
       };
+    }
     case "setGameMode":
       return {
         ...state,
@@ -115,19 +119,21 @@ export function gameStatereducer(
       };
     case "setPlayerState":
       return state;
-    case "setScore":
+    case "setScore": {
+      const newPlayers = state.lobby.players.map((player) =>
+        player.playerId === action.payload.playerId
+          ? { ...player, score: action.payload.score }
+          : player,
+      );
       return {
         ...state,
         lobby: {
           ...state.lobby,
-          players: state.lobby.players.map((player) =>
-            player.playerId === action.payload.playerId
-              ? { ...player, score: action.payload.score }
-              : player,
-          ),
+          players: newPlayers,
         },
       };
-    case "setHealth":
+    }
+    case "setHealth": {
       if (state.player.playerId === action.payload.playerId) {
         return state;
       }
@@ -147,6 +153,7 @@ export function gameStatereducer(
           health: newCurrentPlayerHealth,
         },
       };
+    }
 
     case "setQuestions":
       return {
@@ -196,6 +203,20 @@ export function gameStatereducer(
           players: players,
           questions: [],
           currentQuestionIndex: 0,
+        },
+      };
+
+    case "setBossfightGameOver":
+      const newPlayers = state.lobby.players.map((p) =>
+        p.playerId === state.player.playerId ? { ...p, state: "completed" } : p,
+      );
+
+      return {
+        ...state,
+        lobby: { ...state.lobby, players: newPlayers },
+        player: {
+          ...state.player,
+          state: "completed",
         },
       };
 

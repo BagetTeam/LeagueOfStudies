@@ -35,6 +35,7 @@ export const BROADCAST_EVENTS = {
   TURN_ADVANCE_BOSSFIGHT: "advanceTurnBossfight",
   PLAYER_ANSWERED: "recordPlayerAnswer",
   BOSS_DAMAGED: "setBossHealth",
+  BOSS_FIGHT_GAME_OVER: "setBossfightGameOver",
 } as const;
 
 type BroadcastEventType = keyof BroadcastingPayloads;
