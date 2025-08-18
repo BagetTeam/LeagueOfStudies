@@ -308,7 +308,7 @@ export function gameStatereducer(
         state.player.playerId in action.payload.playerHealths
           ? {
               ...state.player,
-              health: action.payload.playerHealths[p.playerId],
+              health: action.payload.playerHealths[state.player.playerId],
             }
           : state.player;
       return {
