@@ -191,8 +191,8 @@ export function gameStatereducer(
       };
     }
 
-    case "restartGame":
-      const players = state.lobby.players.map((p) => ({
+    case "restartGame": {
+      const newPlayers = state.lobby.players.map((p) => ({
         ...p,
         state: "lobby" as const,
       }));
@@ -201,15 +201,18 @@ export function gameStatereducer(
         player: { ...state.player, state: "lobby" },
         lobby: {
           ...state.lobby,
-          players: players,
+          players: newPlayers,
           questions: [],
           currentQuestionIndex: 0,
         },
       };
+    }
 
-    case "setBossfightGameOver":
+    case "setBossfightGameOver": {
       const newPlayers = state.lobby.players.map((p) =>
-        p.playerId === state.player.playerId ? { ...p, state: "completed" } : p,
+        p.playerId === state.player.playerId
+          ? { ...p, state: "completed" as const }
+          : p,
       );
 
       return {
@@ -220,6 +223,7 @@ export function gameStatereducer(
           state: "completed",
         },
       };
+    }
 
     case "setBossHealth":
       if (state.lobby.gameMode.type !== "bossfight") return state; // Only run in boss mode
