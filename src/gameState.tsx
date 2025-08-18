@@ -161,7 +161,7 @@ export function gameStatereducer(
         lobby: { ...state.lobby, questions: action.payload.questions },
       };
 
-    case "setStartGame":
+    case "setStartGame": {
       const initialPlayersWithHealth = action.payload.initialPlayers.map(
         (p) => ({
           ...p,
@@ -189,6 +189,7 @@ export function gameStatereducer(
           questions: action.payload.questions,
         },
       };
+    }
 
     case "restartGame":
       const players = state.lobby.players.map((p) => ({
