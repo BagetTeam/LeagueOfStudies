@@ -5,21 +5,14 @@ import { Player } from "@/types/types";
 import { BROADCAST_EVENTS, useGame } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
 
-interface GameOverProps {
-  isVictory: boolean | undefined;
-  bossHealth: number | undefined;
-  winner: string | undefined;
-  winnerId: string | undefined;
-  players: Player[];
-}
-
-export default function GameOver({}: GameOverProps) {
+export default function GameOver() {
   const router = useRouter();
   const { gameState, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
   const { gameMode, players } = lobby;
 
-  let isVictory, bossHealth, winner;
+  let isVictory, bossHealth, winner: Player | undefined;
+
   if (gameMode.type === "bossfight") {
     bossHealth = gameMode.data.bossHealth;
     if (bossHealth <= 0) isVictory = true;
@@ -93,11 +86,11 @@ export default function GameOver({}: GameOverProps) {
               <Trophy className="text-theme-orange mx-auto mb-4 h-16 w-16 animate-bounce" />
               <h2 className="mb-2 text-3xl font-bold">Game Over!</h2>
               <p className="text-muted-foreground text-xl">
-                {winner ? `${winner} has won the game!` : "It's a draw!"}
+                {winner ? `${winner.name} has won the game!` : "It's a draw!"}
               </p>
-              {winnerId === player.playerId && (
+              {winner?.playerId === player.playerId && (
                 <p className="mt-2 text-lg font-semibold text-green-600">
-                  Congratulations!
+                  Congratulations you won!
                 </p>
               )}
             </div>
@@ -111,13 +104,13 @@ export default function GameOver({}: GameOverProps) {
                 .map((player) => (
                   <div
                     key={player.playerId}
-                    className={`text-md flex w-full items-center justify-center gap-3 rounded p-2 ${player.playerId === winnerId ? "bg-yellow-100" : ""}`}
+                    className={`text-md flex w-full items-center justify-center gap-3 rounded p-2 ${player.playerId === winner?.playerId ? "bg-yellow-100" : ""}`}
                   >
-                    {player.playerId === winnerId && (
+                    {player.playerId === winner?.playerId && (
                       <Trophy className="h-5 w-5 text-yellow-500" />
                     )}
                     <span
-                      className={`${player.playerId === winnerId ? "font-bold" : ""} ${player.health <= 0 ? "text-muted-foreground line-through" : ""}`}
+                      className={`${player.playerId === winner?.playerId ? "font-bold" : ""} ${player.health <= 0 ? "text-muted-foreground line-through" : ""}`}
                     >
                       {player.name}: {player.health ?? 0} health remaining
                     </span>
