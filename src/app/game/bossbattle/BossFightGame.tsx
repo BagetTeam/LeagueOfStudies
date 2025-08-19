@@ -41,6 +41,7 @@ const BossFightGame = () => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [showFeedback, setShowFeedback] = useState(false);
   const [isResolvingRound, setIsResolvingRound] = useState(false);
+  const [isTeamVictory, setIsTeamVictory] = useState(false);
 
   const [xpUpdateAttempted, setXpUpdateAttempted] = useState(false);
 
@@ -167,8 +168,8 @@ const BossFightGame = () => {
 
         if (newBossHealth <= 0) {
           const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.BOSS_DAMAGED,
-            { bossHealth: newBossHealth },
+            BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER,
+            {},
           );
           broadcastAndDispatch(event, payload);
           return;
@@ -201,38 +202,30 @@ const BossFightGame = () => {
         }
       }
 
-      // --- Start Next Question (if game not over) ---
-      console.log("Host: Starting next question.");
+      // --- Start Next Question ---
       // Add a small delay before starting next question to allow UI updates
       setTimeout(() => {
-        const nextIndex = currentQuestionIndex + 1;
+        const nextIndex = (currentQuestionIndex + 1) % questions.length;
         const newStartTime = Date.now();
 
-        dispatch({
-          type: "advanceTurn", // Or rename action if preferred e.g., 'advanceBossQuestion'
-          nextPlayerIndex: -1, // Not relevant here
-          nextQuestionIndex: nextIndex,
-          newTurnStartTime: newStartTime,
-        });
-        sendBroadcast(BROADCAST_EVENTS.QUESTION_START, {
-          nextQuestionIndex: nextIndex,
-          newTurnStartTime: newStartTime,
-        });
-        // Note: setIsResolvingRound(false) happens in the useEffect watching turnStartTime
-      }, 2000); // 2-second delay
-    } // end if(timeExpired || allLivingPlayersAnswered)
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.TURN_ADVANCE_BOSSFIGHT,
+          { currentQuestionIndex: nextIndex, startTime: newStartTime },
+        );
+        broadcastAndDispatch(event, payload);
+      }, 2000);
+    }
   }, [
     player.isHost,
-    isGameOver,
     turnStartTime,
-    players, // Need to react to health changes
-    playerAnswers, // Need to react to answers coming in
+    players, // react to health changes
+    playerAnswers,
     currentQuestionIndex,
     bossHealth,
-    sendBroadcast,
     isResolvingRound,
   ]);
 
+  // setting xp
   const { user } = useAuth0();
   useEffect(() => {
     if (isGameOver && !xpUpdateAttempted) {
@@ -247,19 +240,13 @@ const BossFightGame = () => {
         );
 
         updateLeaderboard(playerEmail, xpChange);
-      } else {
-        console.log(
-          "Game Over, but current player has no email. Skipping XP update.",
-        );
       }
     }
 
     if (!isGameOver) {
       setXpUpdateAttempted(false);
     }
-  }, [isGameOver, isTeamVictory, currentPlayer, xpUpdateAttempted]);
-
-  const damageBossAction = () => {};
+  }, [isGameOver, isTeamVictory]);
 
   // --- UI Rendering ---
 
