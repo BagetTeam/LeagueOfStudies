@@ -22,7 +22,7 @@ export default function NavBar() {
         <Link href="/dashboard">
           <Button>Dashboard</Button>
         </Link>
-        <Link href="/game-modes">
+        <Link href="/game">
           <Button>Game Modes</Button>
         </Link>
         <Link href="/leaderboard">
