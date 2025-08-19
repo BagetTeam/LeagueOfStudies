@@ -250,21 +250,13 @@ const BossFightGame = () => {
 
   // --- UI Rendering ---
 
-  if (
-    !currentQuestion ||
-    !players ||
-    typeof bossHealth !== "number" ||
-    !questions
-  ) {
+  if (!currentQuestion || !players || !questions) {
     // Handle loading gameState or error gameState if question/players/bossHealth aren't available yet
     return <div>Loading game... (Ensure game started correctly)</div>;
   }
 
   const canAnswer =
-    currentPlayer.health > 0 &&
-    !isAnsweredLocally &&
-    !isResolvingRound &&
-    !isGameOver;
+    player.health > 0 && !isAnsweredLocally && !isResolvingRound && !isGameOver;
 
   return (
     <div className="from-background to-muted min-h-screen bg-gradient-to-b">
@@ -290,7 +282,7 @@ const BossFightGame = () => {
         <TeamStatus
           players={players}
           getBossAttackClass={() => ""}
-          currentId={currentPlayer.id}
+          currentId={player.playerId}
         />
 
         {!isGameOver ? (
@@ -305,7 +297,7 @@ const BossFightGame = () => {
               onAnswer={handleAnswer}
             />
 
-            {currentPlayer.health <= 0 && !isGameOver && (
+            {player.health <= 0 && !isGameOver && (
               <div className="bg-muted mt-6 rounded-md p-3 text-center">
                 <p className="text-muted-foreground">
                   You{"'"}ve been defeated! Wait for your teammates.
