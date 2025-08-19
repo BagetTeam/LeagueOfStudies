@@ -11,6 +11,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { updateLeaderboard } from "@/backend/db/leaderboard";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
+import { useRouter } from "next/navigation";
 
 const XP_GAIN_ON_WIN = 500;
 const XP_LOSS_ON_LOSE = -200;
@@ -28,8 +29,8 @@ const BossFightGame = () => {
     questions,
   } = lobby;
 
-  if (gameMode.type !== "bossfight") {
-    return <div>ERROR!! RESTART GAME</div>;
+  if (gameMode.type !== "bossfight" || questions.length == 0) {
+    return <div>Loading game... (Ensure game started correctly)</div>;
   }
 
   const { time: TURN_DURATION_SECONDS, bossName, bossHealth } = gameMode.data;
@@ -171,6 +172,8 @@ const BossFightGame = () => {
             {},
           );
           broadcastAndDispatch(event, payload);
+
+          setIsTeamVictory(true);
           return;
         }
       } else {
@@ -224,7 +227,7 @@ const BossFightGame = () => {
     isResolvingRound,
   ]);
 
-  // setting xp
+  // HANDLE GAME OVER -> xp + go gameover page
   const { user } = useAuth0();
   useEffect(() => {
     if (isGameOver && !xpUpdateAttempted) {
@@ -240,6 +243,8 @@ const BossFightGame = () => {
 
         updateLeaderboard(playerEmail, xpChange);
       }
+
+      router;
     }
 
     if (!isGameOver) {
@@ -248,12 +253,6 @@ const BossFightGame = () => {
   }, [isGameOver, isTeamVictory]);
 
   // --- UI Rendering ---
-
-  if (!currentQuestion || !players || !questions) {
-    // Handle loading gameState or error gameState if question/players/bossHealth aren't available yet
-    return <div>Loading game... (Ensure game started correctly)</div>;
-  }
-
   const canAnswer =
     player.health > 0 && !isAnsweredLocally && !isResolvingRound && !isGameOver;
 
