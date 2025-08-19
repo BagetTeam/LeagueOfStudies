@@ -45,6 +45,8 @@ const BossFightGame = () => {
 
   const [xpUpdateAttempted, setXpUpdateAttempted] = useState(false);
 
+  const router = useRouter();
+
   const currentQuestion = useMemo(
     () => questions[currentQuestionIndex % questions.length],
     [currentQuestionIndex],
@@ -244,7 +246,7 @@ const BossFightGame = () => {
         updateLeaderboard(playerEmail, xpChange);
       }
 
-      router;
+      router.push("/game/game-over");
     }
 
     if (!isGameOver) {
