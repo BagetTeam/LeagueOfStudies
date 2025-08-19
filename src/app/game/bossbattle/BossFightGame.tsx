@@ -167,7 +167,7 @@ const BossFightGame = () => {
 
         if (newBossHealth <= 0) {
           const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER,
+            BROADCAST_EVENTS.BOSS_DAMAGED,
             { bossHealth: newBossHealth },
           );
           broadcastAndDispatch(event, payload);
@@ -183,23 +183,20 @@ const BossFightGame = () => {
 
         const { event, payload } = createBroadcastPayload(
           BROADCAST_EVENTS.TEAM_DAMAGE,
-          { damage: 1 },
+          { playerHealths: healthUpdates },
         );
         broadcastAndDispatch(event, payload);
 
-        // Check if team wiped
+        // Check if team lost
         const teamWiped = activePlayers.every(
-          (p) => (healthUpdates[p.id] ?? p.health) <= 0,
+          (p) => (healthUpdates[p.playerId] ?? p.health) <= 0,
         );
         if (teamWiped) {
-          console.log("Host: Team wiped! Broadcasting Game Over.");
-          dispatch({
-            type: "setBossFightGameOver",
-            isVictory: false,
-          });
-          sendBroadcast(BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER, {
-            isVictory: false,
-          });
+          const { event, payload } = createBroadcastPayload(
+            BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER,
+            {},
+          );
+          broadcastAndDispatch(event, payload);
           return;
         }
       }
@@ -225,7 +222,7 @@ const BossFightGame = () => {
       }, 2000); // 2-second delay
     } // end if(timeExpired || allLivingPlayersAnswered)
   }, [
-    currentPlayer.isHost,
+    player.isHost,
     isGameOver,
     turnStartTime,
     players, // Need to react to health changes
@@ -261,6 +258,8 @@ const BossFightGame = () => {
       setXpUpdateAttempted(false);
     }
   }, [isGameOver, isTeamVictory, currentPlayer, xpUpdateAttempted]);
+
+  const damageBossAction = () => {};
 
   // --- UI Rendering ---
 
