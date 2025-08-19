@@ -6,7 +6,6 @@ import { BossStatus } from "@/app/game/bossbattle/components/BossStatus";
 import { TeamStatus } from "@/app/game/bossbattle/components/TeamStatus";
 import { GameTimer } from "@/components/GameTimer";
 import { GameQuestion } from "@/components/GameQuestions";
-import { GameOver } from "@/app/game/game-over/page";
 import { useGame } from "@/GameContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import { updateLeaderboard } from "@/backend/db/leaderboard";
@@ -285,13 +284,13 @@ const BossFightGame = () => {
           currentId={player.playerId}
         />
 
-        {!isGameOver ? (
+        {!isGameOver && (
           <div className="mx-auto max-w-3xl">
             <GameTimer timeLeft={timeLeft} />
 
             <GameQuestion
               question={currentQuestion}
-              isAnswered={isAnsweredLocally} // Show feedback based on local answer status
+              isAnswered={isAnsweredLocally}
               selectedOption={selectedOption}
               canAnswer={canAnswer}
               onAnswer={handleAnswer}
@@ -313,14 +312,6 @@ const BossFightGame = () => {
               </div>
             )}
           </div>
-        ) : (
-          // Use isTeamVictory from gameState
-          <GameOver
-            isVictory={isTeamVictory ?? false} // Default to false if null somehow
-            bossHealth={bossHealth}
-            maxBossHealth={100}
-            players={players}
-          />
         )}
       </div>
     </div>
