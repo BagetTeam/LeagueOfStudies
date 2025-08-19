@@ -175,7 +175,11 @@ const BossFightGame = () => {
         }
       } else {
         //  FAILURE -> Damage Team
-        const healthUpdates: { [playerId: number]: number } = {};
+        const healthUpdates: { [playerId: string]: number } = {};
+
+        activePlayers.forEach((p) => {
+          healthUpdates[p.playerId] = Math.max(0, p.health - 1);
+        });
 
         const { event, payload } = createBroadcastPayload(
           BROADCAST_EVENTS.TEAM_DAMAGE,
@@ -196,8 +200,7 @@ const BossFightGame = () => {
           sendBroadcast(BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER, {
             isVictory: false,
           });
-          // No need to start next question
-          return; // Exit useEffect early
+          return;
         }
       }
 
