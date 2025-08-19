@@ -1,4 +1,4 @@
-import { ai } from "../utils/ai";
+import { ai } from "@/api/generate_questions/route";
 import { Type } from "@google/genai";
 import { z } from "zod";
 import { QuestionSchema, QuestionType } from "@/types/types";
