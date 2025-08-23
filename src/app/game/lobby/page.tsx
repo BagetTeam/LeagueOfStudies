@@ -18,8 +18,7 @@ import {
 import { createBroadcastPayload } from "@/utils/utils";
 
 export default function LobbyScreen() {
-  const { gameState, dispatch, sendBroadcast, broadcastAndDispatch } =
-    useGame();
+  const { gameState, dispatch, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
   const { lobbyId, gameMode, subject, questions, players } = lobby;
 
@@ -60,7 +59,7 @@ export default function LobbyScreen() {
   useEffect(() => {
     if (lobbyId == "") {
       const newPlayerId = crypto.randomUUID();
-      const newPlayerName = newPlayerId.substring(0, 5);
+      const newPlayerName = newPlayerId.substring(0, 8);
       const updatedPlayer: Player = {
         ...player,
         playerId: newPlayerId,

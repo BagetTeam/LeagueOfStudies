@@ -70,6 +70,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const { player, lobby } = gameState;
 
   useEffect(() => {
+    console.log(lobby.lobbyId);
+
     // remove channel is already existent
     if (channelRef.current) {
       console.log(
@@ -127,6 +129,10 @@ export const GameProvider = ({ children }: GameProviderProps) => {
                   players: [...currentPlayers, joinedPlayerInfo],
                 },
               };
+            dispatch({
+              type: "setPlayers",
+              payload: { players: [...currentPlayers, joinedPlayerInfo] },
+            });
             sendBroadcast(BROADCAST_EVENTS.SET_LOBBY_CONFIG, payload);
           }
         }
@@ -295,7 +301,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       };
     }
-  }, [gameState.lobby, gameState.player.playerId]);
+  }, [gameState.lobby.lobbyId, gameState.player.playerId]);
 
   function specialDispatch<K extends keyof GameStateActionPayloads>(
     event: K,
