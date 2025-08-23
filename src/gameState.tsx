@@ -209,11 +209,10 @@ export function gameStatereducer(
     }
 
     case "setBossfightGameOver": {
-      const newPlayers = state.lobby.players.map((p) =>
-        p.playerId === state.player.playerId
-          ? { ...p, state: "completed" as const }
-          : p,
-      );
+      const newPlayers = state.lobby.players.map((p) => ({
+        ...p,
+        state: "completed" as const,
+      }));
 
       return {
         ...state,
