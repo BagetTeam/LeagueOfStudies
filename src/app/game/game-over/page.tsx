@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/ui";
 import { Shield, Trophy, Users } from "lucide-react";
 import { useRouter } from "next/navigation";

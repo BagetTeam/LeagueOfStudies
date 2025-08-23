@@ -54,6 +54,36 @@ export default function BossFightGame() {
 
   const isGameOver = !players.find((p) => p.state === "playing");
 
+  const handleAnswer = (optionIndex: number | null) => {
+    if (
+      isAnsweredLocally ||
+      player.health <= 0 ||
+      isResolvingRound ||
+      isGameOver
+    ) {
+      return;
+    }
+
+    setIsAnsweredLocally(true);
+    setSelectedOption(optionIndex);
+
+    const isCorrect = optionIndex === currentQuestion.correctAnswer;
+
+    setFeedbackMessage("Answer submitted! Waiting for team...");
+    setShowFeedback(true);
+
+    // Broadcast the answer
+    const { event, payload } = createBroadcastPayload(
+      BROADCAST_EVENTS.PLAYER_ANSWERED,
+      {
+        playerId: player.playerId,
+        questionIndex: currentQuestionIndex,
+        isCorrect: isCorrect,
+      },
+    );
+    broadcastAndDispatch(event, payload);
+  };
+
   // clear all states when question changes (turnStartTime change)
   useEffect(() => {
     setIsAnsweredLocally(false);
@@ -98,36 +128,6 @@ export default function BossFightGame() {
     currentQuestionIndex,
     isResolvingRound,
   ]);
-
-  const handleAnswer = (optionIndex: number | null) => {
-    if (
-      isAnsweredLocally ||
-      player.health <= 0 ||
-      isResolvingRound ||
-      isGameOver
-    ) {
-      return;
-    }
-
-    setIsAnsweredLocally(true);
-    setSelectedOption(optionIndex);
-
-    const isCorrect = optionIndex === currentQuestion.correctAnswer;
-
-    setFeedbackMessage("Answer submitted! Waiting for team...");
-    setShowFeedback(true);
-
-    // Broadcast the answer
-    const { event, payload } = createBroadcastPayload(
-      BROADCAST_EVENTS.PLAYER_ANSWERED,
-      {
-        playerId: player.playerId,
-        questionIndex: currentQuestionIndex,
-        isCorrect: isCorrect,
-      },
-    );
-    broadcastAndDispatch(event, payload);
-  };
 
   // --- HOST ONLY: Round Resolution Logic ---
   useEffect(() => {
