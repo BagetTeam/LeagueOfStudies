@@ -27,6 +27,7 @@ export default function BossFightGame() {
     gameMode,
     playerAnswers,
     questions,
+    subject,
   } = lobby;
 
   if (gameMode.type !== "bossfight" || questions.length == 0) {
@@ -91,7 +92,6 @@ export default function BossFightGame() {
     setFeedbackMessage("");
     setShowFeedback(false);
     setIsResolvingRound(false);
-    setTimeLeft(TURN_DURATION_SECONDS);
   }, [turnStartTime]);
 
   // handle setting and calculating Time
@@ -141,7 +141,8 @@ export default function BossFightGame() {
     const activePlayers = players.filter((p) => p.state === "playing"); // Get currently living players
     const allAnsweredPlayerId = new Set(Object.keys(playerAnswers));
 
-    const timeExpired = timeLeft <= 0;
+    const timeExpired =
+      Date.now() >= turnStartTime + TURN_DURATION_SECONDS * 1000;
     const allPlayersAnswered = activePlayers.every((p) =>
       allAnsweredPlayerId.has(p.playerId),
     );
@@ -265,13 +266,13 @@ export default function BossFightGame() {
       <div className="container px-4 py-4">
         <GameHeader
           subject={"Hello world"}
-          topic={"asdf"}
+          topic={subject}
           roundNumber={currentQuestionIndex + 1}
         />
 
         <div className="mb-8">
           <BossStatus
-            bossName={"1.2 teacher"}
+            bossName={bossName}
             bossHealth={bossHealth}
             maxHealth={100}
             isAttacking={false} // Attack animation could be triggered by TEAM_DAMAGED broadcast maybe?
