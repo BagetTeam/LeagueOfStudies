@@ -244,6 +244,21 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
+        { event: BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER },
+        ({
+          payload,
+        }: {
+          payload: BroadcastingPayloads["setBossfightGameOver"];
+        }) => {
+          dispatch({
+            type: "setBossfightGameOver",
+            payload: payload,
+          });
+        },
+      );
+
+      channel.on(
+        "broadcast",
         { event: BROADCAST_EVENTS.TEAM_DAMAGE },
         ({ payload }: { payload: BroadcastingPayloads["teamDamage"] }) => {
           dispatch({
