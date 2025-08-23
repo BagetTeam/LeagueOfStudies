@@ -21,6 +21,7 @@ export default function LobbyScreen() {
   const { gameState, dispatch, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
   const { lobbyId, gameMode, subject, questions, players } = lobby;
+  const gameSubject = subject ?? "Rust";
 
   const [studyText, setStudyText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -39,7 +40,7 @@ export default function LobbyScreen() {
   const generateQuestions = async (topic: string | null) => {
     try {
       setLoading(true);
-      topic = topic ?? subject;
+      topic = topic ?? gameSubject;
 
       const fetchedQuestions = (await getQuestions(topic)) satisfies Question[];
 
@@ -83,7 +84,7 @@ export default function LobbyScreen() {
           ...defaultLobby,
           lobbyId: newLobbyId,
           gameMode: gameMode,
-          subject: subject,
+          subject: gameSubject,
         };
         updatedPlayer.isHost = true;
         dispatch({
@@ -100,12 +101,14 @@ export default function LobbyScreen() {
   useEffect(() => {
     if (!player.isHost) return;
 
-    if (!questions || (questions.length === 0 && subject)) {
+    console.log("Generating questions " + questions.length + gameSubject);
+    if (!questions || (questions.length === 0 && gameSubject)) {
+      console.log("Generating questions");
       if (fetchingRef.current) return;
 
       fetchingRef.current = true;
 
-      generateQuestions(subject).finally(() => {
+      generateQuestions(gameSubject).finally(() => {
         fetchingRef.current = false;
       });
     }
