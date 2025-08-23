@@ -4,55 +4,18 @@ import { z } from "zod";
 import { QuestionSchema, QuestionType } from "@/types/types";
 
 export async function getQuestions(text: string): Promise<QuestionType[]> {
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: `Generate 10 questions about this study material: ${text}. For each question, find the correct answer, then come up with 3 other potential answer that the player might think of. There should be 4 options to choose from where 1 of them is the correct answer. Return the index of the answer among the array of options.`,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.ARRAY,
-        items: {
-          required: ["question", "options", "correctAnswer", "id"],
-          type: Type.OBJECT,
-          properties: {
-            question: {
-              type: Type.STRING,
-              description: "Question contentt",
-              nullable: false,
-            },
-            options: {
-              type: Type.ARRAY,
-              description: "List of answer options",
-              nullable: false,
-              items: {
-                type: Type.STRING,
-                description: "option",
-                nullable: false,
-              },
-            },
-            correctAnswer: {
-              type: Type.NUMBER,
-              description:
-                "The index of the correct answer in the answer options array",
-              nullable: false,
-            },
-            id: {
-              type: Type.NUMBER,
-              description: "Id of the question",
-              nullable: false,
-            },
-          },
-        },
-      },
+  const response = await fetch("/api/generate_questions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({ text }),
   });
 
-  const ret = z.array(QuestionSchema).parse(JSON.parse(response.text ?? "[]"));
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
 
-  return ret.map((r, i) => {
-    return {
-      ...r,
-      id: i,
-    };
-  });
+  const data = await response.json();
+  return data.questions;
 }

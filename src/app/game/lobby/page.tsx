@@ -105,24 +105,28 @@ export default function LobbyScreen() {
 
       fetchingRef.current = true;
 
-      generateQuestions(subject);
-      fetchingRef.current = false;
+      generateQuestions(subject).finally(() => {
+        fetchingRef.current = false;
+      });
     }
-  }, [player.isHost, subject, questions, dispatch, broadcastAndDispatch]);
+  }, [player.isHost, subject, questions]);
 
   // starting game
   useEffect(() => {
+    console.log("New state, going to start game");
     if (player.state === "playing") {
       if (lobby.gameMode.type === "deathmatch") {
-        router.push("/game/deathmatch"); // Adjust path as needed
+        router.push("/game/deathmatch");
       } else if (lobby.gameMode.type === "bossfight") {
-        router.push("/game/bossbattle"); // Adjust path as needed
+        router.push("/game/bossbattle");
       }
     }
-  }, [player.state]);
+  }, [player.state, lobby.gameMode.type, router]);
 
   const startGame = () => {
+    console.log("STARTING GAME");
     if (player.isHost && players.length > 0) {
+      console.log("STARTING GAME");
       const { event, payload } = createBroadcastPayload(
         BROADCAST_EVENTS.START_GAME,
         {
@@ -282,7 +286,7 @@ export default function LobbyScreen() {
                 disabled={
                   players.length < 1 ||
                   loading ||
-                  questions.length == 0 ||
+                  questions.length === 0 ||
                   (players.length < 2 && gameMode.type === "deathmatch")
                 }
                 className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
@@ -292,6 +296,8 @@ export default function LobbyScreen() {
                   <span>Loading...</span>
                 ) : players.length < 2 && gameMode.type === "deathmatch" ? (
                   <span>Waiting for players...</span>
+                ) : questions.length === 0 ? (
+                  <span>Generating Questions...</span>
                 ) : (
                   <span>Start Game</span>
                 )}
