@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import "dotenv/config";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); // TODO get api key to work
+export const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!); // TODO get api key to work
 
 // !!! Not used as of now -> Refer to /backend/services/game-questions.ts
 export async function POST(req: NextRequest) {
