@@ -118,16 +118,10 @@ export default function BossFightGame() {
     };
 
     calculateRemainingTime(); // Initial calculation
-    const timerInterval = setInterval(calculateRemainingTime, 1000);
+    const timerInterval = setInterval(calculateRemainingTime, 1000); // trigger calculate time every second
 
     return () => clearInterval(timerInterval);
-  }, [
-    turnStartTime,
-    isGameOver,
-    isAnsweredLocally,
-    currentQuestionIndex,
-    isResolvingRound,
-  ]);
+  }, [turnStartTime, isGameOver, isAnsweredLocally, isResolvingRound]);
 
   // --- HOST ONLY: Round Resolution Logic ---
   useEffect(() => {
@@ -235,18 +229,21 @@ export default function BossFightGame() {
     if (isGameOver && !xpUpdateAttempted) {
       setXpUpdateAttempted(true); // make sure action isn't repeated twice
 
-      if (user?.email) {
-        const playerEmail = user?.email;
-        const xpChange = isTeamVictory ? XP_GAIN_ON_WIN : XP_LOSS_ON_LOSE;
+      async function onWinXpChange() {
+        if (user?.email) {
+          const playerEmail = user?.email;
+          const xpChange = isTeamVictory ? XP_GAIN_ON_WIN : XP_LOSS_ON_LOSE;
 
-        console.log(
-          `Game Over. Victory: ${isTeamVictory}. Player ${playerEmail} XP change: ${xpChange}`,
-        );
+          console.log(
+            `Game Over. Victory: ${isTeamVictory}. Player ${playerEmail} XP change: ${xpChange}`,
+          );
 
-        updateLeaderboard(playerEmail, xpChange);
+          await updateLeaderboard(playerEmail, xpChange);
+        }
       }
-
-      router.push("/game/game-over");
+      onWinXpChange().finally(() => {
+        router.push("/game/game-over");
+      });
     }
 
     if (!isGameOver) {
