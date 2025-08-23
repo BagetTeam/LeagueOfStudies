@@ -25,11 +25,13 @@ export default function LobbyScreen() {
   const [studyText, setStudyText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
+  const [gameUrl, setGameUrl] = useState<string>(`/game?join=${lobbyId}`);
+
   const router = useRouter();
-  const gameUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/game?join=${lobbyId}`
-      : `/game?join=${lobbyId}`;
+
+  useEffect(() => {
+    setGameUrl(`${window.location.origin}/game?join=${lobbyId}`);
+  }, [lobbyId]);
 
   const urlSearchParams = useSearchParams();
   const joinLobbyId = urlSearchParams.get("join");
