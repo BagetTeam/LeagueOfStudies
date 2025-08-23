@@ -6,7 +6,6 @@ import { QuestionSchema } from "@/types/types";
 
 export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); // TODO get api key to work
 
-// !!! Not used as of now -> Refer to /backend/services/game-questions.ts
 export async function POST(req: NextRequest) {
   try {
     const { topic } = await req.json();
