@@ -1,4 +1,4 @@
-import { QuestionSchema, QuestionType } from "@/types/types";
+import { QuestionType } from "@/types/types";
 
 export async function getQuestions(text: string): Promise<QuestionType[]> {
   const response = await fetch("/api/generate_questions", {
@@ -6,7 +6,7 @@ export async function getQuestions(text: string): Promise<QuestionType[]> {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ topic: text }),
   });
 
   if (!response.ok) {

@@ -101,9 +101,7 @@ export default function LobbyScreen() {
   useEffect(() => {
     if (!player.isHost) return;
 
-    console.log("Generating questions " + questions.length + gameSubject);
     if (!questions || (questions.length === 0 && gameSubject)) {
-      console.log("Generating questions");
       if (fetchingRef.current) return;
 
       fetchingRef.current = true;
@@ -116,7 +114,6 @@ export default function LobbyScreen() {
 
   // starting game
   useEffect(() => {
-    console.log("New state, going to start game");
     if (player.state === "playing") {
       if (lobby.gameMode.type === "deathmatch") {
         router.push("/game/deathmatch");
@@ -127,14 +124,18 @@ export default function LobbyScreen() {
   }, [player.state, lobby.gameMode.type, router]);
 
   const startGame = () => {
-    console.log("STARTING GAME");
     if (player.isHost && players.length > 0) {
-      console.log("STARTING GAME");
+      if (lobby.gameMode.type !== "bossfight") return;
+      const startGameMode = {
+        ...lobby.gameMode,
+        data: { ...lobby.gameMode.data, bossHealth: 100 },
+      };
+
       const { event, payload } = createBroadcastPayload(
         BROADCAST_EVENTS.START_GAME,
         {
           initialPlayers: lobby.players,
-          gameMode: lobby.gameMode,
+          gameMode: startGameMode,
           questions: lobby.questions,
         },
       );
