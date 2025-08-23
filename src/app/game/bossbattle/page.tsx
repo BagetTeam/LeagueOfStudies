@@ -147,7 +147,7 @@ export default function BossFightGame() {
       setIsResolvingRound(true);
 
       const allPlayerAnswersCorrect = activePlayers.every(
-        (p) => playerAnswers[p.playerId].isCorrect,
+        (p) => playerAnswers[p.playerId]?.isCorrect,
       );
 
       // -- Determine outcome --
