@@ -91,6 +91,7 @@ export default function BossFightGame() {
     setFeedbackMessage("");
     setShowFeedback(false);
     setIsResolvingRound(false);
+    setTimeLeft(TURN_DURATION_SECONDS);
   }, [turnStartTime]);
 
   // handle setting and calculating Time
@@ -120,7 +121,10 @@ export default function BossFightGame() {
     calculateRemainingTime(); // Initial calculation
     const timerInterval = setInterval(calculateRemainingTime, 1000); // trigger calculate time every second
 
-    return () => clearInterval(timerInterval);
+    return () => {
+      clearInterval(timerInterval);
+      console.log("New Start Time");
+    };
   }, [turnStartTime, isGameOver, isAnsweredLocally, isResolvingRound]);
 
   // --- HOST ONLY: Round Resolution Logic ---
@@ -144,6 +148,7 @@ export default function BossFightGame() {
 
     // resolve round -> advance to next round
     if (timeExpired || allPlayersAnswered) {
+      console.log("Setting resolving round");
       setIsResolvingRound(true);
 
       const allPlayerAnswersCorrect = activePlayers.every(
