@@ -98,9 +98,7 @@ const DeathmatchGame = () => {
     turnStartTime,
     isGameOver,
     isAnsweredLocally,
-    currentPlayer.id,
-    activePlayer?.id,
-    currentQuestionIndex,
+    activePlayer,
     isResolvingRound,
   ]); // Rerun when turn changes or game ends
 
