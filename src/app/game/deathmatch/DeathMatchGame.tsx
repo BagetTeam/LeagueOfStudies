@@ -31,6 +31,7 @@ const DeathmatchGame = () => {
   }
 
   const { time: TURN_DURATION_SECONDS, activePlayerIndex } = gameMode.data;
+  const GRACE_PERIOD = 2;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false);
@@ -100,28 +101,25 @@ const DeathmatchGame = () => {
     isAnsweredLocally,
     activePlayer,
     isResolvingRound,
-  ]); // Rerun when turn changes or game ends
+  ]);
 
-  // --- Answer Handling ---
+  const isMyTurn = activePlayer.playerId === player.playerId;
+  const cannotAnswerNow =
+    activePlayer.playerId !== player.playerId &&
+    turnStartTime &&
+    (Date.now() - turnStartTime) / 1000 < GRACE_PERIOD;
+
   const handleAnswer = (optionIndex: number | null) => {
     if (isAnsweredLocally || cannotAnswerNow || isGameOver) {
-      console.log("Answer blocked:", {
-        isAnsweredLocally,
-        isMyTurn: activePlayer?.id === currentPlayer.id,
-        isGameOver,
-      });
       return;
     }
 
-    console.log(
-      `Player ${currentPlayer.id} answered with option: ${optionIndex}`,
-    );
     setIsAnsweredLocally(true); // Mark locally that an answer was submitted for this turn
     setSelectedOption(optionIndex);
 
     const isCorrect = optionIndex === currentQuestion.correctAnswer;
 
-    if (isCorrect && activePlayer?.id !== currentPlayer.id) {
+    if (isCorrect && activePlayer.playerId !== currentPlayer.id) {
       const currentHealth =
         players.find((p) => p.id === activePlayer?.id)?.health ?? 0;
       const newHealth = Math.max(0, currentHealth - 1);
@@ -252,11 +250,6 @@ const DeathmatchGame = () => {
   if (!currentQuestion || !players || players.length === 0) {
     return <div>Loading game...</div>;
   }
-
-  const isMyTurn = activePlayer?.id === currentPlayer.id;
-  const cannotAnswerNow =
-    activePlayer?.id !== currentPlayer.id &&
-    Math.floor((Date.now() - turnStartTime!) / 1000) < 2;
 
   return (
     <div className="from-background to-muted min-h-screen bg-gradient-to-b">
