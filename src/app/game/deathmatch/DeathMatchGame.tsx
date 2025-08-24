@@ -16,8 +16,6 @@ const BROADCAST_EVENTS = {
   RESTART_GAME: "restart_game",
 };
 
-const TURN_DURATION_SECONDS = 15;
-
 const DeathmatchGame = () => {
   const router = useRouter();
   const sp = useSearchParams();
@@ -25,13 +23,14 @@ const DeathmatchGame = () => {
 
   const { gameState, dispatch, sendBroadcast } = useGame();
   const { player, lobby } = gameState;
-  const {
-    players = [],
-    activePlayerIndex = 0,
-    currentQuestionIndex = 0,
-    turnStartTime,
-    questions,
-  } = lobby;
+  const { players, currentQuestionIndex, turnStartTime, questions, gameMode } =
+    lobby;
+
+  if (gameMode.type !== "deathmatch") {
+    return <div>Loading game... (Ensure game started correctly)</div>;
+  }
+
+  const { time: TURN_DURATION_SECONDS, currentPlayerIndex } = gameMode.data;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false); // If this client just answered
