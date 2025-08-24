@@ -24,16 +24,14 @@ const DeathmatchGame = () => {
   const subject = sp.get("subject") ?? "Rust";
 
   const { gameState, dispatch, sendBroadcast } = useGame();
+  const { player, lobby } = gameState;
   const {
-    currentPlayer,
     players = [],
     activePlayerIndex = 0,
     currentQuestionIndex = 0,
     turnStartTime,
-    isGameOver,
-    winnerId,
     questions,
-  } = gameState;
+  } = lobby;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false); // If this client just answered
