@@ -58,9 +58,17 @@ const DeathmatchGame = () => {
     );
   }, [isGameOver, players]);
 
+  // clear all states when question changes (turnStartTime change)
   useEffect(() => {
-    if (isGameOver || turnStartTime === null) {
-      setTimeLeft(0); // Ensure timer shows 0 when game over or turn hasn't started
+    setIsAnsweredLocally(false);
+    setSelectedOption(null);
+    setIsResolvingRound(false);
+  }, [turnStartTime]);
+
+  // handle setting and calculating Time
+  useEffect(() => {
+    if (isGameOver || turnStartTime === null || isResolvingRound) {
+      setTimeLeft(0);
       return;
     }
 
@@ -68,12 +76,12 @@ const DeathmatchGame = () => {
       const now = Date.now();
       const elapsed = Math.floor((now - turnStartTime) / 1000);
       const remaining = TURN_DURATION_SECONDS - elapsed;
-      setTimeLeft(Math.max(0, remaining)); // Ensure it doesn't go below 0
+      setTimeLeft(Math.max(0, remaining));
 
-      // If time runs out and it's this client's turn, trigger timeout action
+      // Check if time ran out
       if (
         remaining <= 0 &&
-        activePlayer?.id === currentPlayer.id &&
+        activePlayer?.playerId === player.playerId &&
         !isAnsweredLocally
       ) {
         console.log("Time ran out for current player");
@@ -98,14 +106,6 @@ const DeathmatchGame = () => {
     currentQuestionIndex,
     isResolvingRound,
   ]); // Rerun when turn changes or game ends
-
-  // Reset local answer gameState when the turn changes (new turnStartTime)
-  useEffect(() => {
-    setIsAnsweredLocally(false);
-    setSelectedOption(null);
-    setIsResolvingRound(false);
-    console.log("NEXT TURN STARTED");
-  }, [turnStartTime]);
 
   // --- Answer Handling ---
   const handleAnswer = (optionIndex: number | null) => {
