@@ -33,7 +33,7 @@ const DeathmatchGame = () => {
   const { time: TURN_DURATION_SECONDS, activePlayerIndex } = gameMode.data;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [isAnsweredLocally, setIsAnsweredLocally] = useState(false); // If this client just answered
+  const [isAnsweredLocally, setIsAnsweredLocally] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TURN_DURATION_SECONDS);
   const [isResolvingRound, setIsResolvingRound] = useState(false);
 
@@ -45,14 +45,18 @@ const DeathmatchGame = () => {
   const activePlayer = useMemo(
     () => players[activePlayerIndex],
     [activePlayerIndex],
-  ); // Player whose turn it is
+  );
 
-  console.log(questions);
+  const isGameOver = !players.find((p) => p.state === "playing");
+
   // Determine the winner's name
   const winner = useMemo(() => {
-    if (!isGameOver || winnerId === null) return null;
-    return players.find((p) => p.id === winnerId)?.name || "Unknown Winner";
-  }, [isGameOver, winnerId, players]);
+    if (!isGameOver) return null;
+    return (
+      players.find((p) => p.state === "completed" && p.health > 0)?.name ||
+      "Unknown Winner"
+    );
+  }, [isGameOver, players]);
 
   useEffect(() => {
     if (isGameOver || turnStartTime === null) {
