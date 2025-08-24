@@ -6,22 +6,16 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useGame } from "@/GameContext";
 import { Button } from "@/ui";
-
-const BROADCAST_EVENTS = {
-  START_GAME: "start_game",
-  HEALTH_UPDATE: "health_update",
-  PLAYER_ANSWERED: "answer_submitted",
-  TURN_ADVANCE: "turn_advance",
-  GAME_OVER: "game_over",
-  RESTART_GAME: "restart_game",
-};
+import { createBroadcastPayload } from "@/utils/utils";
+import { BROADCAST_EVENTS } from "@/GameContext";
 
 const DeathmatchGame = () => {
   const router = useRouter();
   const sp = useSearchParams();
   const subject = sp.get("subject") ?? "Rust";
 
-  const { gameState, dispatch, sendBroadcast } = useGame();
+  const { gameState, dispatch, sendBroadcast, broadcastAndDispatch } =
+    useGame();
   const { player, lobby } = gameState;
   const { players, currentQuestionIndex, turnStartTime, questions, gameMode } =
     lobby;
@@ -119,41 +113,30 @@ const DeathmatchGame = () => {
 
     const isCorrect = optionIndex === currentQuestion.correctAnswer;
 
-    if (isCorrect && activePlayer.playerId !== currentPlayer.id) {
+    // Current player answered first -> Health reduction for active player
+    if (isCorrect && activePlayer.playerId !== player.playerId) {
       const currentHealth =
-        players.find((p) => p.id === activePlayer?.id)?.health ?? 0;
+        players.find((p) => p.playerId === activePlayer.playerId)?.health ?? 0;
       const newHealth = Math.max(0, currentHealth - 1);
-      console.log(
-        `Broadcasting health update for ${activePlayer.id}: ${newHealth}`,
-      );
 
-      dispatch({
-        type: "setHealth",
-        playerId: activePlayer?.id,
-        health: newHealth,
-      });
-      sendBroadcast(BROADCAST_EVENTS.HEALTH_UPDATE, {
-        playerId: activePlayer?.id,
-        newHealth: newHealth,
-      });
+      const { event, payload } = createBroadcastPayload(
+        BROADCAST_EVENTS.HEALTH_UPDATE,
+        { playerId: activePlayer.playerId, health: newHealth },
+      );
+      broadcastAndDispatch(event, payload);
     }
+
+    // If answer is not correct
     if (!isCorrect) {
       const currentHealth =
-        players.find((p) => p.id === currentPlayer.id)?.health ?? 0;
+        players.find((p) => p.playerId === player.playerId)?.health ?? 0;
       const newHealth = Math.max(0, currentHealth - 1);
-      console.log(
-        `Broadcasting health update for ${currentPlayer.id}: ${newHealth}`,
+
+      const { event, payload } = createBroadcastPayload(
+        BROADCAST_EVENTS.HEALTH_UPDATE,
+        { playerId: player.playerId, health: newHealth },
       );
-      // Host broadcasts the authoritative health update
-      dispatch({
-        type: "setHealth",
-        playerId: currentPlayer.id,
-        health: newHealth,
-      });
-      sendBroadcast(BROADCAST_EVENTS.HEALTH_UPDATE, {
-        playerId: currentPlayer.id,
-        newHealth: newHealth,
-      });
+      broadcastAndDispatch(event, payload);
     }
 
     // --- Turn Advancement & Game Over Check (Simulated Host Logic) ---
