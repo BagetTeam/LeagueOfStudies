@@ -81,21 +81,18 @@ const DeathmatchGame = () => {
       // Check if time ran out
       if (
         remaining <= 0 &&
-        activePlayer?.playerId === player.playerId &&
-        !isAnsweredLocally
+        activePlayer.playerId === player.playerId &&
+        !isAnsweredLocally &&
+        !isGameOver &&
+        !isResolvingRound
       ) {
-        console.log("Time ran out for current player");
-        handleAnswer(null); // Trigger timeout (counts as wrong)
+        handleAnswer(null); // Submit a timeout answer (null = incorrect)
       }
     };
 
-    // Set initial time immediately
     calculateRemainingTime();
-    console.log("Time LEFT: " + timeLeft);
-
     const timerInterval = setInterval(calculateRemainingTime, 1000);
 
-    // Cleanup interval on unmount or when dependencies change
     return () => clearInterval(timerInterval);
   }, [
     turnStartTime,

@@ -118,12 +118,11 @@ export default function BossFightGame() {
       }
     };
 
-    calculateRemainingTime(); // Initial calculation
-    const timerInterval = setInterval(calculateRemainingTime, 1000); // trigger calculate time every second
+    calculateRemainingTime();
+    const timerInterval = setInterval(calculateRemainingTime, 1000);
 
     return () => {
       clearInterval(timerInterval);
-      console.log("New Start Time");
     };
   }, [turnStartTime, isGameOver, isAnsweredLocally, isResolvingRound]);
 
