@@ -30,7 +30,7 @@ const DeathmatchGame = () => {
     return <div>Loading game... (Ensure game started correctly)</div>;
   }
 
-  const { time: TURN_DURATION_SECONDS, currentPlayerIndex } = gameMode.data;
+  const { time: TURN_DURATION_SECONDS, activePlayerIndex } = gameMode.data;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false); // If this client just answered
