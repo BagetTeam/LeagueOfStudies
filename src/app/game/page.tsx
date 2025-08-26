@@ -43,7 +43,7 @@ export default function GameModes() {
       else if (selectedMode === "bossfight")
         mode = {
           type: selectedMode,
-          data: { bossName: "teacher Bob", bossHealth: 5, time: 15 },
+          data: { bossName: "teacher Bob", bossHealth: 5, time: 20 },
         };
     }
     dispatch({ type: "setGameMode", payload: { gameMode: mode } });
