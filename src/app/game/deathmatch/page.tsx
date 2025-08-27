@@ -133,70 +133,69 @@ export default function DeathmatchGame() {
       );
       broadcastAndDispatch(event, payload);
     }
-
-    handleTurnAdvancement();
+    setTimeout(() => {
+      handleTurnAdvancement();
+    }, 1500);
   };
 
   const handleTurnAdvancement = () => {
-    // --- Turn Advancement & Game Over Check (Simulated Host Logic) ---
     // Introduce a small delay to allow UI feedback before advancing
-    setTimeout(() => {
-      // Recalculate gameState based on potential health updates
-      const updatedPlayers = players.map((p) =>
-        p.playerId === player.playerId && !isCorrect
-          ? { ...p, health: Math.max(0, (p.health ?? 0) - 1) }
-          : p,
-      );
 
-      let nextIndex = (activePlayerIndex + 1) % players.length;
-      // Find the next player who is still alive (using the updated player list)
-      while (updatedPlayers[nextIndex]?.health <= 0) {
-        nextIndex = (nextIndex + 1) % players.length;
+    // Recalculate gameState based on potential health updates
+    const updatedPlayers = players.map((p) =>
+      p.playerId === player.playerId && !isCorrect
+        ? { ...p, health: Math.max(0, (p.health ?? 0) - 1) }
+        : p,
+    );
 
-        if (nextIndex === activePlayerIndex) {
-          console.error("Could not find next player with health!");
-          dispatch({
-            type: "setGameOver",
-            winnerId: null,
-            isGameOver: true,
-          });
-          sendBroadcast(BROADCAST_EVENTS.GAME_OVER, {
-            winnerId: null,
-            isGameOver: true,
-          });
-          return;
-        }
+    let nextIndex = (activePlayerIndex + 1) % players.length;
+    // Find the next player who is still alive (using the updated player list)
+    while (updatedPlayers[nextIndex]?.health <= 0) {
+      nextIndex = (nextIndex + 1) % players.length;
+
+      if (nextIndex === activePlayerIndex) {
+        console.error("Could not find next player with health!");
+        dispatch({
+          type: "setGameOver",
+          winnerId: null,
+          isGameOver: true,
+        });
+        sendBroadcast(BROADCAST_EVENTS.GAME_OVER, {
+          winnerId: null,
+          isGameOver: true,
+        });
+        return;
       }
+    }
 
-      let nextQuestionIdx = currentQuestionIndex + 1;
-      // If the cycle comes back to the first player (or the next player index is smaller, indicating a wrap-around)
-      // and we haven't reached the end of questions, move to the next question.
-      if (currentQuestionIndex >= questions.length) {
-        //TODO ALL ANSWERS QUESTIONS (restart questions or end??)
-        console.log("All questions answered, checking remaining players...");
+    let nextQuestionIdx = currentQuestionIndex + 1;
+    // If the cycle comes back to the first player (or the next player index is smaller, indicating a wrap-around)
+    // and we haven't reached the end of questions, move to the next question.
+    if (currentQuestionIndex >= questions.length) {
+      //TODO ALL ANSWERS QUESTIONS (restart questions or end??)
+      console.log("All questions answered, checking remaining players...");
 
-        //temp
-        nextQuestionIdx = 0;
-      }
+      //temp
+      nextQuestionIdx = 0;
+    }
 
-      console.log(
-        `Advancing turn: Next Player Index=${nextIndex}, Next Question Index=${nextQuestionIdx}`,
-      );
-      // Host broadcasts the start of the next turn
+    console.log(
+      `Advancing turn: Next Player Index=${nextIndex}, Next Question Index=${nextQuestionIdx}`,
+    );
+    // Host broadcasts the start of the next turn
 
-      dispatch({
-        type: "advanceTurn",
-        nextPlayerIndex: nextIndex,
-        nextQuestionIndex: nextQuestionIdx,
-        newTurnStartTime: Date.now(),
-      });
+    dispatch({
+      type: "advanceTurn",
+      nextPlayerIndex: nextIndex,
+      nextQuestionIndex: nextQuestionIdx,
+      newTurnStartTime: Date.now(),
+    });
 
-      sendBroadcast(BROADCAST_EVENTS.TURN_ADVANCE, {
-        nextPlayerIndex: nextIndex,
-        nextQuestionIndex: nextQuestionIdx,
-        newTurnStartTime: Date.now(), // Start timer for the next turn
-      });
-    }, 1500); // Delay allows seeing correct/incorrect feedback
+    sendBroadcast(BROADCAST_EVENTS.TURN_ADVANCE, {
+      nextPlayerIndex: nextIndex,
+      nextQuestionIndex: nextQuestionIdx,
+      newTurnStartTime: Date.now(), // Start timer for the next turn
+    });
   };
 
   // --- UI Rendering ---
