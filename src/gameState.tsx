@@ -331,18 +331,16 @@ export function gameStatereducer(
       };
 
     case "submitAnswerDeathmatch": {
+      const { optionIndex, answeringPlayerId, currentPlayerIndex } =
+        action.payload;
+      const { currentQuestionIndex, gameMode, players } = state.lobby;
       if (
-        state.lobby.currentQuestionIndex !==
-          action.payload.currentQuestionIndex ||
-        state.lobby.gameMode.type !== "deathmatch" ||
-        state.lobby.gameMode.data.activePlayerIndex !==
-          action.payload.currentPlayerIndex
+        currentQuestionIndex !== action.payload.currentQuestionIndex ||
+        gameMode.type !== "deathmatch" ||
+        gameMode.data.activePlayerIndex !== currentPlayerIndex
       )
         return state;
 
-      const { optionIndex, answeringPlayerId, currentPlayerIndex } =
-        action.payload;
-      const players = state.lobby.players;
       const currentQuestion =
         state.lobby.questions[state.lobby.currentQuestionIndex];
       const currentPlayerId = players[currentPlayerIndex].playerId;
@@ -356,60 +354,57 @@ export function gameStatereducer(
           players.find((p) => p.playerId === currentPlayerId)?.health ?? 0;
         const newHealth = Math.max(0, currentHealth - 1);
 
-        newPlayers = players.map((p) => 
+        newPlayers = players.map((p) =>
           p.playerId === currentPlayerId
             ? {
                 ...p,
-                health: Math.max(0, p.health - 1),
+                health: newHealth,
+                state: newHealth <= 0 ? "completed" : "playing",
               }
-            : p;
+            : p,
         );
-
-        if (newHealth <= 0) {
-          const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.STATE_UPDATE,
-            { playerId: activePlayer.playerId, state: "completed" as const },
-          );
-          broadcastAndDispatch(event, payload);
-        }
       }
 
       // If answer is not correct
       if (!isCorrect) {
         const currentHealth =
-          players.find((p) => p.playerId === player.playerId)?.health ?? 0;
+          players.find((p) => p.playerId === answeringPlayerId)?.health ?? 0;
         const newHealth = Math.max(0, currentHealth - 1);
 
-        const { event, payload } = createBroadcastPayload(
-          BROADCAST_EVENTS.HEALTH_UPDATE,
-          { playerId: player.playerId, health: newHealth },
+        newPlayers = players.map((p) =>
+          p.playerId === answeringPlayerId
+            ? {
+                ...p,
+                health: newHealth,
+                state: newHealth <= 0 ? "completed" : "playing",
+              }
+            : p,
         );
-        broadcastAndDispatch(event, payload);
-
-        if (newHealth <= 0) {
-          const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.STATE_UPDATE,
-            { playerId: activePlayer.playerId, state: "completed" as const },
-          );
-          broadcastAndDispatch(event, payload);
-        }
       }
 
       // Find the next player who is still alive (using the updated player list)
-      let nextIndex = (activePlayerIndex + 1) % players.length;
+      let nextIndex = (currentPlayerIndex + 1) % players.length;
       while (
         players[nextIndex]?.state !== "playing" ||
         players[nextIndex]?.health <= 0
       ) {
         nextIndex = (nextIndex + 1) % players.length;
 
-        if (nextIndex === activePlayerIndex) {
-          const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.GAME_OVER,
-            {},
-          );
-          broadcastAndDispatch(event, payload);
-          return;
+        if (nextIndex === currentPlayerIndex) {
+          
+      }
+      return {
+        ...state,
+        lobby: {
+          ...state.lobby,
+          players: newPlayers,
+          gameMode: {
+            ...gameMode,
+            data: {
+              ...gameMode.data,
+              activePlayerIndex: nextIndex
+            }
+          }
         }
       }
     }
