@@ -1,3 +1,4 @@
+import { act } from "react";
 import { INITIAL_PLAYER_HEALTH } from "./types/const";
 import { GameStateActionPayloads } from "./types/gameStatePayloads";
 import { GameState, Lobby } from "./types/types";
@@ -329,6 +330,80 @@ export function gameStatereducer(
         },
       };
 
+    case "submitAnswerDeathmatch": {
+      if (
+        state.lobby.currentQuestionIndex !== action.payload.currentQuestionIndex
+      )
+        return state;
+
+      const { optionIndex, answeringPlayerId } = action.payload;
+      const players = state.lobby.players;
+      const currentQuestion =
+        state.lobby.questions[state.lobby.currentQuestionIndex];
+
+      const isCorrect = optionIndex === currentQuestion.correctAnswer;
+
+      // Current player answered first and is correct -> Health reduction for active player
+      if (isCorrect && activePlayer.playerId !== player.playerId) {
+        const currentHealth =
+          players.find((p) => p.playerId === activePlayer.playerId)?.health ??
+          0;
+        const newHealth = Math.max(0, currentHealth - 1);
+
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.HEALTH_UPDATE,
+          { playerId: activePlayer.playerId, health: newHealth },
+        );
+        broadcastAndDispatch(event, payload);
+
+        if (newHealth <= 0) {
+          const { event, payload } = createBroadcastPayload(
+            BROADCAST_EVENTS.STATE_UPDATE,
+            { playerId: activePlayer.playerId, state: "completed" as const },
+          );
+          broadcastAndDispatch(event, payload);
+        }
+      }
+
+      // If answer is not correct
+      if (!isCorrect) {
+        const currentHealth =
+          players.find((p) => p.playerId === player.playerId)?.health ?? 0;
+        const newHealth = Math.max(0, currentHealth - 1);
+
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.HEALTH_UPDATE,
+          { playerId: player.playerId, health: newHealth },
+        );
+        broadcastAndDispatch(event, payload);
+
+        if (newHealth <= 0) {
+          const { event, payload } = createBroadcastPayload(
+            BROADCAST_EVENTS.STATE_UPDATE,
+            { playerId: activePlayer.playerId, state: "completed" as const },
+          );
+          broadcastAndDispatch(event, payload);
+        }
+      }
+
+      // Find the next player who is still alive (using the updated player list)
+      let nextIndex = (activePlayerIndex + 1) % players.length;
+      while (
+        players[nextIndex]?.state !== "playing" ||
+        players[nextIndex]?.health <= 0
+      ) {
+        nextIndex = (nextIndex + 1) % players.length;
+
+        if (nextIndex === activePlayerIndex) {
+          const { event, payload } = createBroadcastPayload(
+            BROADCAST_EVENTS.GAME_OVER,
+            {},
+          );
+          broadcastAndDispatch(event, payload);
+          return;
+        }
+      }
+    }
     case "teamDamage": {
       const newPlayers = state.lobby.players.map((p) =>
         action.payload.playerHealths.hasOwnProperty(p.playerId)
