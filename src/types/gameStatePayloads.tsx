@@ -40,6 +40,7 @@ type TurnAdvanceBossfightPayload = {
 type SubmitAnswerDeathmatchPayload = {
   answeringPlayerId: string;
   currentQuestionIndex: number;
+  currentPlayerIndex: number;
   optionIndex: number;
 };
 

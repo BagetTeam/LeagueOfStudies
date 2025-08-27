@@ -332,11 +332,16 @@ export function gameStatereducer(
 
     case "submitAnswerDeathmatch": {
       if (
-        state.lobby.currentQuestionIndex !== action.payload.currentQuestionIndex
+        state.lobby.currentQuestionIndex !==
+          action.payload.currentQuestionIndex ||
+        state.lobby.gameMode.type !== "deathmatch" ||
+        state.lobby.gameMode.data.activePlayerIndex !==
+          action.payload.currentPlayerIndex
       )
         return state;
 
-      const { optionIndex, answeringPlayerId } = action.payload;
+      const { optionIndex, answeringPlayerId, currentPlayerIndex } =
+        action.payload;
       const players = state.lobby.players;
       const currentQuestion =
         state.lobby.questions[state.lobby.currentQuestionIndex];
