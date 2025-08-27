@@ -163,6 +163,26 @@ export function gameStatereducer(
       };
     }
 
+    case "setState": {
+      if (state.player.playerId !== action.payload.playerId) {
+        return state;
+      }
+      const newPlayers = state.lobby.players.map((player) =>
+        player.playerId === action.payload.playerId
+          ? { ...player, state: action.payload.state }
+          : player,
+      );
+
+      return {
+        ...state,
+        lobby: { ...state.lobby, players: newPlayers },
+        player: {
+          ...state.player,
+          state: action.payload.state,
+        },
+      };
+    }
+
     case "setQuestions":
       return {
         ...state,
@@ -319,6 +339,7 @@ export function gameStatereducer(
             health: action.payload.playerHealths[state.player.playerId],
           }
         : state.player;
+
       return {
         ...state,
         player: curPlayer,
