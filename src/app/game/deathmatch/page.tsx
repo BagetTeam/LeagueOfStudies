@@ -140,12 +140,6 @@ export default function DeathmatchGame() {
   };
 
   const handleTurnAdvancement = () => {
-    const updatedPlayers = players.map((p) =>
-      p.playerId === player.playerId && !isCorrect
-        ? { ...p, health: Math.max(0, (p.health ?? 0) - 1) }
-        : p,
-    );
-
     let nextIndex = (activePlayerIndex + 1) % players.length;
     // Find the next player who is still alive (using the updated player list)
     while (updatedPlayers[nextIndex]?.health <= 0) {
