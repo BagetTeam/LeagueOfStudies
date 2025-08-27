@@ -37,6 +37,12 @@ type TurnAdvanceBossfightPayload = {
   startTime: number;
 };
 
+type SubmitAnswerDeathmatchPayload = {
+  answeringPlayerId: string;
+  currentQuestionIndex: number;
+  optionIndex: number;
+};
+
 type PlayerAnsweredPayload = {
   playerId: string;
   questionIndex: number;
@@ -62,6 +68,7 @@ export type BroadcastingPayloads = {
   setPlayerState: StateUpdatePayload;
   advanceTurnDeathmatch: TurnAdvanceDeathmatchPayload;
   advanceTurnBossfight: TurnAdvanceBossfightPayload;
+  submitAnswerDeathmatch: SubmitAnswerDeathmatchPayload;
   recordPlayerAnswer: PlayerAnsweredPayload;
   setBossHealth: BossDamagePayload;
   setGameOver: GameOverPayload;
@@ -85,6 +92,7 @@ export type GameStateActionPayloads = {
   setStartGame: StartGamePayload;
   advanceTurnDeathmatch: TurnAdvanceDeathmatchPayload;
   advanceTurnBossfight: TurnAdvanceBossfightPayload;
+  submitAnswerDeathmatch: SubmitAnswerDeathmatchPayload;
   setBossHealth: BossDamagePayload;
   recordPlayerAnswer: PlayerAnsweredPayload;
   setGameOver: GameOverPayload;
