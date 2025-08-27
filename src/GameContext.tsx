@@ -35,7 +35,7 @@ export const BROADCAST_EVENTS = {
   TURN_ADVANCE_BOSSFIGHT: "advanceTurnBossfight",
   PLAYER_ANSWERED: "recordPlayerAnswer",
   BOSS_DAMAGED: "setBossHealth",
-  BOSS_FIGHT_GAME_OVER: "setBossfightGameOver",
+  GAME_OVER: "setGameOver",
   TEAM_DAMAGE: "teamDamage",
 } as const;
 
@@ -244,14 +244,10 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER },
-        ({
-          payload,
-        }: {
-          payload: BroadcastingPayloads["setBossfightGameOver"];
-        }) => {
+        { event: BROADCAST_EVENTS.GAME_OVER },
+        ({ payload }: { payload: BroadcastingPayloads["setGameOver"] }) => {
           dispatch({
-            type: "setBossfightGameOver",
+            type: "setGameOver",
             payload: payload,
           });
         },

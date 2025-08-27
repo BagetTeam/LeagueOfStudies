@@ -133,15 +133,9 @@ export default function DeathmatchGame() {
       );
       broadcastAndDispatch(event, payload);
     }
-    // delay for ui proper update
-    setTimeout(() => {
-      handleTurnAdvancement();
-    }, 1500);
-  };
 
-  const handleTurnAdvancement = () => {
-    let nextIndex = (activePlayerIndex + 1) % players.length;
     // Find the next player who is still alive (using the updated player list)
+    let nextIndex = (activePlayerIndex + 1) % players.length;
     while (updatedPlayers[nextIndex]?.health <= 0) {
       nextIndex = (nextIndex + 1) % players.length;
 
@@ -159,7 +153,13 @@ export default function DeathmatchGame() {
         return;
       }
     }
+    // delay for ui proper update
+    setTimeout(() => {
+      handleTurnAdvancement();
+    }, 1500);
+  };
 
+  const handleTurnAdvancement = (nextIndex: number) => {
     let nextQuestionIdx = currentQuestionIndex + 1;
     // If the cycle comes back to the first player (or the next player index is smaller, indicating a wrap-around)
     // and we haven't reached the end of questions, move to the next question.

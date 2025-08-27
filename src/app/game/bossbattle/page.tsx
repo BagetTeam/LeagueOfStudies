@@ -169,7 +169,7 @@ export default function BossFightGame() {
 
         if (newBossHealth <= 0) {
           const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER,
+            BROADCAST_EVENTS.GAME_OVER,
             {},
           );
           broadcastAndDispatch(event, payload);
@@ -197,7 +197,7 @@ export default function BossFightGame() {
         );
         if (teamWiped) {
           const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.BOSS_FIGHT_GAME_OVER,
+            BROADCAST_EVENTS.GAME_OVER,
             {},
           );
           broadcastAndDispatch(event, payload);

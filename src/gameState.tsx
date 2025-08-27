@@ -216,7 +216,7 @@ export function gameStatereducer(
       };
     }
 
-    case "setBossfightGameOver": {
+    case "setGameOver": {
       const newPlayers = state.lobby.players.map((p) => ({
         ...p,
         state: "completed" as const,
