@@ -148,7 +148,7 @@ export default function DeathmatchGame() {
     setTimeout(() => {
       // Recalculate gameState based on potential health updates
       const updatedPlayers = players.map((p) =>
-        p.id === currentPlayer.id && !isCorrect
+        p.playerId === player.playerId && !isCorrect
           ? { ...p, health: Math.max(0, (p.health ?? 0) - 1) }
           : p,
       );
