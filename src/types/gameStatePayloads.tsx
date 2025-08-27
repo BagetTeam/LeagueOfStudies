@@ -59,7 +59,7 @@ export type BroadcastingPayloads = {
   restartGame: RestartGamePayload;
   setQuestions: SetQuestionsPayload;
   setHealth: HealthUpdatePayload;
-  setState: StateUpdatePayload;
+  setPlayerState: StateUpdatePayload;
   advanceTurnDeathmatch: TurnAdvanceDeathmatchPayload;
   advanceTurnBossfight: TurnAdvanceBossfightPayload;
   recordPlayerAnswer: PlayerAnsweredPayload;
@@ -81,7 +81,7 @@ export type GameStateActionPayloads = {
   setQuestions: SetQuestionsPayload;
   setScore: { playerId: string; score: number };
   setHealth: HealthUpdatePayload;
-  setState: StateUpdatePayload;
+  setPlayerState: StateUpdatePayload;
   setStartGame: StartGamePayload;
   advanceTurnDeathmatch: TurnAdvanceDeathmatchPayload;
   advanceTurnBossfight: TurnAdvanceBossfightPayload;

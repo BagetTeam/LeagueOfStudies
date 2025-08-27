@@ -191,9 +191,9 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.STATE_UPDATE },
-        ({ payload }: { payload: BroadcastingPayloads["setState"] }) => {
+        ({ payload }: { payload: BroadcastingPayloads["setPlayerState"] }) => {
           dispatch({
-            type: "setState",
+            type: "setPlayerState",
             payload: payload,
           });
         },

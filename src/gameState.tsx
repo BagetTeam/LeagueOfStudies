@@ -156,7 +156,7 @@ export function gameStatereducer(
       };
     }
 
-    case "setState": {
+    case "setPlayerState": {
       const currentPlayer =
         state.player.playerId === action.payload.playerId
           ? { ...state.player, state: action.payload.state }
