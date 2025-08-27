@@ -103,12 +103,16 @@ export default function DeathmatchGame() {
       return;
     }
 
-    setIsAnsweredLocally(true); // Mark locally that an answer was submitted for this turn
+    const playersAlive = players.filter((p) => {
+      p.state === "playing" && p.health > 0;
+    });
+
+    setIsAnsweredLocally(true);
     setSelectedOption(optionIndex);
 
     const isCorrect = optionIndex === currentQuestion.correctAnswer;
 
-    // Current player answered first -> Health reduction for active player
+    // Current player answered first and is correct -> Health reduction for active player
     if (isCorrect && activePlayer.playerId !== player.playerId) {
       const currentHealth =
         players.find((p) => p.playerId === activePlayer.playerId)?.health ?? 0;
@@ -136,20 +140,18 @@ export default function DeathmatchGame() {
 
     // Find the next player who is still alive (using the updated player list)
     let nextIndex = (activePlayerIndex + 1) % players.length;
-    while (updatedPlayers[nextIndex]?.health <= 0) {
+    while (
+      players[nextIndex]?.state !== "playing" ||
+      players[nextIndex]?.health <= 0
+    ) {
       nextIndex = (nextIndex + 1) % players.length;
 
       if (nextIndex === activePlayerIndex) {
-        console.error("Could not find next player with health!");
-        dispatch({
-          type: "setGameOver",
-          winnerId: null,
-          isGameOver: true,
-        });
-        sendBroadcast(BROADCAST_EVENTS.GAME_OVER, {
-          winnerId: null,
-          isGameOver: true,
-        });
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.GAME_OVER,
+          {},
+        );
+        broadcastAndDispatch(event, payload);
         return;
       }
     }
