@@ -117,12 +117,11 @@ export function gameStatereducer(
         ...state,
         player: action.payload.player,
       };
-    case "setPlayerState":
-      return state;
     case "setScore": {
-      if (state.player.playerId !== action.payload.playerId) {
-        return state;
-      }
+      const currentPlayer =
+        state.player.playerId === action.payload.playerId
+          ? { ...state.player, score: action.payload.score }
+          : state.player;
 
       const newPlayers = state.lobby.players.map((player) =>
         player.playerId === action.payload.playerId
@@ -135,16 +134,10 @@ export function gameStatereducer(
           ...state.lobby,
           players: newPlayers,
         },
-        player: {
-          ...state.player,
-          score: action.payload.score,
-        },
+        player: currentPlayer,
       };
     }
     case "setHealth": {
-      if (state.player.playerId !== action.payload.playerId) {
-        return state;
-      }
       const currentPlayer =
         state.player.playerId === action.payload.playerId
           ? { ...state.player, health: Math.max(0, action.payload.health) }

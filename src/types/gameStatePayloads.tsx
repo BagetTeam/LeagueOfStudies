@@ -23,7 +23,7 @@ type HealthUpdatePayload = {
 
 type StateUpdatePayload = {
   playerId: string;
-  state: "playing" | "lobby" | "completed";
+  state: Player["state"];
 };
 
 type TurnAdvanceDeathmatchPayload = {
@@ -78,7 +78,6 @@ export type GameStateActionPayloads = {
   setName: { name: string };
   setPlayers: { players: Player[] };
   setCurrentPlayer: { player: Player };
-  setPlayerState: { playerId: string; state: Player["state"] };
   setQuestions: SetQuestionsPayload;
   setScore: { playerId: string; score: number };
   setHealth: HealthUpdatePayload;
