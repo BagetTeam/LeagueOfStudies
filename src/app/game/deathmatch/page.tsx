@@ -48,15 +48,6 @@ export default function DeathmatchGame() {
 
   const isGameOver = !players.find((p) => p.state === "playing");
 
-  // Determine the winner's name
-  const winner = useMemo(() => {
-    if (!isGameOver) return null;
-    return (
-      players.find((p) => p.state === "completed" && p.health > 0)?.name ||
-      "Unknown Winner"
-    );
-  }, [isGameOver, players]);
-
   // clear all states when question changes (turnStartTime change)
   useEffect(() => {
     setIsAnsweredLocally(false);
