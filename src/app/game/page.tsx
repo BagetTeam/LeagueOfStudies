@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { useGame } from "../../GameContext";
 import { GameMode } from "@/types/types";
 import { subjects } from "@/test-data/gameModeData";
+import { INITIAL_BOSS_HEALTH } from "@/types/const";
 
 const defaultGameMode: GameMode = {
   type: "deathmatch",
@@ -43,7 +44,11 @@ export default function GameModes() {
       else if (selectedMode === "bossfight")
         mode = {
           type: selectedMode,
-          data: { bossName: "teacher Bob", bossHealth: 5, time: 20 },
+          data: {
+            bossName: "teacher Bob",
+            bossHealth: INITIAL_BOSS_HEALTH,
+            time: 20,
+          },
         };
     }
     dispatch({ type: "setGameMode", payload: { gameMode: mode } });

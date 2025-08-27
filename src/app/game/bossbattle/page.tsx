@@ -12,9 +12,7 @@ import { updateLeaderboard } from "@/backend/db/leaderboard";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
 import { useRouter } from "next/navigation";
-
-const XP_GAIN_ON_WIN = 500;
-const XP_LOSS_ON_LOSE = -200;
+import { XP_GAIN_ON_WIN, XP_LOSS_ON_LOSE } from "@/types/const";
 
 export default function BossFightGame() {
   const { gameState, dispatch, sendBroadcast, broadcastAndDispatch } =
@@ -205,18 +203,14 @@ export default function BossFightGame() {
         }
       }
 
-      // --- Start Next Question ---
-      // Add a small delay before starting next question to allow UI updates
-      setTimeout(() => {
-        const nextIndex = (currentQuestionIndex + 1) % questions.length;
-        const newStartTime = Date.now();
+      const nextIndex = (currentQuestionIndex + 1) % questions.length;
+      const newStartTime = Date.now();
 
-        const { event, payload } = createBroadcastPayload(
-          BROADCAST_EVENTS.TURN_ADVANCE_BOSSFIGHT,
-          { currentQuestionIndex: nextIndex, startTime: newStartTime },
-        );
-        broadcastAndDispatch(event, payload);
-      }, 2000);
+      const { event, payload } = createBroadcastPayload(
+        BROADCAST_EVENTS.TURN_ADVANCE_BOSSFIGHT,
+        { currentQuestionIndex: nextIndex, startTime: newStartTime },
+      );
+      broadcastAndDispatch(event, payload);
     }
   }, [
     player.isHost,

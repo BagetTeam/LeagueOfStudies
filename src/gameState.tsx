@@ -1,3 +1,4 @@
+import { INITIAL_PLAYER_HEALTH } from "./types/const";
 import { GameStateActionPayloads } from "./types/gameStatePayloads";
 import { GameState, Lobby } from "./types/types";
 
@@ -35,6 +36,20 @@ export type GameStateActions = {
 }[keyof GameStateActionPayloads];
 
 export type GameStateActionsType = keyof GameStateActionPayloads;
+
+export type RecordValues<T extends Record<string | number | symbol, unknown>> =
+  T[keyof T];
+
+const SomeEnum = {
+  A: "A",
+  B: "B",
+} as const;
+type SomeEnum = RecordValues<typeof SomeEnum>;
+
+function a(e: SomeEnum): string {
+  return e + "asd";
+}
+a(SomeEnum.A);
 
 export function gameStatereducer(
   state: GameState,
@@ -185,7 +200,7 @@ export function gameStatereducer(
       const initialPlayersWithHealth = action.payload.initialPlayers.map(
         (p) => ({
           ...p,
-          health: 5,
+          health: INITIAL_PLAYER_HEALTH,
           score: 0,
           state: "playing" as const,
         }),
@@ -195,7 +210,7 @@ export function gameStatereducer(
         ...state,
         player: {
           ...state.player,
-          health: 5,
+          health: INITIAL_PLAYER_HEALTH,
           score: 0,
           state: "playing",
         },
