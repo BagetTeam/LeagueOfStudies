@@ -144,26 +144,6 @@ export default function DeathmatchGame() {
           : p,
       );
 
-      const playersWithHealth = updatedPlayers.filter((p) => p.health > 0);
-      console.log("Players with health:", playersWithHealth);
-
-      // Check for Game Over
-      if (playersWithHealth.length <= 1) {
-        const winnerFound =
-          playersWithHealth.length === 1 ? playersWithHealth[0] : null;
-        console.log(`Game Over! Winner ID: ${winnerFound?.id}`);
-        dispatch({
-          type: "setGameOver",
-          winnerId: winnerFound?.id ?? null, // Use winnerId from payload or null
-          isGameOver: true,
-        });
-        sendBroadcast(BROADCAST_EVENTS.GAME_OVER, {
-          winnerId: winnerFound?.id ?? null, // Can be null if everyone died simultaneously (draw)
-          isGameOver: true,
-        });
-        return; // Stop further turn advancement
-      }
-
       let nextIndex = (activePlayerIndex + 1) % players.length;
       // Find the next player who is still alive (using the updated player list)
       while (updatedPlayers[nextIndex]?.health <= 0) {
@@ -213,15 +193,6 @@ export default function DeathmatchGame() {
         newTurnStartTime: Date.now(), // Start timer for the next turn
       });
     }, 1500); // Delay allows seeing correct/incorrect feedback
-  };
-
-  const onRestartGame = () => {
-    console.log("Restarting game right neow");
-    dispatch({
-      type: "restartGame",
-    });
-
-    sendBroadcast(BROADCAST_EVENTS.RESTART_GAME, {});
   };
 
   // --- UI Rendering ---
