@@ -134,6 +134,10 @@ export default function DeathmatchGame() {
       broadcastAndDispatch(event, payload);
     }
 
+    handleTurnAdvancement();
+  };
+
+  const handleTurnAdvancement = () => {
     // --- Turn Advancement & Game Over Check (Simulated Host Logic) ---
     // Introduce a small delay to allow UI feedback before advancing
     setTimeout(() => {
