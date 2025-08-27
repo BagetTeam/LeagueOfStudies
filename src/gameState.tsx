@@ -345,21 +345,25 @@ export function gameStatereducer(
       const players = state.lobby.players;
       const currentQuestion =
         state.lobby.questions[state.lobby.currentQuestionIndex];
+      const currentPlayerId = players[currentPlayerIndex].playerId;
 
       const isCorrect = optionIndex === currentQuestion.correctAnswer;
 
-      // Current player answered first and is correct -> Health reduction for active player
-      if (isCorrect && activePlayer.playerId !== player.playerId) {
+      let newPlayers = players;
+      // Answering player answered before -> Health reduction for current player
+      if (isCorrect && answeringPlayerId !== currentPlayerId) {
         const currentHealth =
-          players.find((p) => p.playerId === activePlayer.playerId)?.health ??
-          0;
+          players.find((p) => p.playerId === currentPlayerId)?.health ?? 0;
         const newHealth = Math.max(0, currentHealth - 1);
 
-        const { event, payload } = createBroadcastPayload(
-          BROADCAST_EVENTS.HEALTH_UPDATE,
-          { playerId: activePlayer.playerId, health: newHealth },
+        newPlayers = players.map((p) => 
+          p.playerId === currentPlayerId
+            ? {
+                ...p,
+                health: Math.max(0, p.health - 1),
+              }
+            : p;
         );
-        broadcastAndDispatch(event, payload);
 
         if (newHealth <= 0) {
           const { event, payload } = createBroadcastPayload(
