@@ -129,6 +129,7 @@ export default function DeathmatchGame() {
           BROADCAST_EVENTS.STATE_UPDATE,
           { playerId: activePlayer.playerId, state: "completed" as const },
         );
+        broadcastAndDispatch(event, payload);
       }
     }
 
@@ -143,6 +144,14 @@ export default function DeathmatchGame() {
         { playerId: player.playerId, health: newHealth },
       );
       broadcastAndDispatch(event, payload);
+
+      if (newHealth <= 0) {
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.STATE_UPDATE,
+          { playerId: activePlayer.playerId, state: "completed" as const },
+        );
+        broadcastAndDispatch(event, payload);
+      }
     }
 
     // Find the next player who is still alive (using the updated player list)
@@ -162,10 +171,8 @@ export default function DeathmatchGame() {
         return;
       }
     }
-    // delay for ui proper update
-    setTimeout(() => {
-      handleTurnAdvancement();
-    }, 1500);
+
+    handleTurnAdvancement();
   };
 
   const handleTurnAdvancement = (nextIndex: number) => {
