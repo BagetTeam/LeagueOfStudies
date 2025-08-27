@@ -323,156 +323,97 @@ export default function DeathmatchGame() {
         </div>
 
         {/* Game content */}
-        {!isGameOver ? (
-          <div className="mx-auto max-w-3xl">
-            {/* Timer */}
-            <div className="mb-6 flex justify-center">
-              <div className="bg-muted relative flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold">
-                <svg className="absolute top-0 left-0 h-20 w-20 -rotate-90 transform">
-                  <circle // Background track
-                    cx="40"
-                    cy="40"
-                    r="36"
-                    strokeWidth="8"
-                    stroke="#e5e7eb" // Example: gray-200
-                    fill="transparent"
-                  />
-                  <circle // Foreground progress
-                    cx="40"
-                    cy="40"
-                    r="36"
-                    strokeWidth="8"
-                    stroke={timeLeft <= 5 ? "#ef4444" : "#9b87f5"} // Red when low, theme otherwise
-                    fill="transparent"
-                    strokeDasharray={2 * Math.PI * 36}
-                    strokeDashoffset={
-                      2 * Math.PI * 36 * (1 - timeLeft / TURN_DURATION_SECONDS)
-                    }
-                    strokeLinecap="round" // Makes the ends rounded
-                    style={{
-                      transition:
-                        "stroke-dashoffset 1s linear, stroke 0.3s ease",
-                    }} // Smooth transitions
-                  />
-                </svg>
-                <span className={timeLeft <= 5 ? "text-red-500" : ""}>
-                  {timeLeft}
-                </span>
-              </div>
-            </div>
-
-            {/* Question */}
-            <div className="game-card bg-card mb-8 rounded-lg border p-6 shadow-sm">
-              <h2 className="mb-2 text-xl font-semibold md:text-2xl">
-                {currentQuestion.question}
-              </h2>
-              <p className="text-muted-foreground mb-4">
-                {isMyTurn
-                  ? "Your turn! Select an answer:"
-                  : activePlayer
-                    ? `${activePlayer.name}'s turn`
-                    : "Waiting..."}
-              </p>
-
-              {/* Answer options */}
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {currentQuestion.options.map((option, index) => {
-                  const isSelected = selectedOption === index;
-                  const isCorrectAnswer =
-                    index === currentQuestion.correctAnswer;
-                  let buttonClass = "border-muted hover:bg-muted"; // Default
-
-                  if (isAnsweredLocally && isMyTurn) {
-                    // Feedback for the player who just answered
-                    if (isSelected) {
-                      buttonClass = isCorrectAnswer
-                        ? "border-green-400 bg-green-100 text-green-800 ring-2 ring-green-300" // Correct selected
-                        : "border-red-400 bg-red-100 text-red-800 ring-2 ring-red-300"; // Incorrect selected
-                    } else if (isCorrectAnswer) {
-                      buttonClass =
-                        "border-green-400 bg-green-100/50 text-green-700"; // Show correct if wrong was selected
-                    }
-                  } else if (!isMyTurn && isAnsweredLocally) {
-                    // Maybe subtle feedback for others if needed, or none
+        <div className="mx-auto max-w-3xl">
+          {/* Timer */}
+          <div className="mb-6 flex justify-center">
+            <div className="bg-muted relative flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold">
+              <svg className="absolute top-0 left-0 h-20 w-20 -rotate-90 transform">
+                <circle // Background track
+                  cx="40"
+                  cy="40"
+                  r="36"
+                  strokeWidth="8"
+                  stroke="#e5e7eb" // Example: gray-200
+                  fill="transparent"
+                />
+                <circle // Foreground progress
+                  cx="40"
+                  cy="40"
+                  r="36"
+                  strokeWidth="8"
+                  stroke={timeLeft <= 5 ? "#ef4444" : "#9b87f5"} // Red when low, theme otherwise
+                  fill="transparent"
+                  strokeDasharray={2 * Math.PI * 36}
+                  strokeDashoffset={
+                    2 * Math.PI * 36 * (1 - timeLeft / TURN_DURATION_SECONDS)
                   }
-
-                  return (
-                    <button
-                      key={index}
-                      className={`rounded-xl border p-4 text-left transition duration-150 ease-in-out ${buttonClass} ${(!isMyTurn && cannotAnswerNow) || isAnsweredLocally ? "cursor-not-allowed bg-gray-400 opacity-80" : "hover:scale-105"}`}
-                      onClick={() => handleAnswer(index)}
-                      disabled={
-                        (!isMyTurn && cannotAnswerNow) ||
-                        isAnsweredLocally ||
-                        isGameOver
-                      }
-                    >
-                      <span className="mr-2 font-semibold">
-                        {String.fromCharCode(65 + index)}.
-                      </span>
-                      {option}
-                    </button>
-                  );
-                })}
-              </div>
+                  strokeLinecap="round" // Makes the ends rounded
+                  style={{
+                    transition: "stroke-dashoffset 1s linear, stroke 0.3s ease",
+                  }} // Smooth transitions
+                />
+              </svg>
+              <span className={timeLeft <= 5 ? "text-red-500" : ""}>
+                {timeLeft}
+              </span>
             </div>
           </div>
-        ) : (
-          // --- Game Over Screen ---
-          <div className="game-card bg-card mx-auto max-w-2xl rounded-lg border p-8 text-center shadow-lg">
-            <div className="mb-6">
-              <Trophy className="text-theme-orange mx-auto mb-4 h-16 w-16 animate-bounce" />
-              <h2 className="mb-2 text-3xl font-bold">Game Over!</h2>
-              <p className="text-muted-foreground text-xl">
-                {winner ? `${winner} has won the game!` : "It's a draw!"}
-              </p>
-              {winnerId === currentPlayer.id && (
-                <p className="mt-2 text-lg font-semibold text-green-600">
-                  Congratulations!
-                </p>
-              )}
-            </div>
 
-            <div className="mb-8 flex flex-col items-center gap-3">
-              <h3 className="mb-2 border-b pb-1 text-lg font-semibold">
-                Final Results
-              </h3>
-              {players
-                .sort((a, b) => (b.health ?? 0) - (a.health ?? 0)) // Sort by health descending
-                .map((player) => (
-                  <div
-                    key={player.id}
-                    className={`text-md flex w-full items-center justify-center gap-3 rounded p-2 ${player.id === winnerId ? "bg-yellow-100" : ""}`}
+          {/* Question */}
+          <div className="game-card bg-card mb-8 rounded-lg border p-6 shadow-sm">
+            <h2 className="mb-2 text-xl font-semibold md:text-2xl">
+              {currentQuestion.question}
+            </h2>
+            <p className="text-muted-foreground mb-4">
+              {isMyTurn
+                ? "Your turn! Select an answer:"
+                : activePlayer
+                  ? `${activePlayer.name}'s turn`
+                  : "Waiting..."}
+            </p>
+
+            {/* Answer options */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {currentQuestion.options.map((option, index) => {
+                const isSelected = selectedOption === index;
+                const isCorrectAnswer = index === currentQuestion.correctAnswer;
+                let buttonClass = "border-muted hover:bg-muted"; // Default
+
+                if (isAnsweredLocally && isMyTurn) {
+                  // Feedback for the player who just answered
+                  if (isSelected) {
+                    buttonClass = isCorrectAnswer
+                      ? "border-green-400 bg-green-100 text-green-800 ring-2 ring-green-300" // Correct selected
+                      : "border-red-400 bg-red-100 text-red-800 ring-2 ring-red-300"; // Incorrect selected
+                  } else if (isCorrectAnswer) {
+                    buttonClass =
+                      "border-green-400 bg-green-100/50 text-green-700"; // Show correct if wrong was selected
+                  }
+                } else if (!isMyTurn && isAnsweredLocally) {
+                  // Maybe subtle feedback for others if needed, or none
+                }
+
+                return (
+                  <button
+                    key={index}
+                    className={`rounded-xl border p-4 text-left transition duration-150 ease-in-out ${buttonClass} ${(!isMyTurn && cannotAnswerNow) || isAnsweredLocally ? "cursor-not-allowed bg-gray-400 opacity-80" : "hover:scale-105"}`}
+                    onClick={() => handleAnswer(index)}
+                    disabled={
+                      (!isMyTurn && cannotAnswerNow) ||
+                      isAnsweredLocally ||
+                      isGameOver
+                    }
                   >
-                    {player.id === winnerId && (
-                      <Trophy className="h-5 w-5 text-yellow-500" />
-                    )}
-                    <span
-                      className={`${player.id === winnerId ? "font-bold" : ""} ${player.health <= 0 ? "text-muted-foreground line-through" : ""}`}
-                    >
-                      {player.name}: {player.health ?? 0} health remaining
+                    <span className="mr-2 font-semibold">
+                      {String.fromCharCode(65 + index)}.
                     </span>
-                  </div>
-                ))}
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-4">
-              {/* Optional: Add a button to go back to lobby or dashboard */}
-              <Button
-                onClick={onRestartGame}
-                /* Or wherever lobby is */ className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-              >
-                Back to Lobby
-              </Button>
-              <Button
-                onClick={() => router.push("/")}
-                className="border-input bg-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-              >
-                Back to Menu
-              </Button>
+                    {option}
+                  </button>
+                );
+              })}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
