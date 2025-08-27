@@ -125,7 +125,10 @@ export default function DeathmatchGame() {
       broadcastAndDispatch(event, payload);
 
       if (newHealth <= 0) {
-        const {event, payload} = createBroadcastPayload(BROADCAST_EVENTS.)
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.STATE_UPDATE,
+          { playerId: activePlayer.playerId, state: "completed" as const },
+        );
       }
     }
 
