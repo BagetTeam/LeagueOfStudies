@@ -31,6 +31,7 @@ export const BROADCAST_EVENTS = {
   RESTART_GAME: "restartGame",
   SET_QUESTIONS: "setQuestions",
   HEALTH_UPDATE: "setHealth",
+  STATE_UPDATE: "setState",
   TURN_ADVANCE_DEATHMATCH: "advanceTurnDeathmatch",
   TURN_ADVANCE_BOSSFIGHT: "advanceTurnBossfight",
   PLAYER_ANSWERED: "recordPlayerAnswer",
@@ -182,6 +183,17 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         ({ payload }: { payload: BroadcastingPayloads["setHealth"] }) => {
           dispatch({
             type: "setHealth",
+            payload: payload,
+          });
+        },
+      );
+
+      channel.on(
+        "broadcast",
+        { event: BROADCAST_EVENTS.STATE_UPDATE },
+        ({ payload }: { payload: BroadcastingPayloads["setState"] }) => {
+          dispatch({
+            type: "setState",
             payload: payload,
           });
         },

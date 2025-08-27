@@ -59,6 +59,7 @@ export type BroadcastingPayloads = {
   restartGame: RestartGamePayload;
   setQuestions: SetQuestionsPayload;
   setHealth: HealthUpdatePayload;
+  setState: StateUpdatePayload;
   advanceTurnDeathmatch: TurnAdvanceDeathmatchPayload;
   advanceTurnBossfight: TurnAdvanceBossfightPayload;
   recordPlayerAnswer: PlayerAnsweredPayload;
