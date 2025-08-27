@@ -120,6 +120,10 @@ export function gameStatereducer(
     case "setPlayerState":
       return state;
     case "setScore": {
+      if (state.player.playerId !== action.payload.playerId) {
+        return state;
+      }
+
       const newPlayers = state.lobby.players.map((player) =>
         player.playerId === action.payload.playerId
           ? { ...player, score: action.payload.score }
@@ -131,10 +135,14 @@ export function gameStatereducer(
           ...state.lobby,
           players: newPlayers,
         },
+        player: {
+          ...state.player,
+          score: action.payload.score,
+        },
       };
     }
     case "setHealth": {
-      if (state.player.playerId === action.payload.playerId) {
+      if (state.player.playerId !== action.payload.playerId) {
         return state;
       }
       const newCurrentPlayerHealth = Math.max(0, action.payload.health);

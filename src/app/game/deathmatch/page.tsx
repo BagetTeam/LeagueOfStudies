@@ -133,15 +133,13 @@ export default function DeathmatchGame() {
       );
       broadcastAndDispatch(event, payload);
     }
+    // delay for ui proper update
     setTimeout(() => {
       handleTurnAdvancement();
     }, 1500);
   };
 
   const handleTurnAdvancement = () => {
-    // Introduce a small delay to allow UI feedback before advancing
-
-    // Recalculate gameState based on potential health updates
     const updatedPlayers = players.map((p) =>
       p.playerId === player.playerId && !isCorrect
         ? { ...p, health: Math.max(0, (p.health ?? 0) - 1) }
