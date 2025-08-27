@@ -31,7 +31,7 @@ export const BROADCAST_EVENTS = {
   RESTART_GAME: "restartGame",
   SET_QUESTIONS: "setQuestions",
   HEALTH_UPDATE: "setHealth",
-  STATE_UPDATE: "setState",
+  STATE_UPDATE: "setPlayerState",
   TURN_ADVANCE_DEATHMATCH: "advanceTurnDeathmatch",
   TURN_ADVANCE_BOSSFIGHT: "advanceTurnBossfight",
   PLAYER_ANSWERED: "recordPlayerAnswer",
