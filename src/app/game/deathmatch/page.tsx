@@ -110,6 +110,17 @@ export default function DeathmatchGame() {
     setIsAnsweredLocally(true);
     setSelectedOption(optionIndex);
 
+    const { event, payload } = createBroadcastPayload(
+      BROADCAST_EVENTS.submitAnswerDeathmatch,
+      {
+        answeringPlayerId: player.playerId,
+        currentQuestionIndex: currentQuestionIndex,
+        currentPlayerIndex: activePlayerIndex,
+        optionIndex: optionIndex ?? -1,
+      },
+    );
+    broadcastAndDispatch(event, payload);
+
     handleTurnAdvancement();
   };
 
