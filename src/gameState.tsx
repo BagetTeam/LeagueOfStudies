@@ -349,13 +349,30 @@ export function gameStatereducer(
 
       let newPlayer = state.player;
       let newPlayers = players;
+
+      const removeHealth = (targetId: string) => {
+        const idx = newPlayers.findIndex((p) => p.playerId === targetId);
+        if (idx === -1) return;
+
+        const p = newPlayers[idx];
+
+        const newHealth = Math.max(0, p.health - 1);
+        const newState = newHealth <= 0 ? "completed" : "playing";
+
+        newPlayers[idx] = { ...p, health: newHealth, state: newState };
+
+        if (newPlayer.playerId === targetId) {
+          newPlayer = p;
+        }
+      };
+
       // Answering player answered before -> Health reduction for current player
       if (isCorrect && answeringPlayerId !== currentPlayerId) {
         const currentHealth =
-          players.find((p) => p.playerId === currentPlayerId)?.health ?? 0;
+          newPlayers.find((p) => p.playerId === currentPlayerId)?.health ?? 0;
         const newHealth = Math.max(0, currentHealth - 1);
 
-        newPlayers = players.map((p) =>
+        newPlayers = newPlayers.map((p) =>
           p.playerId === currentPlayerId
             ? {
                 ...p,
@@ -377,10 +394,10 @@ export function gameStatereducer(
       // If answer is not correct
       if (!isCorrect) {
         const currentHealth =
-          players.find((p) => p.playerId === answeringPlayerId)?.health ?? 0;
+          newPlayers.find((p) => p.playerId === answeringPlayerId)?.health ?? 0;
         const newHealth = Math.max(0, currentHealth - 1);
 
-        newPlayers = players.map((p) =>
+        newPlayers = newPlayers.map((p) =>
           p.playerId === answeringPlayerId
             ? {
                 ...p,
@@ -408,6 +425,8 @@ export function gameStatereducer(
         nextIndex = (nextIndex + 1) % newPlayers.length;
 
         if (nextIndex === currentPlayerIndex) {
+          newPlayers = newPlayers.map((p) => ({ ...p, state: "completed" }));
+          newPlayer = { ...newPlayer, state: "completed" };
           break;
         }
       }
