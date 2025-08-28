@@ -23,24 +23,13 @@ import { supabase } from "@/backend/utils/database";
 import {
   BroadcastingPayloads,
   GameStateActionPayloads,
-  BroadcastingActions,
+  BROADCASTING_ACTION_KEYS,
 } from "./types/gameStatePayloads";
+import { createBroadcastPayload } from "./utils/utils";
 
-export const BROADCAST_EVENTS = {
-  SET_LOBBY_CONFIG: "setLobby",
-  START_GAME: "setStartGame",
-  RESTART_GAME: "restartGame",
-  SET_QUESTIONS: "setQuestions",
-  HEALTH_UPDATE: "setHealth",
-  STATE_UPDATE: "setPlayerState",
-  TURN_ADVANCE_DEATHMATCH: "advanceTurnDeathmatch",
-  TURN_ADVANCE_BOSSFIGHT: "advanceTurnBossfight",
-  SUBMIT_ANSWER_DEATHMATCH: "submitAnswerDeathmatch",
-  PLAYER_ANSWERED: "recordPlayerAnswer",
-  BOSS_DAMAGED: "setBossHealth",
-  GAME_OVER: "setGameOver",
-  TEAM_DAMAGE: "teamDamage",
-} as const;
+export const BROADCAST_EVENTS = Object.fromEntries(
+  BROADCASTING_ACTION_KEYS.map((k) => [k, k]),
+) as { [K in (typeof BROADCASTING_ACTION_KEYS)[number]]: K };
 
 type BroadcastEventType = keyof BroadcastingPayloads;
 
@@ -125,18 +114,20 @@ export const GameProvider = ({ children }: GameProviderProps) => {
               (p) => p.playerId === joinedPlayerInfo.playerId,
             )
           ) {
-            const payload: BroadcastingPayloads[typeof BROADCAST_EVENTS.SET_LOBBY_CONFIG] =
+            const { event, payload } = createBroadcastPayload(
+              BROADCAST_EVENTS.setLobby,
               {
                 lobby: {
                   ...lobby,
                   players: [...currentPlayers, joinedPlayerInfo],
                 },
-              };
+              },
+            );
             dispatch({
               type: "setPlayers",
               payload: { players: [...currentPlayers, joinedPlayerInfo] },
             });
-            sendBroadcast(BROADCAST_EVENTS.SET_LOBBY_CONFIG, payload);
+            sendBroadcast(event, payload);
           }
         }
       });
@@ -159,7 +150,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       // --- Broadcast Handlers ---
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.SET_LOBBY_CONFIG },
+        { event: BROADCAST_EVENTS.setLobby },
         ({ payload }: { payload: BroadcastingPayloads["setLobby"] }) => {
           dispatch({
             type: "setLobby",
@@ -170,7 +161,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.START_GAME },
+        { event: BROADCAST_EVENTS.setStartGame },
         ({ payload }: { payload: BroadcastingPayloads["setStartGame"] }) => {
           dispatch({
             type: "setStartGame",
@@ -181,7 +172,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.HEALTH_UPDATE },
+        { event: BROADCAST_EVENTS.setHealth },
         ({ payload }: { payload: BroadcastingPayloads["setHealth"] }) => {
           dispatch({
             type: "setHealth",
@@ -192,7 +183,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.STATE_UPDATE },
+        { event: BROADCAST_EVENTS.setPlayerState },
         ({ payload }: { payload: BroadcastingPayloads["setPlayerState"] }) => {
           dispatch({
             type: "setPlayerState",
@@ -203,7 +194,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.TURN_ADVANCE_DEATHMATCH },
+        { event: BROADCAST_EVENTS.advanceTurnDeathmatch },
         ({
           payload,
         }: {
@@ -217,7 +208,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       );
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.TURN_ADVANCE_BOSSFIGHT },
+        { event: BROADCAST_EVENTS.advanceTurnBossfight },
         ({
           payload,
         }: {
@@ -232,7 +223,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.PLAYER_ANSWERED },
+        { event: BROADCAST_EVENTS.recordPlayerAnswer },
         ({
           payload,
         }: {
@@ -247,7 +238,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.BOSS_DAMAGED },
+        { event: BROADCAST_EVENTS.setBossHealth },
         ({ payload }: { payload: BroadcastingPayloads["setBossHealth"] }) => {
           dispatch({
             type: "setBossHealth",
@@ -258,7 +249,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.GAME_OVER },
+        { event: BROADCAST_EVENTS.setGameOver },
         ({ payload }: { payload: BroadcastingPayloads["setGameOver"] }) => {
           dispatch({
             type: "setGameOver",
@@ -269,7 +260,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.TEAM_DAMAGE },
+        { event: BROADCAST_EVENTS.teamDamage },
         ({ payload }: { payload: BroadcastingPayloads["teamDamage"] }) => {
           dispatch({
             type: "teamDamage",
@@ -280,7 +271,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.SET_QUESTIONS },
+        { event: BROADCAST_EVENTS.setQuestions },
         ({ payload }: { payload: BroadcastingPayloads["setQuestions"] }) => {
           dispatch({
             type: "setQuestions",
@@ -291,7 +282,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
-        { event: BROADCAST_EVENTS.RESTART_GAME },
+        { event: BROADCAST_EVENTS.restartGame },
         ({ payload }: { payload: BroadcastingPayloads["restartGame"] }) => {
           dispatch({
             type: "restartGame",

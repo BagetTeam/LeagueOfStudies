@@ -102,7 +102,7 @@ export type GameStateActionPayloads = {
   restartGame: RestartGamePayload;
 };
 
-const BROADCASTING_ACTION_KEYS = [
+export const BROADCASTING_ACTION_KEYS = [
   "setLobby",
   "setStartGame",
   "restartGame",
