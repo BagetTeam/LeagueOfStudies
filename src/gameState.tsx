@@ -347,6 +347,7 @@ export function gameStatereducer(
 
       const isCorrect = optionIndex === currentQuestion.correctAnswer;
 
+      let newPlayer = state.player;
       let newPlayers = players;
       // Answering player answered before -> Health reduction for current player
       if (isCorrect && answeringPlayerId !== currentPlayerId) {
@@ -363,6 +364,14 @@ export function gameStatereducer(
               }
             : p,
         );
+
+        if (newPlayer.playerId === currentPlayerId) {
+          newPlayer = {
+            ...newPlayer,
+            health: newHealth,
+            state: newHealth <= 0 ? "completed" : "playing",
+          };
+        }
       }
 
       // If answer is not correct
@@ -380,18 +389,27 @@ export function gameStatereducer(
               }
             : p,
         );
+
+        if (newPlayer.playerId === answeringPlayerId) {
+          newPlayer = {
+            ...newPlayer,
+            health: newHealth,
+            state: newHealth <= 0 ? "completed" : "playing",
+          };
+        }
       }
 
       // Find the next player who is still alive (using the updated player list)
-      let nextIndex = (currentPlayerIndex + 1) % players.length;
+      let nextIndex = (currentPlayerIndex + 1) % newPlayers.length;
       while (
-        players[nextIndex]?.state !== "playing" ||
-        players[nextIndex]?.health <= 0
+        newPlayers[nextIndex]?.state !== "playing" ||
+        newPlayers[nextIndex]?.health <= 0
       ) {
-        nextIndex = (nextIndex + 1) % players.length;
+        nextIndex = (nextIndex + 1) % newPlayers.length;
 
         if (nextIndex === currentPlayerIndex) {
-          
+          break;
+        }
       }
       return {
         ...state,
@@ -402,11 +420,12 @@ export function gameStatereducer(
             ...gameMode,
             data: {
               ...gameMode.data,
-              activePlayerIndex: nextIndex
-            }
-          }
-        }
-      }
+              activePlayerIndex: nextIndex,
+            },
+          },
+        },
+        player: newPlayer,
+      };
     }
     case "teamDamage": {
       const newPlayers = state.lobby.players.map((p) =>
