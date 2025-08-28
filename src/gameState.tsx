@@ -353,7 +353,7 @@ export function gameStatereducer(
         newPlayers[idx] = { ...p, health: newHealth, state: newState };
 
         if (newPlayer.playerId === targetId) {
-          newPlayer = p;
+          newPlayer = newPlayers[idx];
         }
       }
 

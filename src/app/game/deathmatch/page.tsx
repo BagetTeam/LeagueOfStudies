@@ -103,10 +103,6 @@ export default function DeathmatchGame() {
       return;
     }
 
-    const playersAlive = players.filter((p) => {
-      p.state === "playing" && p.health > 0;
-    });
-
     setIsAnsweredLocally(true);
     setSelectedOption(optionIndex);
 
@@ -124,9 +120,10 @@ export default function DeathmatchGame() {
 
   // handle advance turn
   useEffect(() => {
+    if (isGameOver || !isAnsweredLocally) return;
     let nextQuestionIdx = currentQuestionIndex + 1;
 
-    if (currentQuestionIndex >= questions.length) {
+    if (nextQuestionIdx >= questions.length) {
       //TODO ALL ANSWERS QUESTIONS (restart questions or end??)
       console.log("All questions answered, checking remaining players...");
       nextQuestionIdx = 0;
