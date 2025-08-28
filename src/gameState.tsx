@@ -341,7 +341,7 @@ export function gameStatereducer(
       let newPlayer = { ...me };
       let newPlayers = players.map((p) => ({ ...p }));
 
-      const removeHealth = (targetId: string) => {
+      function removeHealth(targetId: string) {
         const idx = newPlayers.findIndex((p) => p.playerId === targetId);
         if (idx === -1) return;
 
@@ -355,7 +355,7 @@ export function gameStatereducer(
         if (newPlayer.playerId === targetId) {
           newPlayer = p;
         }
-      };
+      }
 
       // Answering player answered before -> Health reduction for current player
       if (isCorrect && answeringPlayerId !== currentPlayerId) {
