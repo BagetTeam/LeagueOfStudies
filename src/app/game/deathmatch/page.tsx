@@ -98,7 +98,7 @@ export default function DeathmatchGame() {
     turnStartTime &&
     (Date.now() - turnStartTime) / 1000 < GRACE_PERIOD;
 
-  const handleAnswer = (optionIndex: number | null) => {
+  function handleAnswer(optionIndex: number | null) {
     if (isAnsweredLocally || cannotAnswerNow || isGameOver) {
       return;
     }
@@ -121,25 +121,17 @@ export default function DeathmatchGame() {
     );
     broadcastAndDispatch(event, payload);
 
-    handleTurnAdvancement();
-  };
+    handleTurnAdvancement(2);
+  }
 
-  const handleTurnAdvancement = (nextIndex: number) => {
+  function handleTurnAdvancement(nextIndex: number) {
     let nextQuestionIdx = currentQuestionIndex + 1;
-    // If the cycle comes back to the first player (or the next player index is smaller, indicating a wrap-around)
-    // and we haven't reached the end of questions, move to the next question.
+
     if (currentQuestionIndex >= questions.length) {
       //TODO ALL ANSWERS QUESTIONS (restart questions or end??)
       console.log("All questions answered, checking remaining players...");
-
-      //temp
       nextQuestionIdx = 0;
     }
-
-    console.log(
-      `Advancing turn: Next Player Index=${nextIndex}, Next Question Index=${nextQuestionIdx}`,
-    );
-    // Host broadcasts the start of the next turn
 
     const { event, payload } = createBroadcastPayload(
       BROADCAST_EVENTS.advanceTurnDeathmatch,
@@ -150,7 +142,7 @@ export default function DeathmatchGame() {
       },
     );
     broadcastAndDispatch(event, payload);
-  };
+  }
   // --- UI Rendering ---
   if (!currentQuestion || !players || players.length === 0) {
     return <div>Loading game...</div>;
