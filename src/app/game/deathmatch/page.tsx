@@ -194,7 +194,7 @@ export default function DeathmatchGame() {
                   ? "bg-theme-orange/10 border-theme-orange animate-pulse-subtle"
                   : p.health <= 0 // Dim eliminated players
                     ? "bg-muted/50 text-muted-foreground border-muted opacity-60"
-                    : index === currentPlayer.id
+                    : players[index].playerId === player.playerId
                       ? "bg-blue-600"
                       : "bg-card" // Default card style
               }`}
@@ -202,14 +202,14 @@ export default function DeathmatchGame() {
               <div className="mb-2 flex items-start justify-between">
                 <h3
                   className={`font-semibold ${
-                    p.playerId === currentPlayer.id ? "text-theme-purple" : "" // Highlight local player's name
+                    p.playerId === player.playerId ? "text-theme-purple" : "" // Highlight local player's name
                   }`}
                 >
                   {p.name}
                   {index === activePlayerIndex && !isGameOver && (
                     <span className="text-theme-orange ml-1">(Turn)</span>
                   )}
-                  {p.pla === currentPlayer.id && (
+                  {p.playerId === player.playerId && (
                     <span className="ml-1 text-blue-500">(You)</span>
                   )}
                 </h3>
