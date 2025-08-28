@@ -141,20 +141,16 @@ export default function DeathmatchGame() {
     );
     // Host broadcasts the start of the next turn
 
-    dispatch({
-      type: "advanceTurn",
-      nextPlayerIndex: nextIndex,
-      nextQuestionIndex: nextQuestionIdx,
-      newTurnStartTime: Date.now(),
-    });
-
-    sendBroadcast(BROADCAST_EVENTS.TURN_ADVANCE, {
-      nextPlayerIndex: nextIndex,
-      nextQuestionIndex: nextQuestionIdx,
-      newTurnStartTime: Date.now(), // Start timer for the next turn
-    });
+    const { event, payload } = createBroadcastPayload(
+      BROADCAST_EVENTS.advanceTurnDeathmatch,
+      {
+        currentPlayerIndex: nextIndex,
+        currentQuestionIndex: nextQuestionIdx,
+        startTime: Date.now(),
+      },
+    );
+    broadcastAndDispatch(event, payload);
   };
-
   // --- UI Rendering ---
   if (!currentQuestion || !players || players.length === 0) {
     return <div>Loading game...</div>;
