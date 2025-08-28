@@ -223,6 +223,21 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on(
         "broadcast",
+        { event: BROADCAST_EVENTS.submitAnswerDeathmatch },
+        ({
+          payload,
+        }: {
+          payload: BroadcastingPayloads["submitAnswerDeathmatch"];
+        }) => {
+          dispatch({
+            type: "submitAnswerDeathmatch",
+            payload: payload,
+          });
+        },
+      );
+
+      channel.on(
+        "broadcast",
         { event: BROADCAST_EVENTS.recordPlayerAnswer },
         ({
           payload,
