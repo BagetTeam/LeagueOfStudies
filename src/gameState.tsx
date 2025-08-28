@@ -331,24 +331,29 @@ export function gameStatereducer(
       };
 
     case "submitAnswerDeathmatch": {
-      const { optionIndex, answeringPlayerId, currentPlayerIndex } =
-        action.payload;
-      const { currentQuestionIndex, gameMode, players } = state.lobby;
+      const {
+        optionIndex,
+        answeringPlayerId,
+        currentPlayerIndex,
+        currentQuestionIndex,
+      } = action.payload;
+
+      const { lobby, player: me } = state;
+      const { gameMode, players } = lobby;
       if (
-        currentQuestionIndex !== action.payload.currentQuestionIndex ||
+        lobby.currentQuestionIndex !== currentQuestionIndex ||
         gameMode.type !== "deathmatch" ||
         gameMode.data.activePlayerIndex !== currentPlayerIndex
       )
         return state;
 
-      const currentQuestion =
-        state.lobby.questions[state.lobby.currentQuestionIndex];
+      const currentQuestion = lobby.questions[lobby.currentQuestionIndex];
       const currentPlayerId = players[currentPlayerIndex].playerId;
 
       const isCorrect = optionIndex === currentQuestion.correctAnswer;
 
-      let newPlayer = state.player;
-      let newPlayers = players;
+      let newPlayer = { ...me };
+      let newPlayers = players.map((p) => ({ ...p }));
 
       const removeHealth = (targetId: string) => {
         const idx = newPlayers.findIndex((p) => p.playerId === targetId);
@@ -368,52 +373,12 @@ export function gameStatereducer(
 
       // Answering player answered before -> Health reduction for current player
       if (isCorrect && answeringPlayerId !== currentPlayerId) {
-        const currentHealth =
-          newPlayers.find((p) => p.playerId === currentPlayerId)?.health ?? 0;
-        const newHealth = Math.max(0, currentHealth - 1);
-
-        newPlayers = newPlayers.map((p) =>
-          p.playerId === currentPlayerId
-            ? {
-                ...p,
-                health: newHealth,
-                state: newHealth <= 0 ? "completed" : "playing",
-              }
-            : p,
-        );
-
-        if (newPlayer.playerId === currentPlayerId) {
-          newPlayer = {
-            ...newPlayer,
-            health: newHealth,
-            state: newHealth <= 0 ? "completed" : "playing",
-          };
-        }
+        removeHealth(currentPlayerId);
       }
 
       // If answer is not correct
       if (!isCorrect) {
-        const currentHealth =
-          newPlayers.find((p) => p.playerId === answeringPlayerId)?.health ?? 0;
-        const newHealth = Math.max(0, currentHealth - 1);
-
-        newPlayers = newPlayers.map((p) =>
-          p.playerId === answeringPlayerId
-            ? {
-                ...p,
-                health: newHealth,
-                state: newHealth <= 0 ? "completed" : "playing",
-              }
-            : p,
-        );
-
-        if (newPlayer.playerId === answeringPlayerId) {
-          newPlayer = {
-            ...newPlayer,
-            health: newHealth,
-            state: newHealth <= 0 ? "completed" : "playing",
-          };
-        }
+        removeHealth(answeringPlayerId);
       }
 
       // Find the next player who is still alive (using the updated player list)
