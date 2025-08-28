@@ -120,13 +120,10 @@ export default function DeathmatchGame() {
       },
     );
     broadcastAndDispatch(event, payload);
-
-    handleTurnAdvancement(2);
   }
 
-  function findNextPlayerIndex() {}
-
-  function handleTurnAdvancement(nextIndex: number) {
+  // handle advance turn
+  useEffect(() => {
     let nextQuestionIdx = currentQuestionIndex + 1;
 
     if (currentQuestionIndex >= questions.length) {
@@ -138,13 +135,14 @@ export default function DeathmatchGame() {
     const { event, payload } = createBroadcastPayload(
       BROADCAST_EVENTS.advanceTurnDeathmatch,
       {
-        currentPlayerIndex: nextIndex,
+        currentPlayerIndex: activePlayerIndex,
         currentQuestionIndex: nextQuestionIdx,
         startTime: Date.now(),
       },
     );
     broadcastAndDispatch(event, payload);
-  }
+  }, [activePlayerIndex]);
+
   // --- UI Rendering ---
   if (!currentQuestion || !players || players.length === 0) {
     return <div>Loading game...</div>;
