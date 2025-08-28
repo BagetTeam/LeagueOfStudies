@@ -101,3 +101,35 @@ export type GameStateActionPayloads = {
   resetPlayerAnswers: {};
   restartGame: RestartGamePayload;
 };
+
+const BROADCASTING_ACTION_KEYS = [
+  "setLobby",
+  "setStartGame",
+  "restartGame",
+  "setQuestions",
+  "setHealth",
+  "setPlayerState",
+  "advanceTurnDeathmatch",
+  "advanceTurnBossfight",
+  "submitAnswerDeathmatch",
+  "recordPlayerAnswer",
+  "setBossHealth",
+  "setGameOver",
+  "teamDamage",
+] as const satisfies readonly (keyof BroadcastingPayloads)[];
+
+export type RecordValues<T extends Record<string | number | symbol, unknown>> =
+  T[keyof T];
+
+export type BroadcastingActions = (typeof BROADCASTING_ACTION_KEYS)[number];
+
+const SomeEnum = {
+  A: "A",
+  B: "B",
+} as const;
+type SomeEnum = RecordValues<typeof SomeEnum>;
+
+function a(e: SomeEnum): string {
+  return e + "asd";
+}
+a(SomeEnum.A);

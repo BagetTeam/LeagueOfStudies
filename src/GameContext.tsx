@@ -23,6 +23,7 @@ import { supabase } from "@/backend/utils/database";
 import {
   BroadcastingPayloads,
   GameStateActionPayloads,
+  BroadcastingActions,
 } from "./types/gameStatePayloads";
 
 export const BROADCAST_EVENTS = {
@@ -34,6 +35,7 @@ export const BROADCAST_EVENTS = {
   STATE_UPDATE: "setPlayerState",
   TURN_ADVANCE_DEATHMATCH: "advanceTurnDeathmatch",
   TURN_ADVANCE_BOSSFIGHT: "advanceTurnBossfight",
+  SUBMIT_ANSWER_DEATHMATCH: "submitAnswerDeathmatch",
   PLAYER_ANSWERED: "recordPlayerAnswer",
   BOSS_DAMAGED: "setBossHealth",
   GAME_OVER: "setGameOver",

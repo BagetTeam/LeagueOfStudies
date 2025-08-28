@@ -38,20 +38,6 @@ export type GameStateActions = {
 
 export type GameStateActionsType = keyof GameStateActionPayloads;
 
-export type RecordValues<T extends Record<string | number | symbol, unknown>> =
-  T[keyof T];
-
-const SomeEnum = {
-  A: "A",
-  B: "B",
-} as const;
-type SomeEnum = RecordValues<typeof SomeEnum>;
-
-function a(e: SomeEnum): string {
-  return e + "asd";
-}
-a(SomeEnum.A);
-
 export function gameStatereducer(
   state: GameState,
   action: GameStateActions,
@@ -411,6 +397,7 @@ export function gameStatereducer(
         player: newPlayer,
       };
     }
+
     case "teamDamage": {
       const newPlayers = state.lobby.players.map((p) =>
         action.payload.playerHealths.hasOwnProperty(p.playerId)
