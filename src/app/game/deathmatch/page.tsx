@@ -124,6 +124,8 @@ export default function DeathmatchGame() {
     handleTurnAdvancement(2);
   }
 
+  function findNextPlayerIndex() {}
+
   function handleTurnAdvancement(nextIndex: number) {
     let nextQuestionIdx = currentQuestionIndex + 1;
 

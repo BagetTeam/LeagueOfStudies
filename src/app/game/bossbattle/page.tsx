@@ -73,7 +73,7 @@ export default function BossFightGame() {
 
     // Broadcast the answer
     const { event, payload } = createBroadcastPayload(
-      BROADCAST_EVENTS.PLAYER_ANSWERED,
+      BROADCAST_EVENTS.recordPlayerAnswer,
       {
         playerId: player.playerId,
         questionIndex: currentQuestionIndex,
@@ -160,14 +160,14 @@ export default function BossFightGame() {
         const newBossHealth = Math.max(0, (bossHealth ?? 0) - damage);
 
         const { event, payload } = createBroadcastPayload(
-          BROADCAST_EVENTS.BOSS_DAMAGED,
+          BROADCAST_EVENTS.setBossHealth,
           { bossHealth: newBossHealth },
         );
         broadcastAndDispatch(event, payload);
 
         if (newBossHealth <= 0) {
           const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.GAME_OVER,
+            BROADCAST_EVENTS.setGameOver,
             {},
           );
           broadcastAndDispatch(event, payload);
@@ -184,7 +184,7 @@ export default function BossFightGame() {
         });
 
         const { event, payload } = createBroadcastPayload(
-          BROADCAST_EVENTS.TEAM_DAMAGE,
+          BROADCAST_EVENTS.teamDamage,
           { playerHealths: healthUpdates },
         );
         broadcastAndDispatch(event, payload);
@@ -195,7 +195,7 @@ export default function BossFightGame() {
         );
         if (teamWiped) {
           const { event, payload } = createBroadcastPayload(
-            BROADCAST_EVENTS.GAME_OVER,
+            BROADCAST_EVENTS.setGameOver,
             {},
           );
           broadcastAndDispatch(event, payload);
@@ -207,7 +207,7 @@ export default function BossFightGame() {
       const newStartTime = Date.now();
 
       const { event, payload } = createBroadcastPayload(
-        BROADCAST_EVENTS.TURN_ADVANCE_BOSSFIGHT,
+        BROADCAST_EVENTS.advanceTurnBossfight,
         { currentQuestionIndex: nextIndex, startTime: newStartTime },
       );
       broadcastAndDispatch(event, payload);
