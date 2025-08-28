@@ -186,13 +186,13 @@ export default function DeathmatchGame() {
 
         {/* Players status */}
         <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {players.map((player, index) => (
+          {players.map((p, index) => (
             <div
-              key={player.id}
+              key={p.playerId}
               className={`rounded-xl border p-4 ${
                 index === activePlayerIndex && !isGameOver // Highlight active player
                   ? "bg-theme-orange/10 border-theme-orange animate-pulse-subtle"
-                  : player.health <= 0 // Dim eliminated players
+                  : p.health <= 0 // Dim eliminated players
                     ? "bg-muted/50 text-muted-foreground border-muted opacity-60"
                     : index === currentPlayer.id
                       ? "bg-blue-600"
@@ -202,18 +202,18 @@ export default function DeathmatchGame() {
               <div className="mb-2 flex items-start justify-between">
                 <h3
                   className={`font-semibold ${
-                    player.id === currentPlayer.id ? "text-theme-purple" : "" // Highlight local player's name
+                    p.playerId === currentPlayer.id ? "text-theme-purple" : "" // Highlight local player's name
                   }`}
                 >
-                  {player.name}
+                  {p.name}
                   {index === activePlayerIndex && !isGameOver && (
                     <span className="text-theme-orange ml-1">(Turn)</span>
                   )}
-                  {player.id === currentPlayer.id && (
+                  {p.pla === currentPlayer.id && (
                     <span className="ml-1 text-blue-500">(You)</span>
                   )}
                 </h3>
-                {player.health <= 0 && (
+                {p.health <= 0 && (
                   <div className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">
                     Out
                   </div>
@@ -228,7 +228,7 @@ export default function DeathmatchGame() {
                     <Heart
                       key={i}
                       className={`h-4 w-4 ${
-                        i < (player.health ?? 0) // Use nullish coalescing for safety
+                        i < (p.health ?? 0) // Use nullish coalescing for safety
                           ? "fill-red-500 text-red-500"
                           : "text-gray-300"
                       }`}
