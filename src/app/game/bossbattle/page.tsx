@@ -17,21 +17,39 @@ import {
   XP_GAIN_ON_WIN,
   XP_LOSS_ON_LOSE,
 } from "@/types/const";
+import { BossFightData, GameState, Lobby, Question } from "@/types/types";
 
-export default function BossFightGame() {
+export default function BossFightGameWrapper() {
+  const { gameState } = useGame();
+  const { lobby } = gameState;
+  const { gameMode, questions } = lobby;
+
+  // If not bossfight or no questions, show a placeholder (no hooks here)
+  if (gameMode.type !== "bossfight" || questions.length === 0) {
+    return <div>Loading game... (Ensure game started correctly)</div>;
+  }
+
+  // Now TS knows gameMode is bossfight (narrowed), pass data down
+  return <BossFightGame gameData={gameMode.data} />;
+}
+
+type BossFightProps = {
+  gameData: BossFightData;
+};
+
+function BossFightGame({ gameData }: BossFightProps) {
   const { gameState, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
   const {
     players,
     currentQuestionIndex,
     turnStartTime,
-    gameMode,
     playerAnswers,
     questions,
     subject,
   } = lobby;
 
-  const TURN_DURATION_SECONDS = gameMode.data.time ?? DEFAULT_TURN_SECONDS;
+  const { time: TURN_DURATION_SECONDS, bossName, bossHealth } = gameData;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false);
@@ -43,13 +61,11 @@ export default function BossFightGame() {
 
   const [xpUpdateAttempted, setXpUpdateAttempted] = useState(false);
 
-  if (gameMode.type !== "bossfight" || questions.length == 0) {
-    return <div>Loading game... (Ensure game started correctly)</div>;
-  }
-
-  const { bossName, bossHealth } = gameMode.data;
-
   const router = useRouter();
+
+  useEffect(() => {
+    setTimeLeft(TURN_DURATION_SECONDS);
+  }, [TURN_DURATION_SECONDS]);
 
   const currentQuestion = useMemo(
     () => questions[currentQuestionIndex % questions.length],

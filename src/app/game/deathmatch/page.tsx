@@ -39,11 +39,6 @@ export default function DeathmatchGame() {
 
   const [xpUpdateAttempted, setXpUpdateAttempted] = useState(false);
 
-  if (gameMode.type !== "deathmatch") {
-    return <div>Loading game... (Ensure game started correctly)</div>;
-  }
-  const { activePlayerIndex } = gameMode.data;
-
   const currentQuestion = useMemo(
     () => questions[currentQuestionIndex % questions.length],
     [currentQuestionIndex],
@@ -53,6 +48,11 @@ export default function DeathmatchGame() {
     () => players[activePlayerIndex],
     [activePlayerIndex],
   );
+
+  if (gameMode.type !== "deathmatch") {
+    return <div>Loading game... (Ensure game started correctly)</div>;
+  }
+  const { activePlayerIndex } = gameMode.data;
 
   const isGameOver = !players.find((p) => p.state === "playing");
 
