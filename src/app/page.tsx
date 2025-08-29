@@ -1,40 +1,13 @@
 "use client";
 
-import { supabase } from "@/lib/supabaseClient";
-import { useEffect } from "react";
-// import { useRouter } from "next/navigation";
-
 import { Button } from "@/ui";
-import Features from "./Features";
-import GameMode from "./GameModes";
-import Hero from "./Hero";
+import Features from "@/components/Features";
+import GameMode from "../components/GameModes";
+import Hero from "../components/Hero";
 import Link from "next/link";
-import Footer from "./Footer";
-import { GameProvider } from "./GameContext";
+import Footer from "../components/Footer";
 
 export default function Home() {
-  // const {data, error} = await supabase.from().se;
-  // const router = useRouter();
-  useEffect(() => {
-    const channel = supabase.channel("room1");
-    channel
-      .on("broadcast", { event: "cursor-pos" }, (payload) => {
-        console.log("Cursor position received!", payload);
-      })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await channel.send({
-            type: "broadcast",
-            event: "cursor-pos",
-            payload: { x: Math.random(), y: Math.random() },
-          });
-        }
-      });
-    return () => {
-      channel.unsubscribe();
-    };
-  }, []);
-
   return (
     <main className="w-full">
       <Hero />

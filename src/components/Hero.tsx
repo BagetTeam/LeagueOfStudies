@@ -18,7 +18,7 @@ export default function Hero() {
             generate quizzes, and battle your friends in real-time!
           </p>
           <div className="flex w-full gap-4 font-bold">
-            <Link href="/signup" className="w-fit">
+            <Link href="/profile" className="w-fit">
               <Button
                 className="bg-theme-purple text-background flex items-center justify-center gap-2 text-lg"
                 variant="special"
@@ -27,7 +27,7 @@ export default function Hero() {
                 <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/game-modes" className="w-fit">
+            <Link href="/game" className="w-fit">
               <Button variant="normal" className="text-lg">
                 Explore Game Modes
               </Button>

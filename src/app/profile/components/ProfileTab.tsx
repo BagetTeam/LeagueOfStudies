@@ -1,6 +1,6 @@
 import { TabsContent, Input } from "@/ui";
 import Label from "@/ui/label";
-import { UserData } from "./page";
+import { UserData } from "../page";
 
 type Props = {
   isEditing: boolean;

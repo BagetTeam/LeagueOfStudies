@@ -1,160 +1,148 @@
 "use client";
 
-import { GameMode, Question } from "@/types/types";
+import { Lobby, Player, Question } from "@/types/types";
 import { Button } from "@/ui";
 import { ArrowLeft, Copy, Play, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import PlayerList from "./PlayerList";
-import { useGame } from "@/app/GameContext";
+import PlayerList from "@/components/PlayerList";
+import { useGame } from "@/GameContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getQuestions } from "@/app/backend";
-import PDF_reader from '@/app/pdf_reader/reader'
-const BROADCAST_EVENTS = {
-  START_GAME: "start_game",
-  HEALTH_UPDATE: "health_update",
-  ANSWER_SUBMITTED: "answer_submitted",
-  TURN_ADVANCE: "turn_advance",
-  GAME_OVER: "game_over",
-  SET_QUESTIONS: "set_questions",
-};
-type LobbyProps = {
-  selectedMode: GameMode; // This might come from context now?
-  onBackToMenu: () => void;
-  isPublic: boolean;
-  subject: string;
-};
-function LobbyScreen({
-  selectedMode,
-  onBackToMenu,
-  subject = "Rust",
-}: LobbyProps) {
-  const { state, dispatch, sendBroadcast } = useGame();
-  const {
-    gameId,
-    players = [],
-    currentPlayer,
-    gameStarted,
-    questions,
-    gameMode,
-  } = state; // Default players to []
+import { getQuestions } from "@/backend/services/game-questions";
+import PDF_reader from "@/app/pdf_reader/reader";
+import { BROADCAST_EVENTS } from "@/GameContext";
+import { defaultLobby } from "@/gameState";
+import { createBroadcastPayload } from "@/utils/utils";
+
+export default function LobbyScreen() {
+  const { gameState, dispatch, broadcastAndDispatch } = useGame();
+  const { player, lobby } = gameState;
+  const { lobbyId, gameMode, subject, questions, players } = lobby;
+  const gameSubject = subject ?? "Rust";
 
   const [studyText, setStudyText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
+  const [gameUrl, setGameUrl] = useState<string>(`/game/lobby?join=${lobbyId}`);
+
   const router = useRouter();
-  const gameUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/game?join=${gameId}`
-      : `/game?join=${gameId}`;
+
+  useEffect(() => {
+    setGameUrl(`${window.location.origin}/game/lobby?join=${lobbyId}`);
+  }, [lobbyId]);
 
   const urlSearchParams = useSearchParams();
-  const gmode = selectedMode.type;
-  // urlSearchParams.get("mode") ?? "deathmatch";
-  //const subject =
-  //  urlSearchParams.get("subject") ?? "Rust (programming language)";
+  const joinLobbyId = urlSearchParams.get("join");
 
-  useEffect(() => {
-    dispatch({
-      type: "setGameMode",
-      gameMode: { type: gmode, time: Infinity },
-    });
-    dispatch({
-      type: "setGameOver",
-      winnerId: null,
-      isGameOver: false,
-    });
-  }, []);
+  const generateQuestions = async (topic: string | null) => {
+    try {
+      setLoading(true);
+      topic = topic ?? gameSubject;
 
-  useEffect(() => {
-    if (
-      players.length === 1 &&
-      players[0].id === currentPlayer.id &&
-      !currentPlayer.isHost
-    ) {
-      console.log("Setting current player as host (only player)");
-      dispatch({ type: "setHost", player: { ...currentPlayer, isHost: true } });
+      const fetchedQuestions = (await getQuestions(topic)) satisfies Question[];
+
+      if (player.state === "lobby") {
+        const { event, payload } = createBroadcastPayload(
+          BROADCAST_EVENTS.setQuestions,
+          { questions: fetchedQuestions },
+        );
+
+        broadcastAndDispatch(event, payload);
+      }
+    } catch {
+    } finally {
+      setLoading(false);
     }
-  }, [players, currentPlayer, dispatch]);
+  };
 
+  // Initialize Lobby
   useEffect(() => {
-    console.log("Gamehas Started");
-    if (state.gameStarted) {
-      console.log("Game started, navigating...");
-      if (state.gameMode.type === "deathmatch") {
-        router.push("/game/deathmatch"); // Adjust path as needed
-      } else if (state.gameMode.type === "bossbattle") {
-        router.push("/game/bossbattle"); // Adjust path as needed
+    if (lobbyId == "") {
+      const newPlayerId = crypto.randomUUID();
+      const newPlayerName = newPlayerId.substring(0, 8);
+      const updatedPlayer: Player = {
+        ...player,
+        playerId: newPlayerId,
+        name: newPlayerName,
+      };
+
+      // join lobby
+      if (joinLobbyId) {
+        const joinLobby: Lobby = { ...lobby, lobbyId: joinLobbyId };
+        dispatch({
+          type: "joinLobby",
+          payload: { lobby: joinLobby, player: updatedPlayer },
+        }); // TODO fix this
+      }
+      // create lobby
+      else {
+        const newLobbyId = "game-" + crypto.randomUUID().toString();
+        const newLobby: Lobby = {
+          ...defaultLobby,
+          lobbyId: newLobbyId,
+          gameMode: gameMode,
+          subject: gameSubject,
+        };
+        updatedPlayer.isHost = true;
+        dispatch({
+          type: "joinLobby",
+          payload: { lobby: newLobby, player: updatedPlayer },
+        });
       }
     }
-  }, [gameStarted, state.gameMode]);
+  }, []);
 
   const fetchingRef = useRef(false);
+
+  // initialize questions
   useEffect(() => {
-    if (!currentPlayer.isHost) return;
-    console.log(
-      "CHANGE HAS HAPPENED??? HUH " +
-        questions.length +
-        " -=-=-=-=-=-=-=-=-=---=-=-=-=-=-=" +
-        subject +
-        " + " +
-        gameMode.type,
-    );
+    if (!player.isHost) return;
 
-    if (!questions || (questions.length === 0 && subject)) {
-      console.log(
-        "Clearly there are no questions because length is " + questions.length,
-      );
-
+    if (!questions || (questions.length === 0 && gameSubject)) {
       if (fetchingRef.current) return;
 
       fetchingRef.current = true;
 
-      (async () => {
-        try {
-          setLoading(true);
-          const fetchedQuestions = (await getQuestions(
-            subject,
-          )) satisfies Question[];
-
-          console.log("questions:", fetchedQuestions);
-          if (!state.gameStarted) {
-            dispatch({ type: "setQuestions", questions: fetchedQuestions });
-            sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, fetchedQuestions);
-          }
-        } catch {
-        } finally {
-          setLoading(false);
-          fetchingRef.current = false;
-        }
-      })();
+      generateQuestions(gameSubject).finally(() => {
+        fetchingRef.current = false;
+      });
     }
-  }, [currentPlayer.isHost, subject, questions, dispatch, sendBroadcast]);
+  }, [player.isHost, subject, questions]);
+
+  // starting game
+  useEffect(() => {
+    if (player.state === "playing") {
+      if (lobby.gameMode.type === "deathmatch") {
+        router.push("/game/deathmatch");
+      } else if (lobby.gameMode.type === "bossfight") {
+        router.push("/game/bossbattle");
+      }
+    }
+  }, [player.state, lobby.gameMode.type, router]);
 
   const startGame = () => {
-    console.log("ERM");
-    console.log(state);
-    if (currentPlayer.isHost && players.length > 0) {
-      // Ensure there are players
-      const hostIndex = players.findIndex(
-        (player) => player.id == currentPlayer.id,
-      );
+    if (player.isHost && players.length > 0) {
+      let startGameMode;
+      if (lobby.gameMode.type === "bossfight") {
+        startGameMode = {
+          ...lobby.gameMode,
+          data: { ...lobby.gameMode.data, bossHealth: 100 },
+        };
+      } else if (lobby.gameMode.type === "deathmatch") {
+        startGameMode = {
+          ...lobby.gameMode,
+          data: { ...lobby.gameMode.data, activePlayerIndex: 0 },
+        };
+      }
 
-      console.log(
-        "Host starting game. Broadcasting START_GAME with players:",
-        players,
+      const { event, payload } = createBroadcastPayload(
+        BROADCAST_EVENTS.setStartGame,
+        {
+          initialPlayers: lobby.players,
+          gameMode: startGameMode!,
+          questions: lobby.questions,
+        },
       );
-      dispatch({
-        type: "setStartGame",
-        gameMode: state.gameMode,
-        initialPlayers: players,
-        activePlayerIndex: hostIndex,
-      });
-      sendBroadcast(BROADCAST_EVENTS.START_GAME, {
-        gameMode: gameMode, // Send the confirmed game mode
-        initialPlayers: players, // Send the list of players currently in the lobby
-        initiatedBy: currentPlayer.id,
-        questions: questions,
-      });
+      broadcastAndDispatch(event, payload);
     } else {
       console.warn("Cannot start game: Not host or no players.");
     }
@@ -162,8 +150,8 @@ function LobbyScreen({
 
   const handleBackToMenuClick = () => {
     console.log("Leaving lobby...");
-    dispatch({ type: "exitLobby" });
-    onBackToMenu();
+    dispatch({ type: "exitLobby", payload: {} });
+    router.push("/");
   };
 
   const copyInviteLink = () => {
@@ -197,7 +185,7 @@ function LobbyScreen({
 
   return (
     <div className="flex w-full basis-full gap-8 p-4">
-      {currentPlayer.isHost && (
+      {player.isHost && (
         <div className="flex h-full basis-full flex-col items-center justify-start bg-gray-100 p-8">
           <h1 className="mb-8 text-3xl font-bold">Study Question Generator</h1>
           <textarea
@@ -207,27 +195,17 @@ function LobbyScreen({
             className="h-56 w-full max-w-3xl resize-none rounded-lg border border-gray-300 p-4 text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           <div className="my-8">
-          <PDF_reader onExtract={(text:string) => setStudyText(text)}/>
+            <PDF_reader onExtract={(text: string) => setStudyText(text)} />
           </div>
           <button
             onClick={async () => {
               if (!studyText) return; // Prevent empty submissions
-              console.log("LOADING NOW");
-              setLoading(true);
-              try {
-                const q = (await getQuestions(studyText)) satisfies Question[];
-                console.log("Generated questions:", q);
-                // Dispatch locally FIRST
-                dispatch({ type: "setQuestions", questions: q });
-                // THEN Broadcast
-                sendBroadcast(BROADCAST_EVENTS.SET_QUESTIONS, q);
-              } catch (error) {
-                console.error("Failed to generate questions:", error);
-                // Maybe show an error message to the user
-              } finally {
-                setLoading(false);
-                console.log("LOADING STOP");
-              }
+
+              dispatch({
+                type: "setGameSubject",
+                payload: { subject: studyText },
+              });
+              generateQuestions(studyText);
             }}
             disabled={loading || !studyText} // Disable if loading or no text
             className="..."
@@ -265,8 +243,10 @@ function LobbyScreen({
         <h1 className="mb-2 text-center text-3xl font-bold">Game Lobby</h1>
         {/* Display Game Mode */}
         <p className="text-muted-foreground mb-6 text-center capitalize">
-          Mode: {state.gameMode.type}{" "}
-          {state.gameMode.type === "time" ? `(${state.gameMode.time}s)` : ""}
+          Mode: {lobby.gameMode.type}{" "}
+          {lobby.gameMode.type === "deathmatch"
+            ? `(${lobby.gameMode.data.time}s)`
+            : ""}
         </p>
 
         {/* Invite Section */}
@@ -286,7 +266,6 @@ function LobbyScreen({
               <span>Copy</span>
             </Button>
             {
-              // Only show share if supported
               <Button
                 onClick={shareInviteLink}
                 className="flex items-center gap-1"
@@ -297,7 +276,7 @@ function LobbyScreen({
             }
           </div>
           <p className="text-muted-foreground mt-2 text-center text-xs">
-            Game ID: {gameId}
+            Game ID: {lobbyId}
           </p>
         </div>
 
@@ -308,13 +287,13 @@ function LobbyScreen({
               Players ({players.length})
             </h2>
             {/* Start Game Button for Host */}
-            {currentPlayer.isHost && (
+            {player.isHost && (
               <Button
                 onClick={startGame}
                 disabled={
                   players.length < 1 ||
                   loading ||
-                  questions.length == 0 ||
+                  questions.length === 0 ||
                   (players.length < 2 && gameMode.type === "deathmatch")
                 }
                 className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
@@ -322,8 +301,10 @@ function LobbyScreen({
                 <Play size={16} />
                 {loading ? (
                   <span>Loading...</span>
-                ) : players.length < 2 ? (
+                ) : players.length < 2 && gameMode.type === "deathmatch" ? (
                   <span>Waiting for players...</span>
+                ) : questions.length === 0 ? (
+                  <span>Generating Questions...</span>
                 ) : (
                   <span>Start Game</span>
                 )}
@@ -333,21 +314,14 @@ function LobbyScreen({
 
           {/* Player List Component */}
           {players.length > 0 ? (
-            <PlayerList players={players} currentPlayerId={currentPlayer.id} />
+            <PlayerList players={players} currentPlayerId={player.playerId} />
           ) : (
             <p className="text-muted-foreground py-4 text-center">
               Waiting for players...
             </p>
           )}
-
-          {/* Host Indicator (Optional) */}
-          {/* <div className="text-center text-sm mt-2">
-                  {currentPlayer.isHost ? "You are the host" : "Waiting for host to start..."}
-              </div> */}
         </div>
       </div>
     </div>
   );
 }
-
-export default LobbyScreen;

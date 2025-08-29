@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path"
+import path from "path";
 import fs from "fs";
-const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH ?? "", "public/uploads");
-export async function POST (request: NextRequest) {
-    const formData = await request.formData();
-    const body = Object.fromEntries(formData)
-    const file = (body.file as Blob) || null;
 
-    if (file) {
+const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH ?? "", "public/uploads");
+
+export async function POST(request: NextRequest) {
+  const formData = await request.formData();
+  const body = Object.fromEntries(formData);
+  const file = (body.file as Blob) || null;
+
+  if (file) {
     const buffer = Buffer.from(await file.arrayBuffer());
     if (!fs.existsSync(UPLOAD_DIR)) {
       fs.mkdirSync(UPLOAD_DIR);
@@ -15,7 +17,7 @@ export async function POST (request: NextRequest) {
 
     fs.writeFileSync(
       path.resolve(UPLOAD_DIR, (body.file as File).name),
-      buffer
+      buffer,
     );
   } else {
     return NextResponse.json({
@@ -27,5 +29,4 @@ export async function POST (request: NextRequest) {
     success: true,
     name: (body.file as File).name,
   });
-};
-
+}

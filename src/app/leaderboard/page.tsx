@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-// Create a Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_URL!,
-  process.env.NEXT_PUBLIC_ANONKEY!,
-);
+import { fetchLeaderboard } from "@/backend/db/leaderboard";
 
 interface LeaderboardEntry {
   email: string;
@@ -18,21 +12,13 @@ interface LeaderboardEntry {
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
+  const fetchLeaderboardData = async () => {
+    const data = await fetchLeaderboard();
+    setLeaderboard(data ?? []);
+  };
+
   useEffect(() => {
-    async function fetchLeaderboard() {
-      const { data, error } = await supabase
-        .from("stats")
-        .select("email, level, totalXp")
-        .order("totalXp", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching leaderboard:", error);
-      } else {
-        setLeaderboard(data || []);
-      }
-    }
-
-    fetchLeaderboard();
+    fetchLeaderboardData();
   }, []);
 
   const getBadge = (index: number) => {

@@ -4,7 +4,7 @@ import { Player } from "@/types/types";
 interface TeamStatusProps {
   players: Player[];
   getBossAttackClass: (index: number) => string;
-  currentId: number;
+  currentId: string;
 }
 
 export function TeamStatus({
@@ -16,11 +16,11 @@ export function TeamStatus({
     <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3">
       {players.map((player, index) => (
         <div
-          key={player.id}
+          key={player.playerId}
           className={`bg-card rounded-xl border p-4 ${getBossAttackClass(index)} ${player.health <= 0 ? "bg-muted/50 text-muted-foreground" : ""}`}
         >
           <h3
-            className={`mb-2 font-semibold ${player.id === currentId ? "text-theme-blue" : ""}`}
+            className={`mb-2 font-semibold ${player.playerId === currentId ? "text-theme-blue" : ""}`}
           >
             {player.name}
             {player.health <= 0 && (

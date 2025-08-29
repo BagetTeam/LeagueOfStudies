@@ -1,6 +1,6 @@
 import { Button } from "@/ui";
 import { User, Edit, Save } from "lucide-react";
-import { UserData } from "./page";
+import { UserData } from "../page";
 import { Dispatch, SetStateAction } from "react";
 
 type Props = {

@@ -8,15 +8,13 @@ const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
 import fs from "fs";
 
-async function readFile(filepath){
-const dataBuffer = fs.readFileSync(filepath);
-const extractedText = await pdf(dataBuffer);
-return extractedText.text;
-
+async function readFile(filepath) {
+  const dataBuffer = fs.readFileSync(filepath);
+  const extractedText = await pdf(dataBuffer);
+  return extractedText.text;
 }
 
 const ai = new GoogleGenAI({ apiKey: key });
-
 
 async function GenerateQuestions(filepath) {
   const file = filepath;
@@ -28,5 +26,6 @@ async function GenerateQuestions(filepath) {
   });
   console.log(response.text);
 }
-GenerateQuestions("Chapter_1_-_Scientific_Method_Units_and_Density.pdf");
-
+GenerateQuestions(
+  "/public/Chapter_1_-_Scientific_Method_Units_and_Density.pdf",
+);

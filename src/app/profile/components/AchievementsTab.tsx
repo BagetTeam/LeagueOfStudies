@@ -10,6 +10,8 @@ export default function AchievementsTab() {
         </p>
 
         <div className="space-y-4">
+          {/* ---- TO BE IMPLEMENTED ----*/}
+
           {/* {achievements.map((achievement) => ( */}
           {/*   <div */}
           {/*     key={achievement.id} */}
