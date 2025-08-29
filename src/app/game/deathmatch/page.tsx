@@ -14,8 +14,25 @@ import {
   XP_LOSS_ON_LOSE,
 } from "@/types/const";
 import { updateLeaderboard } from "@/backend/db/leaderboard";
+import { DeathmatchData } from "@/types/types";
 
-export default function DeathmatchGame() {
+type DeathMatchProps = {
+  gameData: DeathmatchData;
+};
+
+export default function DeathmatchGameWrapper() {
+  const { gameState } = useGame();
+  const { lobby } = gameState;
+  const { gameMode, questions } = lobby;
+
+  if (gameMode.type !== "deathmatch" || questions.length === 0) {
+    return <div>Loading game... (Ensure game started correctly)</div>;
+  }
+
+  return <DeathmatchGame gameData={gameMode.data} />;
+}
+
+function DeathmatchGame({ gameData }: DeathMatchProps) {
   const router = useRouter();
 
   const { gameState, broadcastAndDispatch } = useGame();
@@ -29,8 +46,8 @@ export default function DeathmatchGame() {
     subject,
   } = lobby;
 
+  const { time: TURN_DURATION_SECONDS, activePlayerIndex } = gameData;
   const GRACE_PERIOD = 2;
-  const TURN_DURATION_SECONDS = gameMode.data.time ?? DEFAULT_TURN_SECONDS;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false);
@@ -48,11 +65,6 @@ export default function DeathmatchGame() {
     () => players[activePlayerIndex],
     [activePlayerIndex],
   );
-
-  if (gameMode.type !== "deathmatch") {
-    return <div>Loading game... (Ensure game started correctly)</div>;
-  }
-  const { activePlayerIndex } = gameMode.data;
 
   const isGameOver = !players.find((p) => p.state === "playing");
 
