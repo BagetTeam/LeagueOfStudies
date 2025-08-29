@@ -36,7 +36,7 @@ export default function GameModes() {
       ),
   );
 
-  const handlePickSubject = (subject: string) => {
+  function handlePickSubject(subject: string) {
     let mode: GameMode = defaultGameMode;
     if (selectedMode) {
       if (selectedMode === "deathmatch")
@@ -59,7 +59,7 @@ export default function GameModes() {
     }
 
     router.push("/game/lobby");
-  };
+  }
 
   return (
     <div className="flex w-full flex-col p-4">
