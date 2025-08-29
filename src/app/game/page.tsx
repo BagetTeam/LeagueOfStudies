@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Input } from "@/ui";
 import {
   Trophy,
@@ -16,6 +16,8 @@ import { useGame } from "../../GameContext";
 import { GameMode } from "@/types/types";
 import { subjects } from "@/test-data/gameModeData";
 import { INITIAL_BOSS_HEALTH } from "@/types/const";
+import { defaultLobby } from "@/gameState";
+import { createBroadcastPayload } from "@/utils/utils";
 
 const defaultGameMode: GameMode = {
   type: "deathmatch",
@@ -27,6 +29,14 @@ export default function GameModes() {
   const { dispatch } = useGame();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
+
+  // clear any existing loaded lobby setups
+  useEffect(() => {
+    const { event, payload } = createBroadcastPayload("setLobby", {
+      lobby: defaultLobby,
+    });
+    dispatch({ type: event, payload: payload });
+  }, []);
 
   const filteredSubjects = subjects.filter(
     (subject) =>
