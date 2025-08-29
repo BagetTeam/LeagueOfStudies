@@ -27,7 +27,7 @@ export default function GameOver() {
 
   const onPlayAgain = () => {
     const { event, payload } = createBroadcastPayload(
-      BROADCAST_EVENTS.RESTART_GAME,
+      BROADCAST_EVENTS.restartGame,
       {},
     );
     broadcastAndDispatch(event, payload);

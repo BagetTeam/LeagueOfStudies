@@ -46,7 +46,7 @@ export default function LobbyScreen() {
 
       if (player.state === "lobby") {
         const { event, payload } = createBroadcastPayload(
-          BROADCAST_EVENTS.SET_QUESTIONS,
+          BROADCAST_EVENTS.setQuestions,
           { questions: fetchedQuestions },
         );
 
@@ -132,7 +132,7 @@ export default function LobbyScreen() {
       };
 
       const { event, payload } = createBroadcastPayload(
-        BROADCAST_EVENTS.START_GAME,
+        BROADCAST_EVENTS.setStartGame,
         {
           initialPlayers: lobby.players,
           gameMode: startGameMode,
