@@ -1,11 +1,10 @@
 "use client";
 
 import { Trophy, ArrowLeft, Heart, Clock } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useGame } from "@/GameContext";
-import { Button } from "@/ui";
 import { createBroadcastPayload } from "@/utils/utils";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -15,8 +14,7 @@ import { updateLeaderboard } from "@/backend/db/leaderboard";
 export default function DeathmatchGame() {
   const router = useRouter();
 
-  const { gameState, dispatch, sendBroadcast, broadcastAndDispatch } =
-    useGame();
+  const { gameState, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
   const {
     players,

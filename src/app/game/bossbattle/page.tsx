@@ -15,8 +15,7 @@ import { useRouter } from "next/navigation";
 import { XP_GAIN_ON_WIN, XP_LOSS_ON_LOSE } from "@/types/const";
 
 export default function BossFightGame() {
-  const { gameState, dispatch, sendBroadcast, broadcastAndDispatch } =
-    useGame();
+  const { gameState, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
   const {
     players,

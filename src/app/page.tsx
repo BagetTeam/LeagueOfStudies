@@ -1,7 +1,5 @@
 "use client";
 
-// import { useRouter } from "next/navigation";
-
 import { Button } from "@/ui";
 import Features from "@/components/Features";
 import GameMode from "../components/GameModes";

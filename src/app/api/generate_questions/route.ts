@@ -4,7 +4,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { z } from "zod";
 import { QuestionSchema } from "@/types/types";
 
-export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); // TODO get api key to work
+export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function POST(req: NextRequest) {
   try {

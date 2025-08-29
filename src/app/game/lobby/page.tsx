@@ -11,10 +11,6 @@ import { getQuestions } from "@/backend/services/game-questions";
 import PDF_reader from "@/app/pdf_reader/reader";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { defaultLobby } from "@/gameState";
-import {
-  BroadcastingPayloads,
-  GameStateActionPayloads,
-} from "@/types/gameStatePayloads";
 import { createBroadcastPayload } from "@/utils/utils";
 
 export default function LobbyScreen() {
