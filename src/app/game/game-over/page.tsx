@@ -9,7 +9,7 @@ import { createBroadcastPayload } from "@/utils/utils";
 
 export default function GameOver() {
   const router = useRouter();
-  const { gameState, broadcastAndDispatch } = useGame();
+  const { gameState, dispatch } = useGame();
   const { player, lobby } = gameState;
   const { gameMode, players } = lobby;
 
@@ -30,9 +30,9 @@ export default function GameOver() {
       BROADCAST_EVENTS.restartGame,
       {},
     );
-    broadcastAndDispatch(event, payload);
+    dispatch({ type: event, payload: payload });
 
-    router.push("/game");
+    router.push("/game/lobby");
   };
 
   return (
