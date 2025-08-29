@@ -334,13 +334,13 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     }
   }, [gameState.lobby.lobbyId, gameState.player.playerId]);
 
-  function specialDispatch<K extends keyof GameStateActionPayloads>(
-    event: K,
-    payload: GameStateActionPayloads[K],
-  ) {
-    const action = { type: event, payload } as GameStateActions;
-    dispatch(action);
-  }
+  // function specialDispatch<K extends keyof GameStateActionPayloads>(
+  //   event: K,
+  //   payload: GameStateActionPayloads[K],
+  // ) {
+  //   const action = { type: event, payload } as GameStateActions;
+  //   dispatch(action);
+  // }
 
   const sendBroadcast = useCallback(
     <E extends BroadcastEventType>(

@@ -20,9 +20,7 @@ export default function GameOver() {
     if (bossHealth <= 0) isVictory = true;
     else isVictory = false;
   } else if (gameMode.type === "deathmatch") {
-    winner = players.find((p) => {
-      p.health > 0 && p.state === "completed";
-    });
+    winner = players.find((p) => p.health > 0 && p.state === "completed");
   }
 
   const onPlayAgain = () => {

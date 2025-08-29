@@ -1,4 +1,3 @@
-import { act } from "react";
 import { INITIAL_PLAYER_HEALTH } from "./types/const";
 import { GameStateActionPayloads } from "./types/gameStatePayloads";
 import { GameState, Lobby } from "./types/types";

@@ -8,7 +8,11 @@ import { useGame } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { useAuth0 } from "@auth0/auth0-react";
-import { XP_GAIN_ON_WIN, XP_LOSS_ON_LOSE } from "@/types/const";
+import {
+  DEFAULT_TURN_SECONDS,
+  XP_GAIN_ON_WIN,
+  XP_LOSS_ON_LOSE,
+} from "@/types/const";
 import { updateLeaderboard } from "@/backend/db/leaderboard";
 
 export default function DeathmatchGame() {
@@ -25,12 +29,8 @@ export default function DeathmatchGame() {
     subject,
   } = lobby;
 
-  if (gameMode.type !== "deathmatch") {
-    return <div>Loading game... (Ensure game started correctly)</div>;
-  }
-
-  const { time: TURN_DURATION_SECONDS, activePlayerIndex } = gameMode.data;
   const GRACE_PERIOD = 2;
+  const TURN_DURATION_SECONDS = gameMode.data.time ?? DEFAULT_TURN_SECONDS;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false);
@@ -38,6 +38,11 @@ export default function DeathmatchGame() {
   const [isResolvingRound, setIsResolvingRound] = useState(false);
 
   const [xpUpdateAttempted, setXpUpdateAttempted] = useState(false);
+
+  if (gameMode.type !== "deathmatch") {
+    return <div>Loading game... (Ensure game started correctly)</div>;
+  }
+  const { activePlayerIndex } = gameMode.data;
 
   const currentQuestion = useMemo(
     () => questions[currentQuestionIndex % questions.length],
@@ -185,11 +190,8 @@ export default function DeathmatchGame() {
               <h1 className="flex items-center gap-2 text-xl font-semibold">
                 <Trophy className="text-theme-orange h-5 w-5" />
                 Deathmatch:
-                {subject} {/* Replace with dynamic data */}
+                {subject}
               </h1>
-              {/* <p className="text-muted-foreground text-sm"> */}
-              {/*   Topic: {mockGameData.topic} {/* Replace with dynamic data */}
-              {/* </p> */}
             </div>
           </div>
           <div className="bg-muted flex items-center gap-2 rounded-full px-3 py-1.5">

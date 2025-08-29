@@ -10,7 +10,7 @@ type StartGamePayload = {
   questions: Question[];
 };
 
-type RestartGamePayload = {};
+type RestartGamePayload = Record<string, never>;
 
 type SetQuestionsPayload = {
   questions: Question[];
@@ -54,7 +54,7 @@ type BossDamagePayload = {
   bossHealth: number;
 };
 
-type GameOverPayload = {};
+type GameOverPayload = Record<string, never>;
 
 type TeamDamagePayload = {
   playerHealths: { [playerId: string]: number };
@@ -78,7 +78,7 @@ export type BroadcastingPayloads = {
 
 export type GameStateActionPayloads = {
   joinLobby: { lobby: Lobby; player: Player };
-  exitLobby: {};
+  exitLobby: Record<string, never>;
   setLobby: SetLobbyPayload;
   setHost: { player: Player };
   setGameMode: { gameMode: GameMode };
@@ -98,7 +98,7 @@ export type GameStateActionPayloads = {
   recordPlayerAnswer: PlayerAnsweredPayload;
   setGameOver: GameOverPayload;
   teamDamage: TeamDamagePayload;
-  resetPlayerAnswers: {};
+  resetPlayerAnswers: Record<string, never>;
   restartGame: RestartGamePayload;
 };
 

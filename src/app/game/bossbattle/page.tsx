@@ -12,7 +12,11 @@ import { updateLeaderboard } from "@/backend/db/leaderboard";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
 import { useRouter } from "next/navigation";
-import { XP_GAIN_ON_WIN, XP_LOSS_ON_LOSE } from "@/types/const";
+import {
+  DEFAULT_TURN_SECONDS,
+  XP_GAIN_ON_WIN,
+  XP_LOSS_ON_LOSE,
+} from "@/types/const";
 
 export default function BossFightGame() {
   const { gameState, broadcastAndDispatch } = useGame();
@@ -27,11 +31,7 @@ export default function BossFightGame() {
     subject,
   } = lobby;
 
-  if (gameMode.type !== "bossfight" || questions.length == 0) {
-    return <div>Loading game... (Ensure game started correctly)</div>;
-  }
-
-  const { time: TURN_DURATION_SECONDS, bossName, bossHealth } = gameMode.data;
+  const TURN_DURATION_SECONDS = gameMode.data.time ?? DEFAULT_TURN_SECONDS;
 
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false);
@@ -42,6 +42,12 @@ export default function BossFightGame() {
   const [isTeamVictory, setIsTeamVictory] = useState(false);
 
   const [xpUpdateAttempted, setXpUpdateAttempted] = useState(false);
+
+  if (gameMode.type !== "bossfight" || questions.length == 0) {
+    return <div>Loading game... (Ensure game started correctly)</div>;
+  }
+
+  const { bossName, bossHealth } = gameMode.data;
 
   const router = useRouter();
 
