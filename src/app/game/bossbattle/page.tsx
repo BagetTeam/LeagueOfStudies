@@ -12,24 +12,18 @@ import { updateLeaderboard } from "@/backend/db/leaderboard";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
 import { useRouter } from "next/navigation";
-import {
-  DEFAULT_TURN_SECONDS,
-  XP_GAIN_ON_WIN,
-  XP_LOSS_ON_LOSE,
-} from "@/types/const";
-import { BossFightData, GameState, Lobby, Question } from "@/types/types";
+import { XP_GAIN_ON_WIN, XP_LOSS_ON_LOSE } from "@/types/const";
+import { BossFightData } from "@/types/types";
 
 export default function BossFightGameWrapper() {
   const { gameState } = useGame();
   const { lobby } = gameState;
   const { gameMode, questions } = lobby;
 
-  // If not bossfight or no questions, show a placeholder (no hooks here)
   if (gameMode.type !== "bossfight" || questions.length === 0) {
     return <div>Loading game... (Ensure game started correctly)</div>;
   }
 
-  // Now TS knows gameMode is bossfight (narrowed), pass data down
   return <BossFightGame gameData={gameMode.data} />;
 }
 
