@@ -125,17 +125,24 @@ export default function LobbyScreen() {
 
   const startGame = () => {
     if (player.isHost && players.length > 0) {
-      if (lobby.gameMode.type !== "bossfight") return;
-      const startGameMode = {
-        ...lobby.gameMode,
-        data: { ...lobby.gameMode.data, bossHealth: 100 },
-      };
+      let startGameMode;
+      if (lobby.gameMode.type === "bossfight") {
+        startGameMode = {
+          ...lobby.gameMode,
+          data: { ...lobby.gameMode.data, bossHealth: 100 },
+        };
+      } else if (lobby.gameMode.type === "deathmatch") {
+        startGameMode = {
+          ...lobby.gameMode,
+          data: { ...lobby.gameMode.data, activePlayerIndex: 0 },
+        };
+      }
 
       const { event, payload } = createBroadcastPayload(
         BROADCAST_EVENTS.setStartGame,
         {
           initialPlayers: lobby.players,
-          gameMode: startGameMode,
+          gameMode: startGameMode!,
           questions: lobby.questions,
         },
       );

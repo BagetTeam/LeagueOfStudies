@@ -8,6 +8,9 @@ import { useGame } from "@/GameContext";
 import { Button } from "@/ui";
 import { createBroadcastPayload } from "@/utils/utils";
 import { BROADCAST_EVENTS } from "@/GameContext";
+import { useAuth0 } from "@auth0/auth0-react";
+import { XP_GAIN_ON_WIN, XP_LOSS_ON_LOSE } from "@/types/const";
+import { updateLeaderboard } from "@/backend/db/leaderboard";
 
 export default function DeathmatchGame() {
   const router = useRouter();
@@ -35,6 +38,8 @@ export default function DeathmatchGame() {
   const [isAnsweredLocally, setIsAnsweredLocally] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TURN_DURATION_SECONDS);
   const [isResolvingRound, setIsResolvingRound] = useState(false);
+
+  const [xpUpdateAttempted, setXpUpdateAttempted] = useState(false);
 
   const currentQuestion = useMemo(
     () => questions[currentQuestionIndex % questions.length],
@@ -139,6 +144,30 @@ export default function DeathmatchGame() {
     );
     broadcastAndDispatch(event, payload);
   }, [activePlayerIndex]);
+
+  // HANDLE GAME OVER -> xp + go gameover page
+  const { user } = useAuth0();
+  useEffect(() => {
+    if (isGameOver && !xpUpdateAttempted) {
+      setXpUpdateAttempted(true); // make sure action isn't repeated twice
+
+      async function onWinXpChange() {
+        if (user?.email) {
+          const playerEmail = user?.email;
+          const xpChange = player.health > 0 ? XP_GAIN_ON_WIN : XP_LOSS_ON_LOSE;
+
+          await updateLeaderboard(playerEmail, xpChange);
+        }
+      }
+      onWinXpChange().finally(() => {
+        router.push("/game/game-over");
+      });
+    }
+
+    if (!isGameOver) {
+      setXpUpdateAttempted(false);
+    }
+  }, [isGameOver]);
 
   // --- UI Rendering ---
   if (!currentQuestion || !players || players.length === 0) {
