@@ -8,11 +8,7 @@ import { useGame } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { useAuth0 } from "@auth0/auth0-react";
-import {
-  DEFAULT_TURN_SECONDS,
-  XP_GAIN_ON_WIN,
-  XP_LOSS_ON_LOSE,
-} from "@/types/const";
+import { XP_GAIN_ON_WIN, XP_LOSS_ON_LOSE } from "@/types/const";
 import { updateLeaderboard } from "@/backend/db/leaderboard";
 import { DeathmatchData } from "@/types/types";
 
@@ -37,14 +33,8 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
 
   const { gameState, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
-  const {
-    players,
-    currentQuestionIndex,
-    turnStartTime,
-    questions,
-    gameMode,
-    subject,
-  } = lobby;
+  const { players, currentQuestionIndex, turnStartTime, questions, subject } =
+    lobby;
 
   const { time: TURN_DURATION_SECONDS, activePlayerIndex } = gameData;
   const GRACE_PERIOD = 2;
