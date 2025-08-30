@@ -149,7 +149,6 @@ export default function LobbyScreen() {
   };
 
   const handleBackToMenuClick = () => {
-    console.log("Leaving lobby...");
     dispatch({ type: "exitLobby", payload: {} });
     router.push("/");
   };
@@ -157,7 +156,6 @@ export default function LobbyScreen() {
   const copyInviteLink = () => {
     navigator.clipboard
       .writeText(gameUrl)
-      .then(() => console.log("Invite link copied"))
       .catch((err) => console.error("Failed to copy link: ", err));
   };
 
@@ -169,7 +167,6 @@ export default function LobbyScreen() {
           text: "Join me for a fun quiz challenge!",
           url: gameUrl,
         });
-        console.log("Link shared successfully");
       } catch (err) {
         console.error("Error sharing:", err);
         copyInviteLink();

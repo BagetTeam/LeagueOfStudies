@@ -135,7 +135,6 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
 
     if (nextQuestionIdx >= questions.length) {
       //TODO ALL ANSWERS QUESTIONS (restart questions or end??)
-      console.log("All questions answered, checking remaining players...");
       nextQuestionIdx = 0;
     }
 

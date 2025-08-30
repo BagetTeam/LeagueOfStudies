@@ -10,7 +10,6 @@ export async function getUser(
   if (res.data === null) {
     return null;
   }
-  console.log("data", res.data);
 
   if (!res.count || res.count === 0) {
     await supabase.from("users").insert({ name, email });

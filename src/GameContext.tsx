@@ -62,8 +62,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const { player, lobby } = gameState;
 
   useEffect(() => {
-    console.log(lobby.lobbyId);
-
     // remove channel is already existent
     if (channelRef.current) {
       console.log(
@@ -96,12 +94,10 @@ export const GameProvider = ({ children }: GameProviderProps) => {
             (player): player is Player => !!player && player.playerId !== "",
           ); // Filter out invalid/guest players
 
-        console.log("Synced players:", updatedPlayers);
         dispatch({ type: "setPlayers", payload: { players: updatedPlayers } });
       });
 
       channel.on("presence", { event: "join" }, ({ key, newPresences }) => {
-        console.log("Presence join:", key, newPresences);
         const joinedPlayerInfo = newPresences[0]?.playerInfo as
           | Player
           | undefined;
@@ -133,7 +129,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       });
 
       channel.on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-        console.log("Presence leave:", key, leftPresences);
         // Rely on the next 'sync' event triggered by leave, or explicitly remove
         const leftPlayerId = parseInt(key, 10); // Key is the player ID
         if (!isNaN(leftPlayerId)) {
@@ -325,7 +320,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       });
 
       return () => {
-        console.log(`Cleaning up channel`);
+        // clean up channel
         if (channelRef.current) {
           channelRef.current.unsubscribe();
           channelRef.current = null;

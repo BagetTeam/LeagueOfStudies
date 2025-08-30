@@ -161,7 +161,6 @@ function BossFightGame({ gameData }: BossFightProps) {
 
     // resolve round -> advance to next round
     if (timeExpired || allPlayersAnswered) {
-      console.log("Setting resolving round");
       setIsResolvingRound(true);
 
       const allPlayerAnswersCorrect = activePlayers.every(
@@ -247,10 +246,6 @@ function BossFightGame({ gameData }: BossFightProps) {
         if (user?.email) {
           const playerEmail = user?.email;
           const xpChange = isTeamVictory ? XP_GAIN_ON_WIN : XP_LOSS_ON_LOSE;
-
-          console.log(
-            `Game Over. Victory: ${isTeamVictory}. Player ${playerEmail} XP change: ${xpChange}`,
-          );
 
           await updateLeaderboard(playerEmail, xpChange);
         }

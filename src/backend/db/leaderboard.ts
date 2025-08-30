@@ -25,8 +25,6 @@ export async function updateLeaderboard(email: string, xp: number) {
     const currentXp = currentStats?.totalXp ?? 0;
     const newXp = Math.max(0, currentXp + xp);
 
-    console.log(`Updating XP for ${email}: ${currentXp} -> ${newXp}`);
-
     const { error: updateError } = await supabase
       .from("stats")
       .update({ totalXp: newXp })
@@ -36,8 +34,6 @@ export async function updateLeaderboard(email: string, xp: number) {
       console.error(`Error updating user XP for ${email}:`, updateError);
       throw updateError;
     }
-
-    console.log(`Successfully updated XP for ${email} to ${newXp}`);
   } catch (error) {
     console.error("Failed to update user XP:", error);
   }

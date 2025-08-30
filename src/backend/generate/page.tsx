@@ -38,7 +38,6 @@ export default function StudyPage() {
       }
 
       const data = await response.json();
-      console.log("Raw API Response:", data);
 
       let cleaned = data.questions; // Adjust according to your API response field
 
@@ -55,7 +54,6 @@ export default function StudyPage() {
 
       try {
         const parsed = JSON.parse(cleaned);
-        console.log("Parsed cleaned data:", parsed);
 
         if (Array.isArray(parsed)) {
           const formatted: QA[] = parsed.map(([q, a]: [string, string]) => ({
