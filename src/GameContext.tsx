@@ -130,10 +130,9 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       channel.on("presence", { event: "leave" }, ({ key, leftPresences }) => {
         // Rely on the next 'sync' event triggered by leave, or explicitly remove
-        const leftPlayerId = parseInt(key, 10); // Key is the player ID
-        if (!isNaN(leftPlayerId)) {
+        if (key.length > 0) {
           const remainingPlayers = lobby.players.filter(
-            (p) => p.playerId !== leftPlayerId.toString(),
+            (p) => p.playerId !== key,
           );
           dispatch({
             type: "setPlayers",
