@@ -128,19 +128,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       });
 
-      channel.on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-        // Rely on the next 'sync' event triggered by leave, or explicitly remove
-        if (key.length > 0) {
-          const remainingPlayers = lobby.players.filter(
-            (p) => p.playerId !== key,
-          );
-          dispatch({
-            type: "setPlayers",
-            payload: { players: remainingPlayers },
-          });
-        }
-      });
-
       // --- Broadcast Handlers ---
       channel.on(
         "broadcast",
