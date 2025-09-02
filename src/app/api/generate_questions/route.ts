@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
             properties: {
               question: {
                 type: Type.STRING,
-                description: "Question contentt",
+                description: "Question content",
                 nullable: false,
               },
               options: {
