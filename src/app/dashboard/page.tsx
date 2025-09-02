@@ -67,7 +67,7 @@ export default function DashBoard() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/game-modes">
+          <Link href="/game">
             <Button className="bg-theme-purple hover:bg-theme-purple-dark text-background gap-2">
               <Play className="h-4 w-4" />
               Play Now
@@ -103,7 +103,7 @@ export default function DashBoard() {
               <h3 className="font-medium">Upload Notes</h3>
             </Link>
 
-            <Link href="/game-modes" className="game-card p-4 text-center">
+            <Link href="/game" className="game-card p-4 text-center">
               <div className="bg-theme-orange/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
                 <Play className="text-theme-orange h-5 w-5" />
               </div>

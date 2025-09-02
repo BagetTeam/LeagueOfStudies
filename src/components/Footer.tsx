@@ -42,7 +42,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/game-modes"
+                  href="/game"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   Game Modes
