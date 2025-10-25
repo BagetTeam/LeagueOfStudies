@@ -4,9 +4,9 @@ import { GraduationCap, Github, Twitter } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="bg-muted flex w-full flex-col items-center justify-center p-10">
-      <div className="flex w-full justify-between gap-8">
-        <div>
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold">
+      <div className="flex flex-col w-full justify-between gap-8">
+        <div className="flex flex-col items-left gap-4">
+          <Link href="/" className="flex items-center gap-8 text-xl font-bold">
             <GraduationCap className="text-theme-purple h-6 w-6" />
             <span>LeagueOfStudies</span>
           </Link>
