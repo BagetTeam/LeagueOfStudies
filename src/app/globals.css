@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --breakpoint-xs: 475px;
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
@@ -180,6 +181,33 @@
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+/* Mobile navbar scrolling styles */
+body {
+  overflow-x: hidden;
+}
+
+/* Ensure navbar scrolls horizontally on mobile without causing page overflow */
+@media (max-width: 768px) {
+  .navbar-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .navbar-container::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .navbar-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .navbar-container::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground));
+    border-radius: 2px;
   }
 }
 
