@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@/ui";
-import { ArrowRight, GraduationCap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { motion } from "motion/react";
+// import { motion } from "motion/react";
 
 export default function Hero() {
   return (
@@ -35,7 +35,6 @@ export default function Hero() {
           </div>
         </div>
       </div>
-
     </section>
   );
 }
