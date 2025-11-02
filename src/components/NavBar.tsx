@@ -29,7 +29,7 @@ export default function NavBar() {
           {/* <Link href="/dashboard"> */}
           {/*   <Button className="text-xs sm:text-sm px-2 sm:px-4 py-1 sm:py-2">Dashboard</Button> */}
           {/* </Link> */}
-          <Link href="/game-modes">
+          <Link href="/game">
             <Button className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
               Games
             </Button>
