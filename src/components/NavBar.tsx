@@ -25,7 +25,6 @@ export default function NavBar() {
             L<span className="text-secondary">o</span>S
           </div>
         </Link>
-<<<<<<< HEAD:src/app/NavBar.tsx
         <div className="flex flex-shrink-0 items-center gap-2 sm:gap-4">
           {/* <Link href="/dashboard"> */}
           {/*   <Button className="text-xs sm:text-sm px-2 sm:px-4 py-1 sm:py-2">Dashboard</Button> */}
@@ -33,23 +32,6 @@ export default function NavBar() {
           <Link href="/game-modes">
             <Button className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
               Games
-=======
-        <Link href="/game">
-          <Button>Game Modes</Button>
-        </Link>
-        <Link href="/leaderboard">
-          <Button>Leaderboard</Button>
-        </Link>
-
-        {user ? (
-          <Link href="/profile">
-            <Button
-              className="flex items-center justify-center gap-2"
-              variant="special"
-            >
-              {user.name ?? "Player"}
-              <User />
->>>>>>> main:src/components/NavBar.tsx
             </Button>
           </Link>
           <Link href="/leaderboard">

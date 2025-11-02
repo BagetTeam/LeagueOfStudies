@@ -22,9 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-<<<<<<< HEAD
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/generate_questions.js", "src/components/pdf_reader.js"],
-=======
   "include": [
     "next-env.d.ts",
     "**/*.ts",
@@ -32,6 +29,5 @@
     ".next/types/**/*.ts",
     "src/backend/generate/generate_questions.js"
   ],
->>>>>>> main
   "exclude": ["node_modules"]
 }
