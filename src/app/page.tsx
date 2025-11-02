@@ -23,7 +23,7 @@ export default function Home() {
             Join thousands of students who are transforming the way they study.
             Sign up for free and start your learning journey today!
           </p>
-          <Link href="/signup">
+          <Link href="/signup" className="flex justify-center">
             <Button className="text-theme-purple bg-white text-lg hover:bg-white/90">
               Get Started Now
             </Button>
