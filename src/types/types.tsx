@@ -1,37 +1,49 @@
 import { z } from "zod";
 
 export interface Player {
-  id: number;
+  playerId: string;
   name: string;
   score: number;
   health: number;
   isHost: boolean;
+  state: "playing" | "lobby" | "completed";
 }
 
-export interface GamePlayer {
-  id: string;
-  name: string;
-  score: number;
-  health: number;
-}
-
-export interface GameMode {
-  type: string;
+export interface BossFightData {
+  bossName: string;
+  bossHealth: number;
   time: number;
 }
 
-export interface PublicLobby {
-  id: string;
-  hostName: string;
-  numPlayers: number;
-  gameMode: GameMode;
+export interface DeathmatchData {
+  time: number;
+  activePlayerIndex: number;
 }
+
+export type GameMode =
+  | { type: "deathmatch"; data: DeathmatchData }
+  | { type: "bossfight"; data: BossFightData };
 
 export interface Question {
   id: number;
   question: string;
   options: string[];
   correctAnswer: number;
+}
+
+export interface Lobby {
+  lobbyId: string;
+  players: Player[];
+  gameMode: GameMode;
+  subject: string;
+  questions: Question[];
+  currentQuestionIndex: number;
+  playerAnswers: {
+    [playerId: string]: {
+      isCorrect: boolean;
+    };
+  };
+  turnStartTime: number | null;
 }
 
 export const QuestionSchema = z.object({
@@ -43,10 +55,7 @@ export const QuestionSchema = z.object({
 
 export type QuestionType = z.infer<typeof QuestionSchema>;
 
-export interface GameData {
-  subject: string;
-  topic: string;
-  bossName: string;
-  bossHealth: number;
-  questions: Question[];
+export interface GameState {
+  player: Player;
+  lobby: Lobby;
 }

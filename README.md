@@ -45,19 +45,3 @@ In the meantime:
 - **Feedback**: Open an issue or email us.
 - **Want to help build?** DM us on the site contact form!
 
----
-
-## Getting Started (for Developers)
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/league-of-studies.git
-
-# Install dependencies
-npm install
-
-# Run the development server
-npm run dev
-
-# Visit
-http://localhost:3000

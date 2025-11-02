@@ -1,15 +1,16 @@
 "use client";
 
-import { Tables } from "@/database.types";
+import { Tables } from "@/backend/models/database.types";
+import { getUserStats } from "@/backend/db/dashboard";
+import { getUser } from "@/backend/db/users";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
-import { getUser, getUserStats } from "../backend";
 import { Trophy, Settings, User } from "lucide-react";
 import { TabsList, TabsTrigger, Tabs } from "@/ui";
-import ProfileCard from "./ProfileCard";
-import ProfileTab from "./ProfileTab";
-import AchievementsTab from "./AchievementsTab";
-import SettingsTab from "./SettingsTab";
+import ProfileCard from "./components/ProfileCard";
+import ProfileTab from "./components/ProfileTab";
+import AchievementsTab from "./components/AchievementsTab";
+import SettingsTab from "./components/SettingsTab";
 
 export type UserData = Tables<"users"> & Tables<"stats">;
 

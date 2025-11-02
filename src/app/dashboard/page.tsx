@@ -15,9 +15,9 @@ import {
   Users,
   Star,
 } from "lucide-react";
-import { Tables } from "@/database.types";
+import { Tables } from "@/backend/models/database.types";
 import { useAuth0 } from "@auth0/auth0-react";
-import { getRecentGames } from "../backend";
+import { getRecentGames } from "@/backend/db/dashboard";
 
 const studyNotes = [
   {
