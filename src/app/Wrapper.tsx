@@ -15,7 +15,7 @@ export default function Wrapper({ children, domain, client_id }: Props) {
       domain={domain}
       clientId={client_id}
       authorizationParams={{
-        redirect_uri: "http://localhost:3000",
+        redirect_uri: process.env.APP_BASE_URL,
       }}
     >
       {children}
