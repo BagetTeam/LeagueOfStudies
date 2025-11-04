@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Theme } from "@radix-ui/themes";
 import NavBar from "../components/NavBar";
@@ -8,6 +8,12 @@ import Wrapper from "./Wrapper";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
 });
 
 const geistMono = Geist_Mono({
@@ -32,7 +38,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-primary/10 w-[100vw] overflow-x-hidden antialiased`}
+        className={`${spaceMono.variable} bg-primary/10 w-[100vw] overflow-x-hidden antialiased`}
       >
         <Wrapper domain={domain} client_id={cliend_id}>
           <Theme>

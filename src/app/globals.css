@@ -36,6 +36,8 @@
 
   --color-theme-orange: hsl(var(--theme-orange));
   --color-theme-blue: hsl(var(--theme-blue));
+
+  --font-sans: var(--font-space-mono);
 }
 :root {
   --theme-purple-light: 251, 85%, 75%;
@@ -187,6 +189,7 @@
 /* Mobile navbar scrolling styles */
 body {
   overflow-x: hidden;
+  font-family: var(--font-space-mono) !important;
 }
 
 /* Ensure navbar scrolls horizontally on mobile without causing page overflow */
