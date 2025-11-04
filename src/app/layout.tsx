@@ -34,13 +34,14 @@ export default async function RootLayout({
 }>) {
   const domain = process.env.AUTH0_DOMAIN!;
   const cliend_id = process.env.AUTH0_CLIENT_ID!;
+  const base_uri = process.env.APP_BASE_URL!;
 
   return (
     <html lang="en">
       <body
         className={`${spaceMono.variable} bg-primary/10 w-[100vw] overflow-x-hidden antialiased`}
       >
-        <Wrapper domain={domain} client_id={cliend_id}>
+        <Wrapper domain={domain} client_id={cliend_id} base_uri={base_uri}>
           <Theme>
             <NavBar />
             {children}

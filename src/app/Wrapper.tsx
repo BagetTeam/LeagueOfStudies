@@ -7,15 +7,21 @@ type Props = {
   children: React.ReactNode;
   domain: string;
   client_id: string;
+  base_uri: string;
 };
 
-export default function Wrapper({ children, domain, client_id }: Props) {
+export default function Wrapper({
+  children,
+  domain,
+  client_id,
+  base_uri,
+}: Props) {
   return (
     <Auth0Provider
       domain={domain}
       clientId={client_id}
       authorizationParams={{
-        redirect_uri: process.env.APP_BASE_URL,
+        redirect_uri: base_uri,
       }}
     >
       {children}
