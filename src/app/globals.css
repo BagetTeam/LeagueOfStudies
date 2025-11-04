@@ -186,6 +186,15 @@
   }
 }
 
+@keyframes underline-expand {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
 /* Mobile navbar scrolling styles */
 body {
   overflow-x: hidden;
@@ -212,6 +221,27 @@ body {
     background: hsl(var(--muted-foreground));
     border-radius: 2px;
   }
+}
+
+/* Button hover effects - underline and shift right */
+button {
+  transition: text-decoration 0.2s ease-in-out;
+}
+
+button:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Shift button content to the right on hover */
+button:hover > * {
+  transform: translateX(4px);
+}
+
+/* Ensure transition is smooth for button content */
+button > * {
+  transition: transform 0.2s ease-in-out;
+  display: inline-block;
 }
 
 /* You might need additional base styles or component layers here */
