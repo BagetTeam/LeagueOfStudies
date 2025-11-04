@@ -16,13 +16,19 @@ export default function NavBar() {
           className="flex flex-shrink-0 gap-2 text-xl font-bold sm:gap-3 sm:text-2xl"
         >
           <GraduationCap className="text-primary h-6 w-6 sm:h-8 sm:w-8" />
-          <div className="xs:block hidden">
+          <div className="xs:block hidden hover:underline hover:decoration-black">
             League
-            <span className="text-secondary">Of</span>
+            <span className="text-secondary hover:underline hover:decoration-black">
+              Of
+            </span>
             Studies
           </div>
-          <div className="xs:hidden">
-            L<span className="text-secondary">o</span>S
+          <div className="xs:hidden hover:underline hover:decoration-black">
+            L
+            <span className="text-secondary hover:underline hover:decoration-black">
+              o
+            </span>
+            S
           </div>
         </Link>
         <div className="flex flex-shrink-0 items-center gap-2 sm:gap-4">

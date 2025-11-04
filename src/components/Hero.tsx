@@ -30,6 +30,7 @@ export default function Hero() {
             <Link href="/game" className="w-fit">
               <Button variant="normal" className="text-lg">
                 Explore Game Modes
+                <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
           </div>
