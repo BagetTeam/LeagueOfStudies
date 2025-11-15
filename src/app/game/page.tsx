@@ -7,10 +7,9 @@ import {
   Users,
   Search,
   Play,
-  ArrowRight,
-  FileText,
+  // ArrowRight,
+  // FileText,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useGame } from "../../GameContext";
 import { GameMode } from "@/types/types";
@@ -18,6 +17,7 @@ import { subjects } from "@/test-data/gameModeData";
 import { INITIAL_BOSS_HEALTH } from "@/types/const";
 import { defaultLobby } from "@/gameState";
 import { createBroadcastPayload } from "@/utils/utils";
+import PDF_reader from "../pdf_reader/reader";
 
 const defaultGameMode: GameMode = {
   type: "deathmatch",
@@ -68,6 +68,27 @@ export default function GameModes() {
       dispatch({ type: "setGameSubject", payload: { subject: subject } });
     }
 
+    router.push("/game/lobby");
+  }
+  function uploadClick(studyText: string) {
+    let mode: GameMode = defaultGameMode;
+    if (selectedMode) {
+      if (selectedMode === "deathmatch")
+        mode = { type: selectedMode, data: { activePlayerIndex: 0, time: 15 } };
+      else if (selectedMode === "bossfight")
+        mode = {
+          type: selectedMode,
+          data: {
+            bossName: "teacher Bob",
+            bossHealth: INITIAL_BOSS_HEALTH,
+            time: 20,
+          },
+        };
+    }
+    dispatch({ type: "setGameMode", payload: { gameMode: mode } });
+
+    if (studyText == "") return;
+    dispatch({ type: "setGameSubject", payload: { subject: studyText } });
     router.push("/game/lobby");
   }
 
@@ -201,18 +222,21 @@ export default function GameModes() {
               </div>
             ))}
 
-            <div className="hover:border-theme-purple/50 hover:bg-muted/50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors">
-              <FileText className="text-muted-foreground mb-2 h-8 w-8" />
-              <p className="text-muted-foreground mb-2 font-medium">
-                Use your own notes
-              </p>
-              <Link href="/upload">
-                <Button variant="normal" className="gap-2">
-                  Upload Notes
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
+            {/* <div className="hover:border-theme-purple/50 hover:bg-muted/50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors"> */}
+            {/*   <FileText className="text-muted-foreground mb-2 h-8 w-8" /> */}
+            {/*   <p className="text-muted-foreground mb-2 font-medium"> */}
+            {/*     Use your own notes */}
+            {/*   </p> */}
+            {/*   <Button variant="normal" className="gap-2"> */}
+            {/*     Upload Notes */}
+            {/*     <ArrowRight className="h-4 w-4" /> */}
+            {/*   </Button> */}
+            {/* </div> */}
+            <PDF_reader
+              onExtract={(text: string) => {
+                uploadClick(text);
+              }}
+            />
           </div>
         </>
       )}
