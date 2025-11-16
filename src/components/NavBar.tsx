@@ -4,9 +4,11 @@ import { Button } from "@/ui";
 import { useAuth0 } from "@auth0/auth0-react";
 import { GraduationCap, LogIn, User } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function NavBar() {
   const { loginWithRedirect, user } = useAuth0();
+  const router = useRouter();
 
   return (
     <div className="navbar-container w-full shrink-0 overflow-x-auto overflow-y-hidden">
@@ -64,7 +66,7 @@ export default function NavBar() {
               variant="special"
               className="flex items-center justify-center gap-1 px-2 py-1 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
               onClick={() => {
-                loginWithRedirect();
+                router.push("/login");
               }}
             >
               <LogIn className="h-3 w-3 sm:h-4 sm:w-4" />
