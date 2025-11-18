@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/server";
-
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
@@ -17,12 +16,7 @@ export async function login(formData: FormData) {
 
   const { error } = await supabase.auth.signInWithPassword(data);
 
-  if (error) {
-    redirect("/error");
-  }
-
-  revalidatePath("/", "layout");
-  redirect("/");
+  return error;
 }
 
 export async function signup(formData: FormData) {
@@ -63,24 +57,3 @@ export async function signout() {
 
   redirect("/logout");
 }
-
-export async function signInWithGoogle() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
-      },
-    },
-  });
-
-  if (error) {
-    console.log(error);
-    redirect("/error");
-  }
-
-  redirect(data.url);
-}
-

@@ -25,8 +25,8 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
 
+  const supabase = createSupClient();
   useEffect(() => {
-    const supabase = createSupClient();
     const fetchUser = async () => {
       const {
         data: { user },
@@ -36,6 +36,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     fetchUser();
   }, []);
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log(event, session);
+    setTimeout(async () => {
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+        return;
+      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    }, 0);
+  });
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

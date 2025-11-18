@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -11,10 +12,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/lib/auth-actions";
-
+import { redirect } from "next/navigation";
+import { useUser } from "@/lib/UserContext";
+import { supabase } from "@/backend/utils/database";
 export function LoginForm() {
+  const userContext = useUser();
+
+  async function handleLogin(formData: FormData) {
+    const error = await login(formData);
+
+    if (error) {
+      redirect("/error");
+    } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      userContext.setUser(user);
+    }
+    redirect("/");
+  }
   return (
-    <Card className="mx-auto max-w-sm border-border border border-solid bg-white">
+    <Card className="border-border mx-auto max-w-sm border border-solid bg-white">
       <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription>
@@ -46,7 +64,7 @@ export function LoginForm() {
               </div>
               <Input id="password" name="password" type="password" required />
             </div>
-            <Button type="submit" formAction={login} className="w-full">
+            <Button type="submit" formAction={handleLogin} className="w-full">
               Login
             </Button>
           </div>
