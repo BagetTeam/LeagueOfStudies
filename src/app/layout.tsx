@@ -4,6 +4,7 @@ import "./globals.css";
 import { Theme } from "@radix-ui/themes";
 import NavBar from "../components/NavBar";
 import Wrapper from "./Wrapper";
+import AuthWrapper from "../components/AuthWrapper";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -42,10 +43,12 @@ export default async function RootLayout({
         className={`${spaceMono.variable} bg-primary/10 w-[100vw] overflow-x-hidden antialiased`}
       >
         <Wrapper domain={domain} client_id={cliend_id} base_uri={base_uri}>
-          <Theme>
-            <NavBar />
-            {children}
-          </Theme>
+          <AuthWrapper>
+            <Theme>
+              <NavBar />
+              {children}
+            </Theme>
+          </AuthWrapper>
         </Wrapper>
       </body>
     </html>

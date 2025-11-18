@@ -1,14 +1,17 @@
 "use client";
 
 import { Button } from "@/ui";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useUser } from "@/lib/UserContext";
 import { GraduationCap, LogIn, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function NavBar() {
-  const { loginWithRedirect, user } = useAuth0();
+  const { user } = useUser();
   const router = useRouter();
+  
+  // Get display name from user_metadata or use email as fallback
+  const displayName = user?.user_metadata?.name || user?.email?.split("@")[0] || "Player";
 
   return (
     <div className="navbar-container w-full shrink-0 overflow-x-auto overflow-y-hidden">
@@ -55,7 +58,7 @@ export default function NavBar() {
                 variant="special"
               >
                 <span className="hidden sm:inline">
-                  {user.name ?? "Player"}
+                  {displayName}
                 </span>
                 <span className="sm:hidden">Profile</span>
                 <User className="h-3 w-3 sm:h-4 sm:w-4" />
