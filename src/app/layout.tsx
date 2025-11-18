@@ -3,8 +3,7 @@ import { Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Theme } from "@radix-ui/themes";
 import NavBar from "../components/NavBar";
-import Wrapper from "./Wrapper";
-
+import { AuthProvider } from "@/lib/UserContext";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -32,21 +31,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const domain = process.env.AUTH0_DOMAIN!;
-  const cliend_id = process.env.AUTH0_CLIENT_ID!;
-  const base_uri = process.env.APP_BASE_URL!;
-
   return (
     <html lang="en">
       <body
         className={`${spaceMono.variable} bg-primary/10 w-[100vw] overflow-x-hidden antialiased`}
       >
-        <Wrapper domain={domain} client_id={cliend_id} base_uri={base_uri}>
+        <AuthProvider>
           <Theme>
             <NavBar />
             {children}
           </Theme>
-        </Wrapper>
+        </AuthProvider>
       </body>
     </html>
   );

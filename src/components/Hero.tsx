@@ -3,15 +3,20 @@
 import { Button } from "@/ui";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-// import { motion } from "motion/react";
-
+import { useUser } from "@/lib/UserContext";
 export default function Hero() {
+  const user = useUser();
   return (
     <section className="flex items-center p-10">
       <div className="flex basis-full flex-col-reverse items-center justify-between gap-12 md:flex-row">
         <div className="flex w-full flex-col gap-4">
           <h1 className="text-4xl leading-tight font-bold md:text-5xl lg:text-6xl">
-            Learn Faster, <span className="text-theme-purple">Together</span>
+            {user.user ? "Hey," : "Learn Faster"}
+            <span className="text-theme-purple">
+              {user.user
+                ? ` ${user.user.user_metadata.full_name.split(" ")[0]}!`
+                : " Together"}
+            </span>
           </h1>
           <p className="text-muted-foreground text-xl">
             Transform studying into a fun, competitive game. Upload your notes,

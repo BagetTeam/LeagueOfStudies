@@ -1,16 +1,19 @@
 "use client";
 
 import { Button } from "@/ui";
-import { useAuth0 } from "@auth0/auth0-react";
 import { GraduationCap, LogIn, User } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/lib/UserContext";
 
 export default function NavBar() {
-  const { loginWithRedirect, user } = useAuth0();
+  const router = useRouter();
+  const user = useUser().user;
 
   return (
     <div className="navbar-container w-full shrink-0 overflow-x-auto overflow-y-hidden">
       <div className="flex min-w-max items-center justify-between p-3 sm:p-5">
+        {/* {JSON.stringify(user?.user_metadata)} */}
         <Link
           href="/"
           className="flex flex-shrink-0 gap-2 text-xl font-bold sm:gap-3 sm:text-2xl"
@@ -47,15 +50,12 @@ export default function NavBar() {
           </Link>
 
           {user ? (
-            <Link href="/profile">
+            <Link href="/logout">
               <Button
                 className="flex items-center justify-center gap-1 px-2 py-1 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
                 variant="special"
               >
-                <span className="hidden sm:inline">
-                  {user.name ?? "Player"}
-                </span>
-                <span className="sm:hidden">Profile</span>
+                <span className="sm:hidden">Log Out</span>
                 <User className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </Link>
@@ -64,7 +64,7 @@ export default function NavBar() {
               variant="special"
               className="flex items-center justify-center gap-1 px-2 py-1 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
               onClick={() => {
-                loginWithRedirect();
+                router.push("/login");
               }}
             >
               <LogIn className="h-3 w-3 sm:h-4 sm:w-4" />
