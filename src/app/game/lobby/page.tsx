@@ -12,13 +12,14 @@ import PDF_reader from "@/app/pdf_reader/reader";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { defaultLobby } from "@/gameState";
 import { createBroadcastPayload } from "@/utils/utils";
-
+import { useUser } from "@/lib/UserContext";
 export default function LobbyScreen() {
   const { gameState, dispatch, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
   const { lobbyId, gameMode, subject, questions, players } = lobby;
   const gameSubject = subject ?? "Rust";
 
+  const user = useUser();
   const [studyText, setStudyText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -58,7 +59,9 @@ export default function LobbyScreen() {
   useEffect(() => {
     if (lobbyId == "") {
       const newPlayerId = crypto.randomUUID();
-      const newPlayerName = newPlayerId.substring(0, 8);
+      const newPlayerName = user
+        ? user.user?.user_metadata.full_name.split(" ")[0]
+        : newPlayerId.substring(0, 8);
       const updatedPlayer: Player = {
         ...player,
         playerId: newPlayerId,
