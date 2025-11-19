@@ -73,7 +73,9 @@ export default function DashBoard() {
         <>
           <div className="flex w-full flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <h1 className="mb-1 text-3xl font-bold">Welcome back, Player!</h1>
+              <h1 className="mb-1 text-3xl font-bold">
+                Welcome back, {user.user.user_metadata.full_name.split(" ")[0]}!
+              </h1>
               <p className="text-muted-foreground">
                 Track your progress, manage your notes, and start new games
               </p>
