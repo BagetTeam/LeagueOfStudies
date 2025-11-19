@@ -128,6 +128,7 @@ export default function GameOver() {
           >
             Play Again
           </Button>
+
           <Button variant="special" onClick={() => router.push("/dashboard")}>
             Go to Dashboard
           </Button>

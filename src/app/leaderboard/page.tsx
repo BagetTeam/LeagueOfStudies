@@ -5,7 +5,6 @@ import { fetchLeaderboard } from "@/backend/db/leaderboard";
 
 interface LeaderboardEntry {
   email: string;
-  level: number | null;
   totalXp: number | null;
 }
 
@@ -44,9 +43,6 @@ export default function LeaderboardPage() {
             </div>
 
             <div className="flex flex-row gap-8">
-              <div className="font-bold text-blue-500">
-                Level {entry.level ?? 0}
-              </div>
               <div className="text-gray-600">{entry.totalXp ?? 0} XP</div>
             </div>
           </div>

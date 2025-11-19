@@ -47,7 +47,7 @@ export async function fetchLeaderboard() {
   try {
     const { data, error } = await supabase
       .from("stats")
-      .select("email, level, totalXp")
+      .select("email, totalXp")
       .gt("totalXp", 0)
       .order("totalXp", { ascending: false });
 
