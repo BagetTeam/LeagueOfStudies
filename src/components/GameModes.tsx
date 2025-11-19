@@ -47,7 +47,10 @@ export default function GameMode() {
             Team up with friends to defeat the boss! Answer questions correctly
             to deal damage, but be careful - wrong answers cost health!
           </p>
-          <Button className="bg-theme-blue hover:bg-theme-blue/80 text-background flex items-center justify-center gap-2">
+          <Button
+            onClick={() => router.push("/game")}
+            className="bg-theme-blue hover:bg-theme-blue/80 text-background flex items-center justify-center gap-2"
+          >
             Start Boss Fight
             <ArrowRight className="h-4 w-4" />
           </Button>

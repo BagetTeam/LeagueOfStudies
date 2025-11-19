@@ -23,7 +23,7 @@ export default function Hero() {
             generate quizzes, and battle your friends in real-time!
           </p>
           <div className="flex w-full gap-4 font-bold">
-            <Link href="/profile" className="w-fit">
+            <Link href="/signup" className="w-fit">
               <Button
                 className="bg-theme-purple text-background flex items-center justify-center gap-2 text-lg"
                 variant="special"
