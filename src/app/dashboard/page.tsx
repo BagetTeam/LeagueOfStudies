@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import { Tables } from "@/backend/models/database.types";
 import { getRecentGames } from "@/backend/db/dashboard";
+import { getUserStats } from "@/backend/db/dashboard";
 import { useUser } from "@/lib/UserContext";
-
 const studyNotes = [
   {
     id: 1,
@@ -41,6 +41,7 @@ const studyNotes = [
 
 export default function DashBoard() {
   const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
+  const [userData, setUserData] = useState<Tables<"stats"> | null>(null);
   const user = useUser();
   const email = user?.user?.user_metadata.email;
 
@@ -49,6 +50,8 @@ export default function DashBoard() {
       (async () => {
         const games = await getRecentGames(email);
         setRecentGames(games);
+        const userData = await getUserStats(email);
+        setUserData(userData);
       })();
     }
   }, [email]);
@@ -59,7 +62,7 @@ export default function DashBoard() {
     <div className="flex w-full flex-col items-center gap-8 p-4">
       {!user.user && (
         <>
-          <span>Sign in to see dashboard :(</span>
+          <span>Sign in to see your progress :(</span>
           <Button
             variant="special"
             className="flex items-center justify-center gap-1 px-2 py-1 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
@@ -140,21 +143,34 @@ export default function DashBoard() {
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <div className="game-card">
                   <h3 className="text-muted-foreground mb-1">Total Games</h3>
-                  <p className="text-3xl font-bold">24</p>
+                  <p className="text-3xl font-bold">
+                    {userData?.totalGames == 0 || userData?.totalGames == null
+                      ? "Null"
+                      : userData?.totalGames}
+                  </p>
                 </div>
                 <div className="game-card">
                   <h3 className="text-muted-foreground mb-1">Win Rate</h3>
-                  <p className="text-3xl font-bold">67%</p>
+                  <p className="text-3xl font-bold">
+                    {userData?.totalGames == 0 || userData?.totalGames == null
+                      ? "N/A"
+                      : `${userData?.accuracy}%`}
+                  </p>
                 </div>
                 <div className="game-card">
                   <h3 className="text-muted-foreground mb-1">
                     Questions Answered
                   </h3>
-                  <p className="text-3xl font-bold">342</p>
+                  <p className="text-3xl font-bold">
+                    {userData?.questionAnswered == 0 ||
+                    userData?.questionAnswered == null
+                      ? "None"
+                      : userData?.questionAnswered}
+                  </p>
                 </div>
                 <div className="game-card">
                   <h3 className="text-muted-foreground mb-1">Total XP</h3>
-                  <p className="text-3xl font-bold">3,240</p>
+                  <p className="text-3xl font-bold">{userData?.totalXp}</p>
                 </div>
               </div>
 
