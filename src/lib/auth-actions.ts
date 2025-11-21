@@ -3,10 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/utils/supabase/server";
+import { supabase } from "@/backend/utils/database";
 export async function login(formData: FormData) {
-  const supabase = await createClient();
-
   // type-casting here for convenience
   // in practice, you should validate your inputs
   const data = {
@@ -20,8 +18,6 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient();
-
   // type-casting here for convenience
   // in practice, you should validate your inputs
   const firstName = formData.get("first-name") as string;
@@ -48,7 +44,6 @@ export async function signup(formData: FormData) {
 }
 
 export async function signout() {
-  const supabase = await createClient();
   const { error } = await supabase.auth.signOut();
   if (error) {
     console.log(error);

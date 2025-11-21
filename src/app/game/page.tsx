@@ -147,7 +147,7 @@ export default function GameModes() {
               <Users className="text-theme-blue h-7 w-7" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Boss Fight (coming soon)</h2>
+              <h2 className="text-2xl font-bold">Boss Fight</h2>
               <p className="text-muted-foreground">Cooperative mode</p>
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function GameModes() {
 
           <div className="flex flex-wrap gap-3">
             <div className="bg-muted rounded-full px-3 py-1 text-xs">
-              2-8 Players
+              1-8 Players
             </div>
             <div className="bg-muted rounded-full px-3 py-1 text-xs">
               Team-based

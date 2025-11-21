@@ -23,7 +23,7 @@ export default function Features() {
         </div>
 
         <div className="game-card text-center">
-          <div className="bg-theme-purple/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
             <Play className="text-theme-purple h-8 w-8" />
           </div>
           <h3 className="mb-2 text-xl font-semibold">2. Generate Questions</h3>
