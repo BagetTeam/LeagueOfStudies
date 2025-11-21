@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // return the user to an error page with some instructions
-  redirectTo.pathname = "/error";
+  // return the user to confirmation page
+  redirectTo.pathname = "/confirmation";
   return NextResponse.redirect(redirectTo);
 }

@@ -40,7 +40,7 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/signup/confirm-email");
 }
 
 export async function signout() {

@@ -22,7 +22,7 @@ export function LoginForm() {
     const error = await login(formData);
 
     if (error) {
-      redirect("/error");
+      redirect("/login/error");
     } else {
       const {
         data: { user },
