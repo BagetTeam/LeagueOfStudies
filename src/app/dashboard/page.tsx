@@ -44,7 +44,7 @@ export default function DashBoard() {
   const [userData, setUserData] = useState<Tables<"stats"> | null>(null);
   const user = useUser();
   const email = user?.user?.user_metadata.email;
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (email) {
       (async () => {
@@ -52,6 +52,7 @@ export default function DashBoard() {
         setRecentGames(games);
         const userData = await getUserStats(email);
         setUserData(userData);
+        setLoading(false);
       })();
     }
   }, [email]);
@@ -140,39 +141,42 @@ export default function DashBoard() {
               </div>
 
               {/* Quick stats */}
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <div className="game-card">
-                  <h3 className="text-muted-foreground mb-1">Total Games</h3>
-                  <p className="text-3xl font-bold">
-                    {userData?.totalGames == 0 || userData?.totalGames == null
-                      ? "Null"
-                      : userData?.totalGames}
-                  </p>
+              {loading && <div>Loading...</div>}
+              {!loading && (
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <div className="game-card">
+                    <h3 className="text-muted-foreground mb-1">Total Games</h3>
+                    <p className="text-3xl font-bold">
+                      {userData?.totalGames == 0 || userData?.totalGames == null
+                        ? "None"
+                        : userData?.totalGames}
+                    </p>
+                  </div>
+                  <div className="game-card">
+                    <h3 className="text-muted-foreground mb-1">Win Rate</h3>
+                    <p className="text-3xl font-bold">
+                      {userData?.totalGames == 0 || userData?.totalGames == null
+                        ? "N/A"
+                        : `${userData?.accuracy}%`}
+                    </p>
+                  </div>
+                  <div className="game-card">
+                    <h3 className="text-muted-foreground mb-1">
+                      Questions Answered
+                    </h3>
+                    <p className="text-3xl font-bold">
+                      {userData?.questionAnswered == 0 ||
+                      userData?.questionAnswered == null
+                        ? "None"
+                        : userData?.questionAnswered}
+                    </p>
+                  </div>
+                  <div className="game-card">
+                    <h3 className="text-muted-foreground mb-1">Total XP</h3>
+                    <p className="text-3xl font-bold">{userData?.totalXp}</p>
+                  </div>
                 </div>
-                <div className="game-card">
-                  <h3 className="text-muted-foreground mb-1">Win Rate</h3>
-                  <p className="text-3xl font-bold">
-                    {userData?.totalGames == 0 || userData?.totalGames == null
-                      ? "N/A"
-                      : `${userData?.accuracy}%`}
-                  </p>
-                </div>
-                <div className="game-card">
-                  <h3 className="text-muted-foreground mb-1">
-                    Questions Answered
-                  </h3>
-                  <p className="text-3xl font-bold">
-                    {userData?.questionAnswered == 0 ||
-                    userData?.questionAnswered == null
-                      ? "None"
-                      : userData?.questionAnswered}
-                  </p>
-                </div>
-                <div className="game-card">
-                  <h3 className="text-muted-foreground mb-1">Total XP</h3>
-                  <p className="text-3xl font-bold">{userData?.totalXp}</p>
-                </div>
-              </div>
+              )}
 
               {/* Recent games */}
               <div>
