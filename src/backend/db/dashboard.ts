@@ -4,27 +4,54 @@ import { supabase } from "../utils/database";
 export async function getUserStats(
   email: string,
 ): Promise<Tables<"stats"> | null> {
-  let res = await supabase.from("stats").select("*").eq("email", email);
+  // Use .single() for better performance and error handling
+  const { data, error } = await supabase
+    .from("stats")
+    .select("*")
+    .eq("email", email)
+    .maybeSingle();
 
-  if (res.data === null) {
+  if (error && error.code !== "PGRST116") {
+    // PGRST116 is "not found" which is expected if no row exists
+    console.error("Error fetching user stats:", error);
     return null;
   }
 
-  if (!res.count || res.count === 0) {
-    await supabase.from("stats").insert({ email });
+  // If no data exists, insert and return the new row
+  if (!data) {
+    const { data: newData, error: insertError } = await supabase
+      .from("stats")
+      .insert({ email })
+      .select()
+      .single();
 
-    res = await supabase.from("stats").select("*").eq("email", email);
-
-    if (res.data === null) {
+    if (insertError) {
+      console.error("Error inserting user stats:", insertError);
       return null;
     }
+
+    return newData satisfies Tables<"stats">;
   }
 
-  return res.data[0] satisfies Tables<"stats">;
+  return data satisfies Tables<"stats">;
 }
 
-export async function getRecentGames(email: string): Promise<Tables<"game">[]> {
-  const res = await supabase.from("game").select("*").eq("email", email);
+export async function getRecentGames(
+  email: string,
+  limit: number = 10,
+): Promise<Tables<"game">[]> {
+  // Add limit and ordering for better performance
+  const { data, error } = await supabase
+    .from("game")
+    .select("*")
+    .eq("email", email)
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
-  return (res.data ?? []) satisfies Tables<"game">[];
+  if (error) {
+    console.error("Error fetching recent games:", error);
+    return [];
+  }
+
+  return (data ?? []) satisfies Tables<"game">[];
 }

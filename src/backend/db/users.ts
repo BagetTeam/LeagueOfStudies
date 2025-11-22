@@ -5,22 +5,34 @@ export async function getUser(
   email: string,
   name: string,
 ): Promise<Tables<"users"> | null> {
-  let res = await supabase.from("users").select("*").eq("email", email);
+  // Use .single() for better performance and error handling
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email)
+    .maybeSingle();
 
-  if (res.data === null) {
+  if (error && error.code !== "PGRST116") {
+    // PGRST116 is "not found" which is expected if no row exists
+    console.error("Error fetching user:", error);
     return null;
   }
-  console.log("data", res.data);
 
-  if (!res.count || res.count === 0) {
-    await supabase.from("users").insert({ name, email });
+  // If no data exists, insert and return the new row
+  if (!data) {
+    const { data: newData, error: insertError } = await supabase
+      .from("users")
+      .insert({ name, email })
+      .select()
+      .single();
 
-    res = await supabase.from("users").select("*").eq("email", email);
-
-    if (res.data === null) {
+    if (insertError) {
+      console.error("Error inserting user:", insertError);
       return null;
     }
+
+    return newData satisfies Tables<"users">;
   }
 
-  return res.data[0] satisfies Tables<"users">;
+  return data satisfies Tables<"users">;
 }
