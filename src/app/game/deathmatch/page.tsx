@@ -33,7 +33,7 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
 
   const { gameState, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
-  const { players, currentQuestionIndex, turnStartTime, questions, subject } =
+  const { players, currentQuestionIndex, turnStartTime, questions, title } =
     lobby;
 
   const { time: TURN_DURATION_SECONDS, activePlayerIndex } = gameData;
@@ -192,7 +192,7 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
               <h1 className="flex items-center gap-2 text-xl font-semibold">
                 <Trophy className="text-theme-orange h-5 w-5" />
                 Deathmatch:
-                {subject}
+                {title}
               </h1>
             </div>
           </div>

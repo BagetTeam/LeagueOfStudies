@@ -113,7 +113,7 @@ export default function LobbyScreen() {
         fetchingRef.current = false;
       });
     }
-  }, [player.isHost, subject, questions]);
+  }, [player.isHost, title, subject, questions]);
 
   // starting game
   useEffect(() => {

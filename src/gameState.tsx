@@ -103,7 +103,7 @@ export function gameStatereducer(
           subject: action.payload.subject,
         },
       };
-    case "setTitle":
+    case "setGameTitle":
       return {
         ...state,
         lobby: {

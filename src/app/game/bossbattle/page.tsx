@@ -40,7 +40,6 @@ function BossFightGame({ gameData }: BossFightProps) {
     turnStartTime,
     playerAnswers,
     questions,
-    subject,
     title,
   } = lobby;
 
