@@ -83,6 +83,7 @@ export type GameStateActionPayloads = {
   setHost: { player: Player };
   setGameMode: { gameMode: GameMode };
   setGameSubject: { subject: string };
+  setGameTitle: { title: string };
   setName: { name: string };
   setPlayers: { players: Player[] };
   setCurrentPlayer: { player: Player };

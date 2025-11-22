@@ -10,6 +10,7 @@ export const defaultLobby = {
     data: { time: 15, activePlayerIndex: 0 },
   },
   subject: "",
+  title: "",
   questions: [],
   currentQuestionIndex: 0,
   playerAnswers: {},
@@ -100,6 +101,14 @@ export function gameStatereducer(
         lobby: {
           ...state.lobby,
           subject: action.payload.subject,
+        },
+      };
+    case "setTitle":
+      return {
+        ...state,
+        lobby: {
+          ...state.lobby,
+          title: action.payload.title,
         },
       };
 

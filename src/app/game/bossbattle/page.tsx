@@ -41,6 +41,7 @@ function BossFightGame({ gameData }: BossFightProps) {
     playerAnswers,
     questions,
     subject,
+    title,
   } = lobby;
 
   const { time: TURN_DURATION_SECONDS, bossName, bossHealth } = gameData;
@@ -274,7 +275,7 @@ function BossFightGame({ gameData }: BossFightProps) {
       <div className="container px-4 py-4">
         <GameHeader
           subject={"Hello world"}
-          topic={subject}
+          topic={title}
           roundNumber={currentQuestionIndex + 1}
         />
 

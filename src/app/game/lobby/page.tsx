@@ -17,8 +17,10 @@ import { createBroadcastPayload } from "@/utils/utils";
 export default function LobbyScreen() {
   const { gameState, dispatch, broadcastAndDispatch } = useGame();
   const { player, lobby } = gameState;
-  const { lobbyId, gameMode, subject, questions, players } = lobby;
+  const { lobbyId, gameMode, title, subject, questions, players } = lobby;
   const gameSubject = subject ?? "Rust";
+  const gameTitle = title;
+
   const user = useUser();
 
   const [studyText, setStudyText] = useState<string>("");
@@ -85,6 +87,7 @@ export default function LobbyScreen() {
           lobbyId: newLobbyId,
           gameMode: gameMode,
           subject: gameSubject,
+          title: gameTitle,
         };
         updatedPlayer.isHost = true;
         dispatch({

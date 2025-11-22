@@ -346,7 +346,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     <E extends BroadcastEventType>(
       event: E,
       payload: BroadcastingPayloads[E],
-    ) => {
+    ): void => {
       if (channelRef.current) {
         channelRef.current
           .send({
@@ -370,7 +370,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     <E extends BroadcastEventType & GameStateActionsType>(
       event: E,
       payload: BroadcastingPayloads[E] & GameStateActionPayloads[E],
-    ) => {
+    ): void => {
       sendBroadcast(event, payload);
       dispatch({
         type: event,

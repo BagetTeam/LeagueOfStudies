@@ -66,6 +66,7 @@ export default function GameModes() {
     if (subject) {
       console.log("setting subejct");
       dispatch({ type: "setGameSubject", payload: { subject: subject } });
+      dispatch({ type: "setGameTitle", payload: { title: subject } });
     }
 
     router.push("/game/lobby");
@@ -86,6 +87,7 @@ export default function GameModes() {
         };
     }
     dispatch({ type: "setGameMode", payload: { gameMode: mode } });
+    dispatch({ type: "setGameTitle", payload: { title: "Personal Notes" } });
 
     if (studyText == "") return;
     dispatch({ type: "setGameSubject", payload: { subject: studyText } });
