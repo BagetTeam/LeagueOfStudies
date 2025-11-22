@@ -6,6 +6,7 @@ import { ArrowLeft, Copy, Play, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import PlayerList from "@/components/PlayerList";
 import { useGame } from "@/GameContext";
+import { useUser } from "@/lib/UserContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getQuestions } from "@/backend/services/game-questions";
 import PDF_reader from "@/app/pdf_reader/reader";
@@ -18,6 +19,7 @@ export default function LobbyScreen() {
   const { player, lobby } = gameState;
   const { lobbyId, gameMode, subject, questions, players } = lobby;
   const gameSubject = subject ?? "Rust";
+  const user = useUser();
 
   const [studyText, setStudyText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -58,7 +60,9 @@ export default function LobbyScreen() {
   useEffect(() => {
     if (lobbyId == "") {
       const newPlayerId = crypto.randomUUID();
-      const newPlayerName = newPlayerId.substring(0, 8);
+      const newPlayerName = user.user
+        ? user.user.user_metadata.full_name.split(" ")[0]
+        : newPlayerId.substring(0, 8);
       const updatedPlayer: Player = {
         ...player,
         playerId: newPlayerId,
