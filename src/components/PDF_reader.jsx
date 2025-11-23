@@ -16,6 +16,7 @@ import { useRef } from "react";
 function PdfExtractor({ onExtract, ref }) {
   const [fileContent, setFileContent] = useState();
 
+  const myref = useRef(null);
   function extractText(event) {
     const selectedFile = event.target.files[0];
 
@@ -26,14 +27,19 @@ function PdfExtractor({ onExtract, ref }) {
       );
   }
 
+  function handleClick(e) {
+    e.stopPropagation();
+    myref.current.click();
+  }
+
   return (
-    <div className="cursor-pointer">
+    <div onClick={handleClick} ref={ref} className="cursor-pointer">
       <Button variant="normal" className="cursor-pointer gap-2">
         <input
           className="cursor-pointer"
           type="file"
           id="material pdf"
-          ref={ref}
+          ref={myref}
           onClick={(e) => {
             e.stopPropagation();
           }}
