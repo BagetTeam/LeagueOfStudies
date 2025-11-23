@@ -149,20 +149,21 @@ export default function GameModes() {
               <Users className="text-theme-blue h-7 w-7" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Boss Fight (coming soon)</h2>
+              <h2 className="text-2xl font-bold">Boss Fight </h2>
               <p className="text-muted-foreground">Cooperative mode</p>
             </div>
           </div>
 
           <p className="mb-6">
-            Team up with friends to defeat the boss! Answer questions correctly
-            to damage the boss (with 20 health). Each player has 5 lives - work
-            together to defeat the boss before anyone runs out of health!
+            Team up with friends or go on a solo adventure to defeat the boss!
+            Answer questions correctly to damage the boss (with 20 health). Each
+            player has 5 lives - work together to defeat the boss before anyone
+            runs out of health!
           </p>
 
           <div className="flex flex-wrap gap-3">
             <div className="bg-muted rounded-full px-3 py-1 text-xs">
-              2-8 Players
+              1-8 Players
             </div>
             <div className="bg-muted rounded-full px-3 py-1 text-xs">
               Team-based
