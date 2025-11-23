@@ -104,8 +104,12 @@ export default function DashBoard() {
             className="w-full"
           >
             <TabsList className="mx-auto mb-8 grid w-auto grid-cols-2">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="notes">My Notes</TabsTrigger>
+              <TabsTrigger className="hover:cursor-pointer" value="overview">
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="notes" className="hover:cursor-pointer">
+                My Notes
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-8">
