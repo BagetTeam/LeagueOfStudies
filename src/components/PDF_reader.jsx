@@ -13,22 +13,26 @@ import pdfToText from "react-pdftotext";
 import { Button, Input } from "@/ui";
 import { useRef } from "react";
 
-function PdfExtractor({ onExtract, ref }) {
+function PdfExtractor({ onExtract, ref, file }) {
   const [fileContent, setFileContent] = useState();
 
   const myref = useRef(null);
   function extractText(event) {
     const selectedFile = event.target.files[0];
-
-    pdfToText(selectedFile)
-      .then((text) => onExtract(text))
-      .catch((error) =>
-        console.error("Failed to extract text from pdf", error),
-      );
+    if (file) {
+      onExtract(selectedFile);
+      console.log(selectedFile);
+    } else {
+      pdfToText(selectedFile)
+        .then((text) => onExtract(text))
+        .catch((error) =>
+          console.error("Failed to extract text from pdf", error),
+        );
+    }
   }
 
   function handleClick(e) {
-    e.stopPropagation();
+    e.stopPropagation;
     myref.current.click();
   }
 
@@ -53,4 +57,3 @@ function PdfExtractor({ onExtract, ref }) {
 }
 
 export default PdfExtractor;
-

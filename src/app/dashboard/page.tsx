@@ -18,6 +18,7 @@ import { Tables } from "@/backend/models/database.types";
 import { getRecentGames } from "@/backend/db/dashboard";
 import { getUserStats } from "@/backend/db/dashboard";
 import { useUser } from "@/lib/UserContext";
+
 const studyNotes = [
   {
     id: 1,

@@ -3,10 +3,9 @@ import { FileText } from "lucide-react";
 import { useRef } from "react";
 import PdfExtractor from "@/components/PDF_reader";
 
-export default function PDF_reader({ onExtract }) {
+export default function PDF_reader({ file, onExtract }) {
   const clickRef = useRef(null);
   function myClick() {
-    console.log("Before click:", clickRef.current);
     clickRef.current.click();
   }
   return (
@@ -16,7 +15,7 @@ export default function PDF_reader({ onExtract }) {
         <p className="text-muted-foreground mb-2 font-medium">
           Use your own notes
         </p>
-        <PdfExtractor ref={clickRef} onExtract={onExtract} />
+        <PdfExtractor ref={clickRef} file={file} onExtract={onExtract} />
       </div>
     </div>
   );

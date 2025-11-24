@@ -239,6 +239,7 @@ export default function GameModes() {
               onExtract={(text: string) => {
                 uploadClick(text);
               }}
+              file={false}
             />
           </div>
         </>
