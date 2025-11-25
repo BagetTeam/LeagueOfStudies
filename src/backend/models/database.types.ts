@@ -56,12 +56,14 @@ export type Database = {
           id: string;
           email: string | null;
           tags: string[] | null;
+          title: string;
           path: string | null;
           subject: string | null;
         };
         Insert: {
           prim: string;
           id: string;
+          title: string;
           email: string;
           tags?: string[] | null;
           path?: string | null;
@@ -71,6 +73,7 @@ export type Database = {
           prim: string;
           id: string;
           email: string;
+          title: string;
           tags?: string[] | null;
           path?: string | null;
           subject?: string | null;

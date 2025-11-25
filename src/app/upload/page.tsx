@@ -16,31 +16,59 @@ export default function Upload() {
   const [tagInput, setTagInput] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [titleError, setTitleError] = useState(false);
+  const [subjectError, setSubjectError] = useState(false);
   const router = useRouter();
   function handleNew() {
     setFile(null);
     setUploadSuccess(false);
     setTags([]);
     setSubject("");
+    setSubjectError(false);
+    setTitleError(false);
+    setTitle("");
     setTagInput("");
     setUploading(false);
   }
   function handleUpload() {
     if (!file) return;
-
+    
+    // Validate before starting upload
+    if (!subject.trim()) {
+      setSubjectError(true);
+      return;
+    }
+    if (!title.trim()) {
+      setTitleError(true);
+      return;
+    }
+    
+    // Clear any previous errors
+    setSubjectError(false);
+    setTitleError(false);
     setUploading(true);
+    
     async function uploadFile() {
-      const file_path = `${user.user?.id}/${file?.name}`;
+      // Add timestamp to filename to avoid duplicates
+      const timestamp = Date.now();
+      const fileExtension = file?.name.split('.').pop();
+      const fileNameWithoutExt = file?.name.replace(/\.[^/.]+$/, "");
+      const uniqueFileName = `${fileNameWithoutExt}_${timestamp}.${fileExtension}`;
+      const file_path = `${user.user?.id}/${uniqueFileName}`;
+      
       try {
-        // Only insert into database if storage upload succeeded
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from("notes")
-          .upload(file_path, file);
+          .upload(file_path, file, {
+            upsert: false, // Don't overwrite, create new file
+          });
 
         if (uploadError) {
           console.error("Storage upload error:", uploadError);
+          console.error("Error details:", JSON.stringify(uploadError, null, 2));
+          setUploading(false);
           router.push("/upload/error");
-
           return;
         }
 
@@ -57,6 +85,7 @@ export default function Upload() {
         console.log("Inserting note with data:", {
           prim: key,
           id: noteId,
+          title: title,
           email: email,
           path: file_path,
           subject: subject || null,
@@ -68,6 +97,7 @@ export default function Upload() {
           .insert({
             prim: key,
             id: noteId,
+            title: title,
             email: email,
             path: file_path,
             subject: subject || null,
@@ -75,7 +105,11 @@ export default function Upload() {
           })
           .select();
         if (error) {
+          console.error("Database insert error:", error);
+          console.error("Error details:", JSON.stringify(error, null, 2));
           router.push("/upload/error");
+          setUploading(false);
+          return;
         }
         // if (error) {
         //   console.error("Database insert error:", error);
@@ -89,12 +123,12 @@ export default function Upload() {
         //   setUploadSuccess(true);
         // }
 
-        setUploading(false);
         setUploadSuccess(true);
+        setSubjectError(false);
+        setTitleError(false);
       } catch (err) {
         console.error("Upload failed:", err);
         router.push("/upload/error");
-        setUploading(false);
       } finally {
         setUploading(false);
       }
@@ -164,22 +198,60 @@ export default function Upload() {
                 </Button>
               </div>
             )}
-            <div className="space-y-2">
+            <div className="">
               <label
                 htmlFor="subject"
-                className="mb-2 text-xs font-medium sm:text-sm"
+                className="mb-6 text-xs font-medium sm:text-sm"
+              >
+                Title
+              </label>
+              <Input
+                id="title"
+                type="text"
+                placeholder="Enter note's title (mandatory)"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  if (titleError && e.target.value.trim()) {
+                    setTitleError(false);
+                  }
+                }}
+                onKeyDown={tabulate}
+                className="w-full text-sm sm:text-base"
+              />
+              {titleError && (
+                <span className="text-xs text-red-400">
+                  Title needed for note
+                </span>
+              )}
+            </div>
+
+            <div className="">
+              <label
+                htmlFor="subject"
+                className="mb-6 text-xs font-medium sm:text-sm"
               >
                 Subject
               </label>
               <Input
                 id="subject"
                 type="text"
-                placeholder="Enter subject (e.g., Mathematics, History)"
+                placeholder="Enter subject (mandatory)"
                 value={subject}
-                onChange={(e) => setSubject(e.target.value)}
+                onChange={(e) => {
+                  setSubject(e.target.value);
+                  if (subjectError && e.target.value.trim()) {
+                    setSubjectError(false);
+                  }
+                }}
                 onKeyDown={tabulate}
                 className="w-full text-sm sm:text-base"
               />
+              {subjectError && (
+                <span className="text-xs text-red-400">
+                  Subject or topic must be included
+                </span>
+              )}
             </div>
 
             <div className="space-y-2">

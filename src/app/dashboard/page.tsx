@@ -17,31 +17,46 @@ import {
 import { Tables } from "@/backend/models/database.types";
 import { getRecentGames } from "@/backend/db/dashboard";
 import { getUserStats } from "@/backend/db/dashboard";
+import { getNotes } from "@/backend/db/dashboard";
 import { useUser } from "@/lib/UserContext";
 
-const studyNotes = [
-  {
-    id: 1,
-    title: "Biology Midterm Notes",
-    topics: ["Cell Structure", "Genetics", "Ecology"],
-    questions: 45,
-  },
-  {
-    id: 2,
-    title: "History - World War II",
-    topics: ["European Theater", "Pacific Theater"],
-    questions: 30,
-  },
-  {
-    id: 3,
-    title: "Physics - Mechanics",
-    topics: ["Newton's Laws", "Kinematics"],
-    questions: 25,
-  },
-];
+// const studyNotes = [
+//   {
+//     id: 1,
+//     title: "Biology Midterm Notes",
+//     topics: ["Cell Structure", "Genetics", "Ecology"],
+//     questions: 45,
+//   },
+//   {
+//     id: 2,
+//     title: "History - World War II",
+//     topics: ["European Theater", "Pacific Theater"],
+//     questions: 30,
+//   },
+//   {
+//     id: 3,
+//     title: "Physics - Mechanics",
+//     topics: ["Newton's Laws", "Kinematics"],
+//     questions: 25,
+//   },
+// ];
+//
 
 export default function DashBoard() {
   const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
+  // const [studyNotes, setStudyNotes] = useState([]);
+  const [studyNotes, setStudyNotes] = useState<
+    {
+      prim: string;
+      id: string;
+      title: string;
+      email: string | null;
+      tags: string[] | null;
+      path: string | null;
+      subject: string | null;
+    }[]
+  >([]);
+
   const [userData, setUserData] = useState<Tables<"stats"> | null>(null);
   const user = useUser();
   const email = user?.user?.user_metadata.email;
@@ -52,7 +67,18 @@ export default function DashBoard() {
         const games = await getRecentGames(email);
         setRecentGames(games);
         const userData = await getUserStats(email);
+
         setUserData(userData);
+        if (user.user) {
+          console.log("userid", user.user.id);
+          const notes = await getNotes(user.user?.id);
+          console.log("notes", notes);
+          if (notes) {
+            setStudyNotes(notes ?? []);
+          } else {
+            setStudyNotes([]);
+          }
+        }
         setLoading(false);
       })();
     }
@@ -254,7 +280,7 @@ export default function DashBoard() {
                 </Link>
               </div>
 
-              {studyNotes.length == 0 && <div>No recent games</div>}
+              {studyNotes.length == 0 && <div>No notes uploaded :(</div>}
 
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {studyNotes.map((note) => (
@@ -262,10 +288,10 @@ export default function DashBoard() {
                     <div className="mb-3 flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <FileText className="text-theme-purple h-5 w-5" />
-                        <h3 className="font-semibold">{note.title}</h3>
+                        <h3 className="font-semibold">{note?.title}</h3>
                       </div>
                       <div className="bg-theme-purple/10 text-theme-purple rounded-full px-2 py-1 text-xs font-medium">
-                        {note.questions} questions
+                        {note.subject}
                       </div>
                     </div>
 
@@ -274,7 +300,7 @@ export default function DashBoard() {
                         Topics
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {note.topics.map((topic, i) => (
+                        {note.tags?.map((topic, i) => (
                           <span
                             key={i}
                             className="bg-muted rounded-full px-2 py-1 text-xs"
