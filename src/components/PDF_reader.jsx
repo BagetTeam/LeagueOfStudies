@@ -38,7 +38,7 @@ function PdfExtractor({ onExtract, ref, file }) {
 
   return (
     <div onClick={handleClick} ref={ref} className="cursor-pointer">
-      <Button variant="normal" className="cursor-pointer gap-2">
+      <Button variant="normal" className="cursor-pointer gap-1.5 text-xs sm:gap-2 sm:text-sm md:text-base">
         <input
           className="cursor-pointer"
           type="file"
@@ -50,7 +50,7 @@ function PdfExtractor({ onExtract, ref, file }) {
           accept=".pdf,.txt"
           onChange={extractText}
         />
-        <ArrowRight className="h-4 w-4" />
+        <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </Button>
     </div>
   );
