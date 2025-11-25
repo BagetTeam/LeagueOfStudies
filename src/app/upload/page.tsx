@@ -6,6 +6,7 @@ import PDF_reader from "../pdf_reader/reader";
 import { Input, Button } from "@/ui";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/backend/utils/database";
+import { useRouter } from "next/navigation";
 
 export default function Upload() {
   const user = useUser();
@@ -15,14 +16,15 @@ export default function Upload() {
   const [tagInput, setTagInput] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploading, setUploading] = useState(false);
-
-  const handleUploadNewFile = () => {
+  const router = useRouter();
+  function handleNew() {
     setFile(null);
-    setSubject("");
-    setTags([]);
-    setTagInput("");
     setUploadSuccess(false);
-  };
+    setTags([]);
+    setSubject("");
+    setTagInput("");
+    setUploading(false);
+  }
   function handleUpload() {
     if (!file) return;
 
@@ -31,12 +33,24 @@ export default function Upload() {
       const file_path = `${user.user?.id}/${file?.name}`;
       try {
         // Only insert into database if storage upload succeeded
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("notes")
+          .upload(file_path, file);
+
+        if (uploadError) {
+          console.error("Storage upload error:", uploadError);
+          router.push("/upload/error");
+
+          return;
+        }
+
         const noteId = user.user?.id;
         const email = user.user?.email;
         const key = crypto.randomUUID();
 
         if (!email) {
           console.error("User email is missing");
+          router.push("/upload/error");
           return;
         }
 
@@ -60,7 +74,9 @@ export default function Upload() {
             tags: tags.length > 0 ? tags : null,
           })
           .select();
-
+        if (error) {
+          router.push("/upload/error");
+        }
         // if (error) {
         //   console.error("Database insert error:", error);
         //   console.error("Error details:", JSON.stringify(error, null, 2));
@@ -72,20 +88,12 @@ export default function Upload() {
         //   console.log("Note inserted:", data);
         //   setUploadSuccess(true);
         // }
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("notes")
-          .upload(file_path, file);
-
-        if (uploadError) {
-          console.error("Storage upload error:", uploadError);
-
-          return;
-        }
 
         setUploading(false);
         setUploadSuccess(true);
       } catch (err) {
         console.error("Upload failed:", err);
+        router.push("/upload/error");
         setUploading(false);
       } finally {
         setUploading(false);
@@ -120,15 +128,14 @@ export default function Upload() {
       {user.user && (
         <div className="flex min-h-screen flex-col items-center justify-start gap-3 p-3 sm:gap-4 sm:p-4 md:gap-6 md:p-8">
           <div className="w-full max-w-2xl space-y-4 sm:space-y-5 md:space-y-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 p-0">
               <Link href="/dashboard">
                 <Button
-                  variant="ghost"
-                  className="flex items-center gap-2 text-sm"
+                  className="flex items-center gap-2 p-0 text-base"
                   aria-label="Back to dashboard"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">Dashboard</span>
+                  <span className="hidden sm:inline">Back to Dashboard</span>
                 </Button>
               </Link>
             </div>
@@ -149,7 +156,7 @@ export default function Upload() {
                   </div>
                 </div>
                 <Button
-                  onClick={handleUploadNewFile}
+                  onClick={handleNew}
                   variant="special"
                   className="bg-theme-purple hover:bg-theme-purple-dark flex-shrink-0 px-3 py-1.5 text-xs font-semibold text-white sm:px-4 sm:py-2 sm:text-sm"
                 >
