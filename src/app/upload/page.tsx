@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useUser } from "@/lib/UserContext";
 import PDF_reader from "../pdf_reader/reader";
-import { createSupClient } from "@/utils/supabase/client";
 import { Input, Button } from "@/ui";
 import { useRouter } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
+import { supabase } from "@/backend/utils/database";
 
 export default function Upload() {
   const user = useUser();
@@ -13,29 +14,16 @@ export default function Upload() {
   const [subject, setSubject] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const firstRef = useRef(true);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const router = useRouter();
   function handleUpload() {
-    if (firstRef.current) {
-      firstRef.current = false;
-      return;
-    }
     if (!file) return;
 
+    setUploading(true);
     async function uploadFile() {
-      const supabase = createSupClient();
-      const file_path = `${user.user.id}/${file.name}`;
+      const file_path = `${user.user?.id}/${file?.name}`;
       try {
-        // First, upload the file to storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("notes")
-          .upload(file_path, file);
-
-        if (uploadError) {
-          console.error("Storage upload error:", uploadError);
-          return;
-        }
-
         // Only insert into database if storage upload succeeded
         const noteId = user.user?.id;
         const email = user.user?.email;
@@ -67,19 +55,34 @@ export default function Upload() {
           })
           .select();
 
-        if (error) {
-          console.error("Database insert error:", error);
-          console.error("Error details:", JSON.stringify(error, null, 2));
-          console.error("Error code:", error.code);
-          console.error("Error message:", error.message);
-          console.error("Error hint:", error.hint);
-        } else {
-          console.log("Upload successful:", uploadData);
-          console.log("Note inserted:", data);
-          router.push("/dashboard");
+        // if (error) {
+        //   console.error("Database insert error:", error);
+        //   console.error("Error details:", JSON.stringify(error, null, 2));
+        //   console.error("Error code:", error.code);
+        //   console.error("Error message:", error.message);
+        //   console.error("Error hint:", error.hint);
+        // } else {
+        //   console.log("Upload successful:", uploadData);
+        //   console.log("Note inserted:", data);
+        //   setUploadSuccess(true);
+        // }
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("notes")
+          .upload(file_path, file);
+
+        if (uploadError) {
+          console.error("Storage upload error:", uploadError);
+
+          return;
         }
+
+        setUploading(false);
+        setUploadSuccess(true);
       } catch (err) {
         console.error("Upload failed:", err);
+        setUploading(false);
+      } finally {
+        setUploading(false);
       }
     }
     uploadFile();
@@ -102,9 +105,18 @@ export default function Upload() {
   const inputRef = useRef(null);
   const tabulate = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      inputRef.current.focus();
+      inputRef.current?.focus();
     }
   };
+
+  useEffect(() => {
+    if (uploadSuccess) {
+      const timer = setTimeout(() => {
+        router.push("/dashboard");
+      }, 2500); // Show success message for 2.5 seconds before redirecting
+      return () => clearTimeout(timer);
+    }
+  }, [uploadSuccess, router]);
 
   return (
     <>
@@ -114,6 +126,20 @@ export default function Upload() {
             <h1 className="text-theme-purple text-2xl font-bold sm:text-3xl md:text-4xl">
               Upload Your Personalized Notes
             </h1>
+            {uploadSuccess && (
+              <div className="animate-in fade-in slide-in-from-top-2 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-md">
+                <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-600" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold sm:text-base">
+                    Upload Successful!
+                  </p>
+                  <p className="text-xs text-green-700 sm:text-sm">
+                    Your file has been uploaded successfully. Redirecting to
+                    dashboard...
+                  </p>
+                </div>
+              </div>
+            )}
             <div className="space-y-2">
               <label
                 htmlFor="subject"
@@ -187,7 +213,8 @@ export default function Upload() {
                   variant="special"
                   className="bg-theme-purple hover:bg-theme-purple-dark w-full font-semibold text-white sm:mr-2 sm:h-[50%] sm:w-auto sm:px-6"
                 >
-                  Upload File
+                  {uploading && "Uploading..."}
+                  {!uploading && "Upload File"}
                 </Button>
               </div>
             )}
