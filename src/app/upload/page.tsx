@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useUser } from "@/lib/UserContext";
 import PDF_reader from "../pdf_reader/reader";
-import { supabase } from "@/backend/utils/database";
+import { createSupClient } from "@/utils/supabase/client";
 import { Input, Button } from "@/ui";
 import { useRouter } from "next/navigation";
 
@@ -23,24 +23,66 @@ export default function Upload() {
     if (!file) return;
 
     async function uploadFile() {
+      const supabase = createSupClient();
+      const file_path = `${user.user.id}/${file.name}`;
       try {
-        const { data, error } = await supabase.storage
+        // First, upload the file to storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
           .from("notes")
-          .upload(`${user.user.id}/${file.name}_${Date.now()}`, file);
-        console.log("im jorking it");
-        console.log(JSON.stringify(data));
+          .upload(file_path, file);
+
+        if (uploadError) {
+          console.error("Storage upload error:", uploadError);
+          return;
+        }
+
+        // Only insert into database if storage upload succeeded
+        const noteId = user.user?.id;
+        const email = user.user?.email;
+        const key = crypto.randomUUID();
+
+        if (!email) {
+          console.error("User email is missing");
+          return;
+        }
+
+        console.log("Inserting note with data:", {
+          prim: key,
+          id: noteId,
+          email: email,
+          path: file_path,
+          subject: subject || null,
+          tags: tags.length > 0 ? tags : null,
+        });
+
+        const { data, error } = await supabase
+          .from("notes")
+          .insert({
+            prim: key,
+            id: noteId,
+            email: email,
+            path: file_path,
+            subject: subject || null,
+            tags: tags.length > 0 ? tags : null,
+          })
+          .select();
 
         if (error) {
-          console.error("Upload error:", error);
+          console.error("Database insert error:", error);
+          console.error("Error details:", JSON.stringify(error, null, 2));
+          console.error("Error code:", error.code);
+          console.error("Error message:", error.message);
+          console.error("Error hint:", error.hint);
         } else {
-          console.log("Upload successful:", data);
+          console.log("Upload successful:", uploadData);
+          console.log("Note inserted:", data);
+          router.push("/dashboard");
         }
       } catch (err) {
         console.error("Upload failed:", err);
       }
     }
     uploadFile();
-    // router.push("/dashboard");
   }
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -73,7 +115,10 @@ export default function Upload() {
               Upload Your Personalized Notes
             </h1>
             <div className="space-y-2">
-              <label htmlFor="subject" className="mb-2 text-xs font-medium sm:text-sm">
+              <label
+                htmlFor="subject"
+                className="mb-2 text-xs font-medium sm:text-sm"
+              >
                 Subject
               </label>
               <Input
@@ -88,7 +133,10 @@ export default function Upload() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="tags" className="mb-2 text-xs font-medium sm:text-sm">
+              <label
+                htmlFor="tags"
+                className="mb-2 text-xs font-medium sm:text-sm"
+              >
                 Tags
               </label>
               <Input
@@ -112,7 +160,7 @@ export default function Upload() {
                       <button
                         type="button"
                         onClick={() => handleRemoveTag(tag)}
-                        className="hover:text-theme-purple-dark focus:outline-none text-base sm:text-lg"
+                        className="hover:text-theme-purple-dark text-base focus:outline-none sm:text-lg"
                         aria-label={`Remove ${tag} tag`}
                       >
                         ×
@@ -126,11 +174,13 @@ export default function Upload() {
             <PDF_reader file={true} onExtract={setFile} />
             {file && (
               <div className="border-border bg-background flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-4">
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-muted-foreground text-xs font-medium sm:text-sm">
                     Selected file:
                   </p>
-                  <p className="mt-1 truncate text-sm sm:text-base">{file?.name}</p>
+                  <p className="mt-1 truncate text-sm sm:text-base">
+                    {file?.name}
+                  </p>
                 </div>
                 <Button
                   onClick={handleUpload}
@@ -146,9 +196,11 @@ export default function Upload() {
       )}
       {!user.user && (
         <div className="mt-4 flex min-h-screen flex-col items-center justify-start gap-3 p-4 align-top sm:gap-4 md:gap-6">
-          <p className="text-base text-center sm:text-lg md:text-xl">Sign in to upload personal notes</p>
+          <p className="text-center text-base sm:text-lg md:text-xl">
+            Sign in to upload personal notes
+          </p>
           <button className="bg-theme-purple hover:bg-theme-purple-dark flex w-full max-w-xs items-center justify-center gap-2 rounded-lg px-6 py-2.5 font-semibold text-white transition-all sm:w-auto sm:py-2">
-            <Link href="/login" className="text-white text-sm sm:text-base">
+            <Link href="/login" className="text-sm text-white sm:text-base">
               Sign in :)
             </Link>
           </button>

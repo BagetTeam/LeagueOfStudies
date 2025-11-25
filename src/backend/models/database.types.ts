@@ -52,23 +52,26 @@ export type Database = {
       };
       notes: {
         Row: {
-          id: number;
+          prim: string;
+          id: string;
           email: string | null;
-          tags: Json | null;
+          tags: string[] | null;
           path: string | null;
           subject: string | null;
         };
         Insert: {
-          id: number;
+          prim: string;
+          id: string;
           email: string;
-          tags?: Json | null;
+          tags?: string[] | null;
           path?: string | null;
           subject?: string | null;
         };
         Update: {
-          id: number;
+          prim: string;
+          id: string;
           email: string;
-          tags?: Json | null;
+          tags?: string[] | null;
           path?: string | null;
           subject?: string | null;
         };
