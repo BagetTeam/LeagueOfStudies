@@ -4,7 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { useUser } from "@/lib/UserContext";
 import PDF_reader from "../pdf_reader/reader";
 import { supabase } from "@/backend/utils/database";
-import { Input } from "@/ui";
+import { Input, Button } from "@/ui";
+import { useRouter } from "next/navigation";
+
 export default function Upload() {
   const user = useUser();
   const [file, setFile] = useState(null);
@@ -12,19 +14,21 @@ export default function Upload() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const firstRef = useRef(true);
-  useEffect(() => {
+  const router = useRouter();
+  function handleUpload() {
     if (firstRef.current) {
       firstRef.current = false;
       return;
     }
-    console.log("im jorking it");
     if (!file) return;
 
     async function uploadFile() {
       try {
         const { data, error } = await supabase.storage
           .from("notes")
-          .upload(`${file.name}_${Date.now()}`, file);
+          .upload(`${user.user.id}/${file.name}_${Date.now()}`, file);
+        console.log("im jorking it");
+        console.log(JSON.stringify(data));
 
         if (error) {
           console.error("Upload error:", error);
@@ -36,7 +40,8 @@ export default function Upload() {
       }
     }
     uploadFile();
-  }, [file]);
+    // router.push("/dashboard");
+  }
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === ",") {
@@ -120,11 +125,20 @@ export default function Upload() {
 
             <PDF_reader file={true} onExtract={setFile} />
             {file && (
-              <div className="border-border bg-background rounded-lg border p-4">
-                <p className="text-muted-foreground text-sm font-medium">
-                  Selected file:
-                </p>
-                <p className="mt-1 text-base">{file?.name}</p>
+              <div className="border-border bg-background flex items-center justify-between space-y-4 rounded-lg border p-4">
+                <div>
+                  <p className="text-muted-foreground text-sm font-medium">
+                    Selected file:
+                  </p>
+                  <p className="mt-1 text-base">{file?.name}</p>
+                </div>
+                <Button
+                  onClick={handleUpload}
+                  variant="special"
+                  className="bg-theme-purple hover:bg-theme-purple-dark mr-2 h-[50%] font-semibold text-white"
+                >
+                  Upload File
+                </Button>
               </div>
             )}
           </div>
