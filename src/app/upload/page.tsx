@@ -1,11 +1,10 @@
 "use client";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useUser } from "@/lib/UserContext";
 import PDF_reader from "../pdf_reader/reader";
 import { Input, Button } from "@/ui";
-import { useRouter } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/backend/utils/database";
 
 export default function Upload() {
@@ -16,7 +15,14 @@ export default function Upload() {
   const [tagInput, setTagInput] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const router = useRouter();
+
+  const handleUploadNewFile = () => {
+    setFile(null);
+    setSubject("");
+    setTags([]);
+    setTagInput("");
+    setUploadSuccess(false);
+  };
   function handleUpload() {
     if (!file) return;
 
@@ -109,35 +115,46 @@ export default function Upload() {
     }
   };
 
-  useEffect(() => {
-    if (uploadSuccess) {
-      const timer = setTimeout(() => {
-        router.push("/dashboard");
-      }, 2500); // Show success message for 2.5 seconds before redirecting
-      return () => clearTimeout(timer);
-    }
-  }, [uploadSuccess, router]);
-
   return (
     <>
       {user.user && (
         <div className="flex min-h-screen flex-col items-center justify-start gap-3 p-3 sm:gap-4 sm:p-4 md:gap-6 md:p-8">
           <div className="w-full max-w-2xl space-y-4 sm:space-y-5 md:space-y-6">
+            <div className="flex items-center gap-3">
+              <Link href="/dashboard">
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 text-sm"
+                  aria-label="Back to dashboard"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                </Button>
+              </Link>
+            </div>
             <h1 className="text-theme-purple text-2xl font-bold sm:text-3xl md:text-4xl">
               Upload Your Personalized Notes
             </h1>
             {uploadSuccess && (
-              <div className="animate-in fade-in slide-in-from-top-2 flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-md">
-                <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-600" />
-                <div className="flex-1">
-                  <p className="text-sm font-semibold sm:text-base">
-                    Upload Successful!
-                  </p>
-                  <p className="text-xs text-green-700 sm:text-sm">
-                    Your file has been uploaded successfully. Redirecting to
-                    dashboard...
-                  </p>
+              <div className="animate-in fade-in slide-in-from-top-2 flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 shadow-md">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold sm:text-base">
+                      Upload Successful!
+                    </p>
+                    <p className="text-xs text-green-700 sm:text-sm">
+                      Your file has been uploaded successfully.
+                    </p>
+                  </div>
                 </div>
+                <Button
+                  onClick={handleUploadNewFile}
+                  variant="special"
+                  className="bg-theme-purple hover:bg-theme-purple-dark flex-shrink-0 px-3 py-1.5 text-xs font-semibold text-white sm:px-4 sm:py-2 sm:text-sm"
+                >
+                  Upload a New File
+                </Button>
               </div>
             )}
             <div className="space-y-2">
