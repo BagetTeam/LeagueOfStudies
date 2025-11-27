@@ -32,7 +32,7 @@ export default function GameModes() {
   const { dispatch } = useGame();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
-  const dashboardRef = useRef(null);
+  const dashboardRef = useRef<HTMLAnchorElement | null>(null);
   // clear any existing loaded lobby setups
   useEffect(() => {
     const { event, payload } = createBroadcastPayload("setLobby", {

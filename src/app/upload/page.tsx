@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 
 export default function Upload() {
   const user = useUser();
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   const [subject, setSubject] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -50,10 +50,16 @@ export default function Upload() {
     setUploading(true);
 
     async function uploadFile() {
+      // Type guard: ensure file is not null
+      if (!file) {
+        setUploading(false);
+        return;
+      }
+
       // Add timestamp to filename to avoid duplicates
       const timestamp = Date.now();
-      const fileExtension = file?.name.split(".").pop();
-      const fileNameWithoutExt = file?.name.replace(/\.[^/.]+$/, "");
+      const fileExtension = file.name.split(".").pop();
+      const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
       const uniqueFileName = `${fileNameWithoutExt}_${timestamp}.${fileExtension}`;
       const file_path = `${user.user?.id}/${uniqueFileName}`;
 
@@ -76,8 +82,8 @@ export default function Upload() {
         const email = user.user?.email;
         const key = crypto.randomUUID();
 
-        if (!email) {
-          console.error("User email is missing");
+        if (!email || !noteId) {
+          console.error("User email or id is missing");
           router.push("/upload/error");
           return;
         }
@@ -150,7 +156,7 @@ export default function Upload() {
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const tabulate = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       inputRef.current?.focus();
