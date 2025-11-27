@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Input } from "@/ui";
 import {
   Trophy,
   Users,
   Search,
   Play,
-  // ArrowRight,
-  // FileText,
+  ArrowRight,
+  FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/lib/UserContext";
 import { useGame } from "../../GameContext";
 import { GameMode } from "@/types/types";
 import { subjects } from "@/test-data/gameModeData";
@@ -18,6 +19,7 @@ import { INITIAL_BOSS_HEALTH } from "@/types/const";
 import { defaultLobby } from "@/gameState";
 import { createBroadcastPayload } from "@/utils/utils";
 import PDF_reader from "../pdf_reader/reader";
+import Link from "next/link";
 
 const defaultGameMode: GameMode = {
   type: "deathmatch",
@@ -26,10 +28,11 @@ const defaultGameMode: GameMode = {
 
 export default function GameModes() {
   const router = useRouter();
+  const user = useUser();
   const { dispatch } = useGame();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
-
+  const dashboardRef = useRef(null);
   // clear any existing loaded lobby setups
   useEffect(() => {
     const { event, payload } = createBroadcastPayload("setLobby", {
@@ -45,6 +48,36 @@ export default function GameModes() {
         topic.toLowerCase().includes(searchQuery.toLowerCase()),
       ),
   );
+
+  function handleDashOrigin() {
+    let mode: GameMode = defaultGameMode;
+    if (selectedMode) {
+      if (selectedMode === "deathmatch")
+        mode = { type: selectedMode, data: { activePlayerIndex: 0, time: 15 } };
+      else if (selectedMode === "bossfight")
+        mode = {
+          type: selectedMode,
+          data: {
+            bossName: "teacher Bob",
+            bossHealth: INITIAL_BOSS_HEALTH,
+            time: 20,
+          },
+        };
+    }
+    dispatch({ type: "setGameMode", payload: { gameMode: mode } });
+    const title = sessionStorage.getItem("gameTitle");
+    const subject = sessionStorage.getItem("gameSubject");
+    if (title) {
+      dispatch({ type: "setGameTitle", payload: { title: title } });
+    }
+
+    if (subject) {
+      dispatch({ type: "setGameSubject", payload: { subject: subject } });
+    }
+    sessionStorage.removeItem("gameTitle");
+    sessionStorage.removeItem("gameSubject");
+    router.push("/game/lobby");
+  }
 
   function handlePickSubject(subject: string) {
     let mode: GameMode = defaultGameMode;
@@ -106,7 +139,12 @@ export default function GameModes() {
       <div className="mb-12 grid gap-6 md:grid-cols-2">
         <div
           className={`game-card hover:border-theme-orange cursor-pointer transition-all ${selectedMode === "deathmatch" ? "border-theme-orange ring-theme-orange/20 ring-2" : ""}`}
-          onClick={() => setSelectedMode("deathmatch")}
+          onClick={() => {
+            setSelectedMode("deathmatch");
+            if (sessionStorage.getItem("gameSubject")) {
+              handleDashOrigin();
+            }
+          }}
         >
           <div className="mb-4 flex items-center gap-4">
             <div className="bg-theme-orange/20 flex h-14 w-14 items-center justify-center rounded-full">
@@ -142,6 +180,9 @@ export default function GameModes() {
           className={`game-card hover:border-theme-blue cursor-pointer transition-all ${selectedMode === "bossfight" ? "border-theme-blue ring-theme-blue/20 ring-2" : ""}`}
           onClick={() => {
             setSelectedMode("bossfight");
+            if (sessionStorage.getItem("gameSubject")) {
+              handleDashOrigin();
+            }
           }}
         >
           <div className="mb-4 flex items-center gap-4">
@@ -176,7 +217,7 @@ export default function GameModes() {
       </div>
 
       {/* Subject selection */}
-      {selectedMode && (
+      {selectedMode && !sessionStorage.getItem("gameTitle") && (
         <>
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-2xl font-semibold">Choose a Subject</h2>
@@ -225,21 +266,34 @@ export default function GameModes() {
               </div>
             ))}
 
-            {/* <div className="hover:border-theme-purple/50 hover:bg-muted/50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors"> */}
-            {/*   <FileText className="text-muted-foreground mb-2 h-8 w-8" /> */}
-            {/*   <p className="text-muted-foreground mb-2 font-medium"> */}
-            {/*     Use your own notes */}
-            {/*   </p> */}
-            {/*   <Button variant="normal" className="gap-2"> */}
-            {/*     Upload Notes */}
-            {/*     <ArrowRight className="h-4 w-4" /> */}
-            {/*   </Button> */}
-            {/* </div> */}
-            <PDF_reader
-              onExtract={(text: string) => {
-                uploadClick(text);
-              }}
-            />
+            {user.user && (
+              <div
+                onClick={() => {
+                  dashboardRef.current?.click();
+                }}
+                className="hover:border-theme-purple/50 hover:bg-muted/50 flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors hover:cursor-pointer"
+              >
+                <FileText className="text-muted-foreground mb-2 h-8 w-8" />
+                <p className="text-muted-foreground mb-2 font-medium">
+                  Use your own notes
+                </p>
+                <Link ref={dashboardRef} href={"/dashboard"}>
+                  <Button variant="normal" className="gap-2">
+                    Go to Dashboard
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            )}
+
+            {!user.user && (
+              <PDF_reader
+                onExtract={(text: string) => {
+                  uploadClick(text);
+                }}
+                file={false}
+              />
+            )}
           </div>
         </>
       )}

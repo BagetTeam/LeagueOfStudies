@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui";
+import { useRouter } from "next/navigation";
 import {
   FileText,
   Upload,
@@ -14,44 +15,104 @@ import {
   Users,
   // Star,
 } from "lucide-react";
+import { useGame } from "@/GameContext";
 import { Tables } from "@/backend/models/database.types";
 import { getRecentGames } from "@/backend/db/dashboard";
 import { getUserStats } from "@/backend/db/dashboard";
+import { getNotes } from "@/backend/db/dashboard";
 import { useUser } from "@/lib/UserContext";
-const studyNotes = [
-  {
-    id: 1,
-    title: "Biology Midterm Notes",
-    topics: ["Cell Structure", "Genetics", "Ecology"],
-    questions: 45,
-  },
-  {
-    id: 2,
-    title: "History - World War II",
-    topics: ["European Theater", "Pacific Theater"],
-    questions: 30,
-  },
-  {
-    id: 3,
-    title: "Physics - Mechanics",
-    topics: ["Newton's Laws", "Kinematics"],
-    questions: 25,
-  },
-];
+import { supabase } from "@/backend/utils/database";
+import pdfToText from "react-pdftotext";
+
+// const studyNotes = [
+//   {
+//     id: 1,
+//     title: "Biology Midterm Notes",
+//     topics: ["Cell Structure", "Genetics", "Ecology"],
+//     questions: 45,
+//   },
+//   {
+//     id: 2,
+//     title: "History - World War II",
+//     topics: ["European Theater", "Pacific Theater"],
+//     questions: 30,
+//   },
+//   {
+//     id: 3,
+//     title: "Physics - Mechanics",
+//     topics: ["Newton's Laws", "Kinematics"],
+//     questions: 25,
+//   },
+// ];
+//
 
 export default function DashBoard() {
   const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
+  // const [studyNotes, setStudyNotes] = useState([]);
+  const router = useRouter();
+  const { gameState, dispatch } = useGame();
+  const [studyNotes, setStudyNotes] = useState<
+    {
+      prim: string;
+      id: string;
+      title: string;
+      email: string | null;
+      tags: string[] | null;
+      path: string | null;
+      subject: string | null;
+    }[]
+  >([]);
+  // const { dispatch } = useGame();
   const [userData, setUserData] = useState<Tables<"stats"> | null>(null);
   const user = useUser();
   const email = user?.user?.user_metadata.email;
   const [loading, setLoading] = useState(true);
+  async function practice(path: string | null, title: string) {
+    if (path) {
+      try {
+        const { data, error } = await supabase.storage
+          .from("notes")
+          .download(path);
+
+        if (error) {
+          console.error("Error downloading file:", error);
+
+          return;
+        }
+
+        const file = new File([data], path, { type: "application/pdf" });
+        const text = await pdfToText(file);
+        // Store in sessionStorage to persist across navigation
+        sessionStorage.setItem("gameTitle", title);
+        sessionStorage.setItem("gameSubject", text);
+        console.log(
+          sessionStorage.getItem("gameTitle"),
+          sessionStorage.getItem("gameSubject"),
+        );
+        router.push(`/game?source`);
+      } catch (err) {
+        console.error("Error accessing file:", err);
+      }
+    }
+  }
   useEffect(() => {
     if (email) {
       (async () => {
         const games = await getRecentGames(email);
         setRecentGames(games);
         const userData = await getUserStats(email);
+
         setUserData(userData);
+        if (user.user) {
+          console.log("userid", user.user.id);
+          const notes = await getNotes(user.user?.id);
+          console.log("notes", notes);
+          if (notes) {
+            setStudyNotes(notes ?? []);
+          } else {
+            setStudyNotes([]);
+          }
+        }
         setLoading(false);
       })();
     }
@@ -104,10 +165,16 @@ export default function DashBoard() {
             className="w-full"
           >
             <TabsList className="mx-auto mb-8 grid w-auto grid-cols-2">
-              <TabsTrigger className="hover:cursor-pointer" value="overview">
+              <TabsTrigger
+                className={`hover:cursor-pointer ${activeTab === "overview" ? "font-bold underline" : ""}`}
+                value="overview"
+              >
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="notes" className="hover:cursor-pointer">
+              <TabsTrigger
+                value="notes"
+                className={`hover:cursor-pointer ${activeTab === "notes" ? "font-bold underline" : ""}`}
+              >
                 My Notes
               </TabsTrigger>
             </TabsList>
@@ -253,18 +320,18 @@ export default function DashBoard() {
                 </Link>
               </div>
 
-              {studyNotes.length == 0 && <div>No recent games</div>}
+              {studyNotes.length == 0 && <div>No notes uploaded :(</div>}
 
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {studyNotes.map((note) => (
-                  <div key={note.id} className="game-card">
+                  <div key={note.prim} className="game-card">
                     <div className="mb-3 flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <FileText className="text-theme-purple h-5 w-5" />
-                        <h3 className="font-semibold">{note.title}</h3>
+                        <h3 className="font-semibold">{note?.title}</h3>
                       </div>
                       <div className="bg-theme-purple/10 text-theme-purple rounded-full px-2 py-1 text-xs font-medium">
-                        {note.questions} questions
+                        {note.subject}
                       </div>
                     </div>
 
@@ -273,7 +340,7 @@ export default function DashBoard() {
                         Topics
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {note.topics.map((topic, i) => (
+                        {note.tags?.slice(0, 3).map((topic, i) => (
                           <span
                             key={i}
                             className="bg-muted rounded-full px-2 py-1 text-xs"
@@ -286,7 +353,13 @@ export default function DashBoard() {
 
                     <div className="flex gap-2">
                       <Button variant="normal">Edit</Button>
-                      <Button variant="normal" className="text-theme-purple">
+                      <Button
+                        variant="normal"
+                        onClick={() => {
+                          practice(note?.path, note.title);
+                        }}
+                        className="text-theme-purple"
+                      >
                         Practice
                       </Button>
                     </div>

@@ -35,6 +35,20 @@ export async function getUserStats(
 
   return data satisfies Tables<"stats">;
 }
+export async function getNotes(id: string, limit: number = 10) {
+  const { data, error } = await supabase
+    .from("notes")
+    .select("*")
+    .eq("id", id)
+    .order("path", { ascending: false })
+    .limit(limit);
+  if (error && error.code !== "PGRST116") {
+    // PGRST116 is "not found" which is expected if no row exists
+    console.error("Error fetching user notes:", error);
+    return null;
+  }
+  return (data ?? []) satisfies Tables<"notes">[];
+}
 
 export async function getRecentGames(
   email: string,

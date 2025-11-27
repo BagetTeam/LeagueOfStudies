@@ -82,7 +82,7 @@
 
 .game-card::before {
   content: "";
-  @apply bg-theme-purple-light/30 absolute -top-10 -right-10 h-24 w-24 rounded-full blur-xl;
+  @apply h-24 w-24 rounded-full blur-xl;
 }
 
 .game-button {
@@ -208,15 +208,15 @@ body {
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .navbar-container::-webkit-scrollbar {
     height: 4px;
   }
-  
+
   .navbar-container::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .navbar-container::-webkit-scrollbar-thumb {
     background: hsl(var(--muted-foreground));
     border-radius: 2px;
