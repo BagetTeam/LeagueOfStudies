@@ -1,6 +1,6 @@
 import { supabase } from "../utils/database";
 
-export async function getNotes(id: number) {
+export async function getNotes(id: string) {
   const { data, error } = await supabase
     .from("notes")
     .select("*")
