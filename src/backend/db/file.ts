@@ -1,4 +1,3 @@
-import { Json } from "../models/database.types";
 import { supabase } from "../utils/database";
 
 export async function getNotes(id: number) {
@@ -13,10 +12,3 @@ export async function getNotes(id: number) {
   }
   return data;
 }
-export async function uploadNotes(
-  id: number,
-  email: string,
-  tags: Json,
-  subject: string,
-  path: string,
-) {}
