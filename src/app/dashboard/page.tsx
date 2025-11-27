@@ -82,10 +82,14 @@ export default function DashBoard() {
 
         const file = new File([data], path, { type: "application/pdf" });
         const text = await pdfToText(file);
-        dispatch({ type: "setGameSubject", payload: { subject: text } });
-        dispatch({ type: "setGameTitle", payload: { title: title } });
-        console.log(gameState.lobby.title, gameState.lobby.subject);
-        router.push(`/game?source=dash`);
+        // Store in sessionStorage to persist across navigation
+        sessionStorage.setItem("gameTitle", title);
+        sessionStorage.setItem("gameSubject", text);
+        console.log(
+          sessionStorage.getItem("gameTitle"),
+          sessionStorage.getItem("gameSubject"),
+        );
+        router.push(`/game?source`);
       } catch (err) {
         console.error("Error accessing file:", err);
       }
@@ -161,10 +165,16 @@ export default function DashBoard() {
             className="w-full"
           >
             <TabsList className="mx-auto mb-8 grid w-auto grid-cols-2">
-              <TabsTrigger className="hover:cursor-pointer" value="overview">
+              <TabsTrigger
+                className={`hover:cursor-pointer ${activeTab === "overview" ? "font-bold underline" : ""}`}
+                value="overview"
+              >
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="notes" className="hover:cursor-pointer">
+              <TabsTrigger
+                value="notes"
+                className={`hover:cursor-pointer ${activeTab === "notes" ? "font-bold underline" : ""}`}
+              >
                 My Notes
               </TabsTrigger>
             </TabsList>
