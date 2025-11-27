@@ -202,7 +202,10 @@ export default function LobbyScreen() {
             className="h-56 w-full max-w-3xl resize-none rounded-lg border border-gray-300 p-4 text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           <div className="my-8">
-            <PDF_reader onExtract={(text: string) => setStudyText(text)} />
+            <PDF_reader
+              file={false}
+              onExtract={(text: string) => setStudyText(text)}
+            />
           </div>
           <button
             onClick={async () => {

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui";
+import { useRouter } from "next/navigation";
 import {
   FileText,
   Upload,
@@ -14,11 +15,14 @@ import {
   Users,
   // Star,
 } from "lucide-react";
+import { useGame } from "@/GameContext";
 import { Tables } from "@/backend/models/database.types";
 import { getRecentGames } from "@/backend/db/dashboard";
 import { getUserStats } from "@/backend/db/dashboard";
 import { getNotes } from "@/backend/db/dashboard";
 import { useUser } from "@/lib/UserContext";
+import { supabase } from "@/backend/utils/database";
+import pdfToText from "react-pdftotext";
 
 // const studyNotes = [
 //   {
@@ -45,6 +49,8 @@ import { useUser } from "@/lib/UserContext";
 export default function DashBoard() {
   const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
   // const [studyNotes, setStudyNotes] = useState([]);
+  const router = useRouter();
+  const { gameState, dispatch } = useGame();
   const [studyNotes, setStudyNotes] = useState<
     {
       prim: string;
@@ -56,11 +62,35 @@ export default function DashBoard() {
       subject: string | null;
     }[]
   >([]);
-
+  // const { dispatch } = useGame();
   const [userData, setUserData] = useState<Tables<"stats"> | null>(null);
   const user = useUser();
   const email = user?.user?.user_metadata.email;
   const [loading, setLoading] = useState(true);
+  async function practice(path: string | null, title: string) {
+    if (path) {
+      try {
+        const { data, error } = await supabase.storage
+          .from("notes")
+          .download(path);
+
+        if (error) {
+          console.error("Error downloading file:", error);
+
+          return;
+        }
+
+        const file = new File([data], path, { type: "application/pdf" });
+        const text = await pdfToText(file);
+        dispatch({ type: "setGameSubject", payload: { subject: text } });
+        dispatch({ type: "setGameTitle", payload: { title: title } });
+        console.log(gameState.lobby.title, gameState.lobby.subject);
+        router.push(`/game?source=dash`);
+      } catch (err) {
+        console.error("Error accessing file:", err);
+      }
+    }
+  }
   useEffect(() => {
     if (email) {
       (async () => {
@@ -284,7 +314,7 @@ export default function DashBoard() {
 
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {studyNotes.map((note) => (
-                  <div key={note.id} className="game-card">
+                  <div key={note.prim} className="game-card">
                     <div className="mb-3 flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <FileText className="text-theme-purple h-5 w-5" />
@@ -300,7 +330,7 @@ export default function DashBoard() {
                         Topics
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {note.tags?.map((topic, i) => (
+                        {note.tags?.slice(0, 3).map((topic, i) => (
                           <span
                             key={i}
                             className="bg-muted rounded-full px-2 py-1 text-xs"
@@ -313,7 +343,13 @@ export default function DashBoard() {
 
                     <div className="flex gap-2">
                       <Button variant="normal">Edit</Button>
-                      <Button variant="normal" className="text-theme-purple">
+                      <Button
+                        variant="normal"
+                        onClick={() => {
+                          practice(note?.path, note.title);
+                        }}
+                        className="text-theme-purple"
+                      >
                         Practice
                       </Button>
                     </div>

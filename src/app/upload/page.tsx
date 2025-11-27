@@ -33,7 +33,7 @@ export default function Upload() {
   }
   function handleUpload() {
     if (!file) return;
-    
+
     // Validate before starting upload
     if (!subject.trim()) {
       setSubjectError(true);
@@ -43,20 +43,20 @@ export default function Upload() {
       setTitleError(true);
       return;
     }
-    
+
     // Clear any previous errors
     setSubjectError(false);
     setTitleError(false);
     setUploading(true);
-    
+
     async function uploadFile() {
       // Add timestamp to filename to avoid duplicates
       const timestamp = Date.now();
-      const fileExtension = file?.name.split('.').pop();
+      const fileExtension = file?.name.split(".").pop();
       const fileNameWithoutExt = file?.name.replace(/\.[^/.]+$/, "");
       const uniqueFileName = `${fileNameWithoutExt}_${timestamp}.${fileExtension}`;
       const file_path = `${user.user?.id}/${uniqueFileName}`;
-      
+
       try {
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from("notes")

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Theme } from "@radix-ui/themes";
 import NavBar from "../components/NavBar";
 import { AuthProvider } from "@/lib/UserContext";
+import { GameProvider } from "@/GameContext";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -37,10 +38,12 @@ export default async function RootLayout({
         className={`${spaceMono.variable} bg-primary/10 w-[100vw] overflow-x-hidden antialiased`}
       >
         <AuthProvider>
-          <Theme>
-            <NavBar />
-            {children}
-          </Theme>
+          <GameProvider>
+            <Theme>
+              <NavBar />
+              {children}
+            </Theme>
+          </GameProvider>
         </AuthProvider>
       </body>
     </html>

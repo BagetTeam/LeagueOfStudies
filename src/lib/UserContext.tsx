@@ -13,7 +13,9 @@ import { createSupClient } from "@/utils/supabase/client";
 
 interface UserContextType {
   user: User | null;
+  bearer: string | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  setBearer: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -24,6 +26,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [bearer, setBearer] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createSupClient();
@@ -33,6 +36,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
+      const { data } = await supabase.auth.getSession();
+      const key = data?.session?.access_token;
+      setBearer(key ?? null);
     };
 
     fetchUser();
@@ -41,7 +47,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log(event, session);
+      console.log("event", event, "session", session);
 
       // When signed out, session is null, so set user to null immediately
       if (event === "SIGNED_OUT" || !session) {
@@ -51,6 +57,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // For other events, update user from session or fetch fresh
       setUser(session.user);
+      setBearer(session.access_token);
       // Fallback: fetch user if not in session
     });
 
@@ -61,7 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ bearer, setBearer, user, setUser }}>
       {children}
     </UserContext.Provider>
   );
