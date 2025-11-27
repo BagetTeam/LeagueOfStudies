@@ -114,9 +114,9 @@ export default function GameModes() {
           className={`game-card hover:border-theme-orange cursor-pointer transition-all ${selectedMode === "deathmatch" ? "border-theme-orange ring-theme-orange/20 ring-2" : ""}`}
           onClick={() => {
             setSelectedMode("deathmatch");
-            if (url_origin) {
-              router.push("/game/lobby");
-            }
+            // if (url_origin) {
+            //   router.push("/game/lobby");
+            // }
           }}
         >
           <div className="mb-4 flex items-center gap-4">
@@ -153,9 +153,19 @@ export default function GameModes() {
           className={`game-card hover:border-theme-blue cursor-pointer transition-all ${selectedMode === "bossfight" ? "border-theme-blue ring-theme-blue/20 ring-2" : ""}`}
           onClick={() => {
             setSelectedMode("bossfight");
-            if (url_origin) {
-              router.push("game/lobby");
-            }
+            // if (url_origin) {
+            //   const mode = {
+            //     type: selectedMode,
+            //     data: {
+            //       bossName: "teacher Bob",
+            //       bossHealth: INITIAL_BOSS_HEALTH,
+            //       time: 20,
+            //     },
+            //   };
+            //
+            //   dispatch({ type: "setGameMode", payload: { gameMode: mode } });
+            //   router.push("game/lobby");
+            // }
           }}
         >
           <div className="mb-4 flex items-center gap-4">
