@@ -58,7 +58,7 @@ export default function Upload() {
       const file_path = `${user.user?.id}/${uniqueFileName}`;
 
       try {
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from("notes")
           .upload(file_path, file, {
             upsert: false, // Don't overwrite, create new file
@@ -92,7 +92,7 @@ export default function Upload() {
           tags: tags.length > 0 ? tags : null,
         });
 
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from("notes")
           .insert({
             prim: key,

@@ -15,7 +15,6 @@ import {
   Users,
   // Star,
 } from "lucide-react";
-import { useGame } from "@/GameContext";
 import { Tables } from "@/backend/models/database.types";
 import { getRecentGames } from "@/backend/db/dashboard";
 import { getUserStats } from "@/backend/db/dashboard";
@@ -50,7 +49,6 @@ export default function DashBoard() {
   const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
   // const [studyNotes, setStudyNotes] = useState([]);
   const router = useRouter();
-  const { gameState, dispatch } = useGame();
   const [studyNotes, setStudyNotes] = useState<
     {
       prim: string;
