@@ -46,7 +46,7 @@ import pdfToText from "react-pdftotext";
 //
 
 export default function DashBoard() {
-  const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
+  // const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
   // const [studyNotes, setStudyNotes] = useState([]);
   const router = useRouter();
   const [studyNotes, setStudyNotes] = useState<
@@ -96,8 +96,6 @@ export default function DashBoard() {
   useEffect(() => {
     if (email) {
       (async () => {
-        const games = await getRecentGames(email);
-        setRecentGames(games);
         const userData = await getUserStats(email);
 
         setUserData(userData);
@@ -116,7 +114,7 @@ export default function DashBoard() {
     }
   }, [email]);
 
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("notes");
 
   return (
     <div className="flex w-full flex-col items-center gap-8 p-4">
@@ -164,16 +162,16 @@ export default function DashBoard() {
           >
             <TabsList className="mx-auto mb-8 grid w-auto grid-cols-2">
               <TabsTrigger
-                className={`hover:cursor-pointer ${activeTab === "overview" ? "font-bold underline" : ""}`}
-                value="overview"
-              >
-                Overview
-              </TabsTrigger>
-              <TabsTrigger
                 value="notes"
                 className={`hover:cursor-pointer ${activeTab === "notes" ? "font-bold underline" : ""}`}
               >
                 My Notes
+              </TabsTrigger>
+              <TabsTrigger
+                className={`hover:cursor-pointer ${activeTab === "overview" ? "font-bold underline" : ""}`}
+                value="overview"
+              >
+                Stats
               </TabsTrigger>
             </TabsList>
 
@@ -194,12 +192,15 @@ export default function DashBoard() {
                   <h3 className="font-medium">Start Game</h3>
                 </Link>
 
-                <Link href="/friends" className="game-card p-4 text-center">
-                  <div className="bg-theme-blue/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+                <div
+                  onClick={() => alert("You're playing this game alone :(")}
+                  className="game-card p-4 text-center"
+                >
+                  <div className="bg-theme-blue/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full hover:cursor-pointer">
                     <Users className="text-theme-blue h-5 w-5" />
                   </div>
                   <h3 className="font-medium">Find Friends</h3>
-                </Link>
+                </div>
 
                 <Link href="/leaderboard" className="game-card p-4 text-center">
                   <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
@@ -248,63 +249,63 @@ export default function DashBoard() {
               )}
 
               {/* Recent games */}
-              <div>
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-xl font-semibold">Recent Games</h2>
-                </div>
-                <span className="border-border mb-4 block border-b"></span>
-                {recentGames.length == 0 && <div>No recent games</div>}
-                {recentGames.length != 0 && (
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr className="border-border border-b">
-                          <th className="px-4 py-3 text-left">Mode</th>
-                          <th className="px-4 py-3 text-left">Subject</th>
-                          <th className="px-4 py-3 text-left">Topic</th>
-                          <th className="px-4 py-3 text-left">Date</th>
-                          <th className="px-4 py-3 text-left">Result</th>
-                          <th className="px-4 py-3 text-left">Score</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentGames.map((game) => (
-                          <tr
-                            key={game.id}
-                            className="hover:bg-muted/50 border-border border-b transition-colors"
-                          >
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-2">
-                                {game.mode === "Deathmatch" ? (
-                                  <Trophy className="text-theme-orange h-4 w-4" />
-                                ) : (
-                                  <Users className="text-theme-blue h-4 w-4" />
-                                )}
-                                {game.mode}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3">{game.subject}</td>
-                            <td className="px-4 py-3">{game.topic}</td>
-                            <td className="text-muted-foreground px-4 py-3">
-                              {game.date}
-                            </td>
-                            <td className="px-4 py-3">
-                              <span
-                                className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${game.result === "Won" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-                              >
-                                {game.result}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 font-semibold">
-                              {game.score}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
+              {/* <div> */}
+              {/*   <div className="mb-4 flex items-center justify-between"> */}
+              {/*     <h2 className="text-xl font-semibold">Recent Games</h2> */}
+              {/*   </div> */}
+              {/*   <span className="border-border mb-4 block border-b"></span> */}
+              {/*   {recentGames.length == 0 && <div>No recent games</div>} */}
+              {/*   {recentGames.length != 0 && ( */}
+              {/*     <div className="overflow-x-auto"> */}
+              {/*       <table className="w-full border-collapse"> */}
+              {/*         <thead> */}
+              {/*           <tr className="border-border border-b"> */}
+              {/*             <th className="px-4 py-3 text-left">Mode</th> */}
+              {/*             <th className="px-4 py-3 text-left">Subject</th> */}
+              {/*             <th className="px-4 py-3 text-left">Topic</th> */}
+              {/*             <th className="px-4 py-3 text-left">Date</th> */}
+              {/*             <th className="px-4 py-3 text-left">Result</th> */}
+              {/*             <th className="px-4 py-3 text-left">Score</th> */}
+              {/*           </tr> */}
+              {/*         </thead> */}
+              {/*         <tbody> */}
+              {/*           {recentGames.map((game) => ( */}
+              {/*             <tr */}
+              {/*               key={game.id} */}
+              {/*               className="hover:bg-muted/50 border-border border-b transition-colors" */}
+              {/*             > */}
+              {/*               <td className="px-4 py-3"> */}
+              {/*                 <div className="flex items-center gap-2"> */}
+              {/*                   {game.mode === "Deathmatch" ? ( */}
+              {/*                     <Trophy className="text-theme-orange h-4 w-4" /> */}
+              {/*                   ) : ( */}
+              {/*                     <Users className="text-theme-blue h-4 w-4" /> */}
+              {/*                   )} */}
+              {/*                   {game.mode} */}
+              {/*                 </div> */}
+              {/*               </td> */}
+              {/*               <td className="px-4 py-3">{game.subject}</td> */}
+              {/*               <td className="px-4 py-3">{game.topic}</td> */}
+              {/*               <td className="text-muted-foreground px-4 py-3"> */}
+              {/*                 {game.date} */}
+              {/*               </td> */}
+              {/*               <td className="px-4 py-3"> */}
+              {/*                 <span */}
+              {/*                   className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${game.result === "Won" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`} */}
+              {/*                 > */}
+              {/*                   {game.result} */}
+              {/*                 </span> */}
+              {/*               </td> */}
+              {/*               <td className="px-4 py-3 font-semibold"> */}
+              {/*                 {game.score} */}
+              {/*               </td> */}
+              {/*             </tr> */}
+              {/*           ))} */}
+              {/*         </tbody> */}
+              {/*       </table> */}
+              {/*     </div> */}
+              {/*   )} */}
+              {/* </div> */}
             </TabsContent>
 
             <TabsContent value="notes">
@@ -350,7 +351,14 @@ export default function DashBoard() {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button variant="normal">Edit</Button>
+                      <Button
+                        variant="normal"
+                        onClick={() => {
+                          router.push(`/dashboard/view/${note.prim}`);
+                        }}
+                      >
+                        View Note
+                      </Button>
                       <Button
                         variant="normal"
                         onClick={() => {

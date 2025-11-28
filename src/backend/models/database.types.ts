@@ -59,6 +59,7 @@ export type Database = {
           title: string;
           path: string | null;
           subject: string | null;
+          comments: string[] | null;
         };
         Insert: {
           prim: string;
@@ -67,6 +68,7 @@ export type Database = {
           email: string;
           tags?: string[] | null;
           path?: string | null;
+          comments: string[] | null;
           subject?: string | null;
         };
         Update: {
@@ -77,6 +79,7 @@ export type Database = {
           tags?: string[] | null;
           path?: string | null;
           subject?: string | null;
+          comments: string[] | null;
         };
         Relationships: [
           {
