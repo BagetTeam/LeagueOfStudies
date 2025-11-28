@@ -38,7 +38,10 @@ function PdfExtractor({ onExtract, ref, file }) {
 
   return (
     <div onClick={handleClick} ref={ref} className="cursor-pointer">
-      <Button variant="normal" className="cursor-pointer gap-1.5 text-xs sm:gap-2 sm:text-sm md:text-base">
+      <Button
+        variant="normal"
+        className="cursor-pointer gap-1.5 text-xs sm:gap-2 sm:text-sm md:text-base"
+      >
         <input
           className="cursor-pointer"
           type="file"
@@ -47,7 +50,7 @@ function PdfExtractor({ onExtract, ref, file }) {
           onClick={(e) => {
             e.stopPropagation();
           }}
-          accept=".pdf,.txt"
+          accept=".pdf"
           onChange={extractText}
         />
         <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
