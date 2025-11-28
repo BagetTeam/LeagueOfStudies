@@ -16,9 +16,7 @@ import {
   // Star,
 } from "lucide-react";
 import { Tables } from "@/backend/models/database.types";
-import { getRecentGames } from "@/backend/db/dashboard";
-import { getUserStats } from "@/backend/db/dashboard";
-import { getNotes } from "@/backend/db/dashboard";
+import { getUserStats, getNotes } from "@/backend/db/dashboard";
 import { useUser } from "@/lib/UserContext";
 import { supabase } from "@/backend/utils/database";
 import pdfToText from "react-pdftotext";
@@ -94,25 +92,24 @@ export default function DashBoard() {
     }
   }
   useEffect(() => {
-    if (email) {
+    if (email && user.user?.id) {
+      const userId = user.user.id;
       (async () => {
         const userData = await getUserStats(email);
 
         setUserData(userData);
-        if (user.user) {
-          console.log("userid", user.user.id);
-          const notes = await getNotes(user.user?.id);
-          console.log("notes", notes);
-          if (notes) {
-            setStudyNotes(notes ?? []);
-          } else {
-            setStudyNotes([]);
-          }
+        console.log("userid", userId);
+        const notes = await getNotes(userId);
+        console.log("notes", notes);
+        if (notes) {
+          setStudyNotes(notes ?? []);
+        } else {
+          setStudyNotes([]);
         }
         setLoading(false);
       })();
     }
-  }, [email]);
+  }, [email, user.user?.id]);
 
   const [activeTab, setActiveTab] = useState("notes");
 

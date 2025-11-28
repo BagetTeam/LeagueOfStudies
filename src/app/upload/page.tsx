@@ -108,6 +108,7 @@ export default function Upload() {
             path: file_path,
             subject: subject || null,
             tags: tags.length > 0 ? tags : null,
+            comments: null,
           })
           .select();
         if (error) {

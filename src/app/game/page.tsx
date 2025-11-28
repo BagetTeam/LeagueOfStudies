@@ -39,7 +39,7 @@ export default function GameModes() {
       lobby: defaultLobby,
     });
     dispatch({ type: event, payload: payload });
-  }, []);
+  }, [dispatch]);
 
   const filteredSubjects = subjects.filter(
     (subject) =>

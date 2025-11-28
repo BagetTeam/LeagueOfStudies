@@ -2,7 +2,7 @@
 
 import { Trophy, ArrowLeft, Heart, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useGame } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
@@ -48,15 +48,41 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
 
   const currentQuestion = useMemo(
     () => questions[currentQuestionIndex % questions.length],
-    [currentQuestionIndex],
+    [currentQuestionIndex, questions],
   );
 
   const activePlayer = useMemo(
     () => players[activePlayerIndex],
-    [activePlayerIndex],
+    [activePlayerIndex, players],
   );
 
   const isGameOver = !players.find((p) => p.state === "playing");
+
+  const isMyTurn = activePlayer.playerId === player.playerId;
+  const cannotAnswerNow =
+    activePlayer.playerId !== player.playerId &&
+    turnStartTime &&
+    (Date.now() - turnStartTime) / 1000 < GRACE_PERIOD;
+
+  const handleAnswer = useCallback((optionIndex: number | null) => {
+    if (isAnsweredLocally || cannotAnswerNow || isGameOver) {
+      return;
+    }
+
+    setIsAnsweredLocally(true);
+    setSelectedOption(optionIndex);
+
+    const { event, payload } = createBroadcastPayload(
+      BROADCAST_EVENTS.submitAnswerDeathmatch,
+      {
+        answeringPlayerId: player.playerId,
+        currentQuestionIndex: currentQuestionIndex,
+        currentPlayerIndex: activePlayerIndex,
+        optionIndex: optionIndex ?? -1,
+      },
+    );
+    broadcastAndDispatch(event, payload);
+  }, [isAnsweredLocally, cannotAnswerNow, isGameOver, player.playerId, currentQuestionIndex, activePlayerIndex, broadcastAndDispatch]);
 
   // clear all states when question changes (turnStartTime change)
   useEffect(() => {
@@ -100,33 +126,10 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
     isAnsweredLocally,
     activePlayer,
     isResolvingRound,
+    TURN_DURATION_SECONDS,
+    player.playerId,
+    handleAnswer,
   ]);
-
-  const isMyTurn = activePlayer.playerId === player.playerId;
-  const cannotAnswerNow =
-    activePlayer.playerId !== player.playerId &&
-    turnStartTime &&
-    (Date.now() - turnStartTime) / 1000 < GRACE_PERIOD;
-
-  function handleAnswer(optionIndex: number | null) {
-    if (isAnsweredLocally || cannotAnswerNow || isGameOver) {
-      return;
-    }
-
-    setIsAnsweredLocally(true);
-    setSelectedOption(optionIndex);
-
-    const { event, payload } = createBroadcastPayload(
-      BROADCAST_EVENTS.submitAnswerDeathmatch,
-      {
-        answeringPlayerId: player.playerId,
-        currentQuestionIndex: currentQuestionIndex,
-        currentPlayerIndex: activePlayerIndex,
-        optionIndex: optionIndex ?? -1,
-      },
-    );
-    broadcastAndDispatch(event, payload);
-  }
 
   // handle advance turn
   useEffect(() => {
@@ -148,7 +151,7 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
       },
     );
     broadcastAndDispatch(event, payload);
-  }, [activePlayerIndex]);
+  }, [activePlayerIndex, isGameOver, isAnsweredLocally, currentQuestionIndex, questions.length, broadcastAndDispatch]);
 
   // HANDLE GAME OVER -> xp + go gameover page
   const { user } = useAuth0();
@@ -172,7 +175,7 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
     if (!isGameOver) {
       setXpUpdateAttempted(false);
     }
-  }, [isGameOver]);
+  }, [isGameOver, xpUpdateAttempted, user?.email, player.health, router]);
 
   // --- UI Rendering ---
   if (!currentQuestion || !players || players.length === 0) {

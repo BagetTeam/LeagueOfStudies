@@ -2,6 +2,7 @@
 
 import { Bell } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 export default function Header() {
   return (
     <div className="flex h-16 w-full flex-row items-center justify-between bg-gray-800 px-8 text-white">
@@ -17,9 +18,11 @@ export default function Header() {
       </div>
       <div className="flex flex-row items-center gap-4">
         <Bell className="h-6 w-6" />
-        <img
+        <Image
           src="/profile.jpg" // path to your profile image
           alt="Profile"
+          width={40}
+          height={40}
           className="h-10 w-10 rounded-full object-cover"
         />
       </div>

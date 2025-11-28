@@ -3,7 +3,7 @@
 import { Lobby, Player, Question } from "@/types/types";
 import { Button } from "@/ui";
 import { ArrowLeft, Copy, Play, Share2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import PlayerList from "@/components/PlayerList";
 import { useGame } from "@/GameContext";
 import { useUser } from "@/lib/UserContext";
@@ -37,7 +37,7 @@ export default function LobbyScreen() {
   const urlSearchParams = useSearchParams();
   const joinLobbyId = urlSearchParams.get("join");
 
-  const generateQuestions = async (topic: string | null) => {
+  const generateQuestions = useCallback(async (topic: string | null) => {
     try {
       setLoading(true);
       topic = topic ?? gameSubject;
@@ -56,7 +56,7 @@ export default function LobbyScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [gameSubject, player.state, broadcastAndDispatch]);
 
   // Initialize Lobby
   useEffect(() => {
@@ -96,6 +96,7 @@ export default function LobbyScreen() {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchingRef = useRef(false);
@@ -113,7 +114,7 @@ export default function LobbyScreen() {
         fetchingRef.current = false;
       });
     }
-  }, [player.isHost, title, subject, questions]);
+  }, [player.isHost, title, subject, questions, gameSubject, generateQuestions]);
 
   // starting game
   useEffect(() => {

@@ -72,14 +72,14 @@ export type Database = {
           subject?: string | null;
         };
         Update: {
-          prim: string;
-          id: string;
-          email: string;
-          title: string;
+          prim?: string;
+          id?: string;
+          email?: string | null;
+          title?: string;
           tags?: string[] | null;
           path?: string | null;
           subject?: string | null;
-          comments: string[] | null;
+          comments?: string[] | null;
         };
         Relationships: [
           {
