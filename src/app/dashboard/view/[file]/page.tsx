@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/backend/utils/database";
@@ -56,7 +56,7 @@ export default function ViewFilePage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  async function loadFile() {
+  const loadFile = useCallback(async () => {
     if (!user?.user?.id) return;
 
     setLoading(true);
@@ -105,13 +105,13 @@ export default function ViewFilePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [user?.user?.id, prim]);
 
   useEffect(() => {
     if (user?.user?.id && prim) {
       loadFile();
     }
-  }, [user?.user?.id, prim]);
+  }, [user?.user?.id, prim, loadFile]);
   async function handleSaveTitle() {
     if (!file || !editedTitle.trim() || !user?.user?.id) return;
 
@@ -474,7 +474,7 @@ export default function ViewFilePage() {
               )}
             </div>
             <CardDescription>
-              Path: {file.path.split("/")[1] || "N/A"}
+              Path: {file.path ? file.path.split("/")[1] || "N/A" : "N/A"}
               {file.subject && ` • Subject: ${file.subject}`}
             </CardDescription>
           </CardHeader>
