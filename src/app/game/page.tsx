@@ -49,7 +49,7 @@ export default function GameModes() {
       ),
   );
 
-  function handleDashOrigin() {
+  function handleDashOrigin(selectedMode: string) {
     let mode: GameMode = defaultGameMode;
     if (selectedMode) {
       if (selectedMode === "deathmatch")
@@ -142,7 +142,7 @@ export default function GameModes() {
           onClick={() => {
             setSelectedMode("deathmatch");
             if (sessionStorage.getItem("gameSubject")) {
-              handleDashOrigin();
+              handleDashOrigin("deathmatch");
             }
           }}
         >
@@ -181,7 +181,7 @@ export default function GameModes() {
           onClick={() => {
             setSelectedMode("bossfight");
             if (sessionStorage.getItem("gameSubject")) {
-              handleDashOrigin();
+              handleDashOrigin("bossfight");
             }
           }}
         >
