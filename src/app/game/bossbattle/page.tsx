@@ -7,8 +7,8 @@ import { TeamStatus } from "@/app/game/bossbattle/components/TeamStatus";
 import { GameTimer } from "@/components/GameTimer";
 import { GameQuestion } from "@/components/GameQuestions";
 import { useGame } from "@/GameContext";
-import { useAuth0 } from "@auth0/auth0-react";
-import { updateLeaderboard } from "@/backend/db/leaderboard";
+import { useUser } from "@/lib/UserContext";
+import { addWin, updateLeaderboard } from "@/backend/db/leaderboard";
 import { BROADCAST_EVENTS } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
 import { useRouter } from "next/navigation";
@@ -238,21 +238,25 @@ function BossFightGame({ gameData }: BossFightProps) {
   ]);
 
   // HANDLE GAME OVER -> xp + go gameover page
-  const { user } = useAuth0();
+  const user = useUser();
   useEffect(() => {
     if (isGameOver && !xpUpdateAttempted) {
       setXpUpdateAttempted(true); // make sure action isn't repeated twice
 
+      console.log("user email", user?.user?.email);
       async function onWinXpChange() {
-        if (user?.email) {
-          const playerEmail = user?.email;
+        if (user?.user?.email) {
+          const playerEmail = user?.user?.email;
           const xpChange = isTeamVictory ? XP_GAIN_ON_WIN : XP_LOSS_ON_LOSE;
 
           console.log(
             `Game Over. Victory: ${isTeamVictory}. Player ${playerEmail} XP change: ${xpChange}`,
           );
-
-          await updateLeaderboard(playerEmail, xpChange);
+          
+          await updateLeaderboard(playerEmail, xpChange, "b");
+          if (isTeamVictory) {
+            await addWin(user?.user?.email, "b");
+          }
         }
       }
       onWinXpChange().finally(() => {
@@ -263,7 +267,7 @@ function BossFightGame({ gameData }: BossFightProps) {
     if (!isGameOver) {
       setXpUpdateAttempted(false);
     }
-  }, [isGameOver, isTeamVictory]);
+  }, [isGameOver, isTeamVictory, xpUpdateAttempted, user?.user?.email, router]);
 
   // --- UI Rendering ---
   const canAnswer =

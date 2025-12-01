@@ -95,10 +95,10 @@ export type Database = {
         Row: {
           accuracy: number | null;
           email: string;
-          level: number | null;
-          questionAnswered: number | null;
-          questionCorrect: number | null;
-          studyStreak: number | null;
+          b_total: number | null;
+          b_win: number | null;
+          d_win: number | null;
+          d_total: number | null;
           totalGames: number | null;
           totalXp: number | null;
           winRate: number | null;
@@ -107,10 +107,10 @@ export type Database = {
         Insert: {
           accuracy?: number | null;
           email: string;
-          level?: number | null;
-          questionAnswered?: number | null;
-          questionCorrect?: number | null;
-          studyStreak?: number | null;
+          b_total?: number | null;
+          b_win?: number | null;
+          d_win?: number | null;
+          d_total?: number | null;
           totalGames?: number | null;
           totalXp?: number | null;
           winRate?: number | null;
@@ -119,10 +119,10 @@ export type Database = {
         Update: {
           accuracy?: number | null;
           email?: string;
-          level?: number | null;
-          questionAnswered?: number | null;
-          questionCorrect?: number | null;
-          studyStreak?: number | null;
+          b_total?: number | null;
+          b_win?: number | null;
+          d_win?: number | null;
+          d_total?: number | null;
           totalGames?: number | null;
           totalXp?: number | null;
           winRate?: number | null;
