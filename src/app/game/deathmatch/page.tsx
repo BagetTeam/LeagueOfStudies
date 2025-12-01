@@ -3,13 +3,13 @@
 import { Trophy, ArrowLeft, Heart, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useUser } from "@/lib/UserContext";
 import Link from "next/link";
 import { useGame } from "@/GameContext";
 import { createBroadcastPayload } from "@/utils/utils";
 import { BROADCAST_EVENTS } from "@/GameContext";
-import { useAuth0 } from "@auth0/auth0-react";
 import { XP_GAIN_ON_WIN, XP_LOSS_ON_LOSE } from "@/types/const";
-import { updateLeaderboard } from "@/backend/db/leaderboard";
+import { addWin, updateLeaderboard } from "@/backend/db/leaderboard";
 import { DeathmatchData } from "@/types/types";
 
 type DeathMatchProps = {
@@ -64,25 +64,36 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
     turnStartTime &&
     (Date.now() - turnStartTime) / 1000 < GRACE_PERIOD;
 
-  const handleAnswer = useCallback((optionIndex: number | null) => {
-    if (isAnsweredLocally || cannotAnswerNow || isGameOver) {
-      return;
-    }
+  const handleAnswer = useCallback(
+    (optionIndex: number | null) => {
+      if (isAnsweredLocally || cannotAnswerNow || isGameOver) {
+        return;
+      }
 
-    setIsAnsweredLocally(true);
-    setSelectedOption(optionIndex);
+      setIsAnsweredLocally(true);
+      setSelectedOption(optionIndex);
 
-    const { event, payload } = createBroadcastPayload(
-      BROADCAST_EVENTS.submitAnswerDeathmatch,
-      {
-        answeringPlayerId: player.playerId,
-        currentQuestionIndex: currentQuestionIndex,
-        currentPlayerIndex: activePlayerIndex,
-        optionIndex: optionIndex ?? -1,
-      },
-    );
-    broadcastAndDispatch(event, payload);
-  }, [isAnsweredLocally, cannotAnswerNow, isGameOver, player.playerId, currentQuestionIndex, activePlayerIndex, broadcastAndDispatch]);
+      const { event, payload } = createBroadcastPayload(
+        BROADCAST_EVENTS.submitAnswerDeathmatch,
+        {
+          answeringPlayerId: player.playerId,
+          currentQuestionIndex: currentQuestionIndex,
+          currentPlayerIndex: activePlayerIndex,
+          optionIndex: optionIndex ?? -1,
+        },
+      );
+      broadcastAndDispatch(event, payload);
+    },
+    [
+      isAnsweredLocally,
+      cannotAnswerNow,
+      isGameOver,
+      player.playerId,
+      currentQuestionIndex,
+      activePlayerIndex,
+      broadcastAndDispatch,
+    ],
+  );
 
   // clear all states when question changes (turnStartTime change)
   useEffect(() => {
@@ -151,20 +162,32 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
       },
     );
     broadcastAndDispatch(event, payload);
-  }, [activePlayerIndex, isGameOver, isAnsweredLocally, currentQuestionIndex, questions.length, broadcastAndDispatch]);
+  }, [
+    activePlayerIndex,
+    isGameOver,
+    isAnsweredLocally,
+    currentQuestionIndex,
+    questions.length,
+    broadcastAndDispatch,
+  ]);
 
   // HANDLE GAME OVER -> xp + go gameover page
-  const { user } = useAuth0();
+  const user = useUser();
   useEffect(() => {
     if (isGameOver && !xpUpdateAttempted) {
       setXpUpdateAttempted(true); // make sure action isn't repeated twice
 
       async function onWinXpChange() {
-        if (user?.email) {
-          const playerEmail = user?.email;
+        console.log("user email", user?.user?.email);
+        if (user?.user?.email) {
+          const playerEmail = user?.user?.email;
           const xpChange = player.health > 0 ? XP_GAIN_ON_WIN : XP_LOSS_ON_LOSE;
+          const win = player.health > 0 ? true : false;
 
           await updateLeaderboard(playerEmail, xpChange);
+          if (win) {
+            addWin(user?.user?.email);
+          }
         }
       }
       onWinXpChange().finally(() => {
@@ -175,7 +198,7 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
     if (!isGameOver) {
       setXpUpdateAttempted(false);
     }
-  }, [isGameOver, xpUpdateAttempted, user?.email, player.health, router]);
+  }, [isGameOver, xpUpdateAttempted, user?.user?.email, player.health, router]);
 
   // --- UI Rendering ---
   if (!currentQuestion || !players || players.length === 0) {
