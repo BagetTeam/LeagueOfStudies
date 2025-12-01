@@ -253,9 +253,9 @@ function BossFightGame({ gameData }: BossFightProps) {
             `Game Over. Victory: ${isTeamVictory}. Player ${playerEmail} XP change: ${xpChange}`,
           );
           
-          await updateLeaderboard(playerEmail, xpChange);
+          await updateLeaderboard(playerEmail, xpChange, "b");
           if (isTeamVictory) {
-            await addWin(user?.user?.email);
+            await addWin(user?.user?.email, "b");
           }
         }
       }

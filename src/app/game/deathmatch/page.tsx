@@ -184,9 +184,9 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
           const xpChange = player.health > 0 ? XP_GAIN_ON_WIN : XP_LOSS_ON_LOSE;
           const win = player.health > 0 ? true : false;
 
-          await updateLeaderboard(playerEmail, xpChange);
+          await updateLeaderboard(playerEmail, xpChange, "d");
           if (win) {
-            addWin(user?.user?.email);
+            await addWin(user?.user?.email, "d");
           }
         }
       }

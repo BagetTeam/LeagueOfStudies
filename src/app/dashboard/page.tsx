@@ -214,28 +214,27 @@ export default function DashBoard() {
                   <div className="game-card">
                     <h3 className="text-muted-foreground mb-1">Total Games</h3>
                     <p className="text-3xl font-bold">
-                      {userData?.totalGames == 0 || userData?.totalGames == null
-                        ? "None"
-                        : userData?.totalGames}
-                    </p>
-                  </div>
-                  <div className="game-card">
-                    <h3 className="text-muted-foreground mb-1">Win Rate</h3>
-                    <p className="text-3xl font-bold">
-                      {userData?.totalGames == 0 || userData?.totalGames == null
-                        ? "N/A"
-                        : `${userData?.accuracy}%`}
+                      {(userData?.b_total ?? 0) + (userData?.d_total ?? 0)}
                     </p>
                   </div>
                   <div className="game-card">
                     <h3 className="text-muted-foreground mb-1">
-                      Questions Answered
+                      Boss Fight Win Rate
                     </h3>
                     <p className="text-3xl font-bold">
-                      {userData?.questionAnswered == 0 ||
-                      userData?.questionAnswered == null
-                        ? "None"
-                        : userData?.questionAnswered}
+                      {(userData?.b_total ?? 0) == 0
+                        ? "N/A"
+                        : `${((userData?.b_win ?? 0) / (userData?.b_total ?? 1)) * 100}%`}
+                    </p>
+                  </div>
+                  <div className="game-card">
+                    <h3 className="text-muted-foreground mb-1">
+                      Deathmatch Win Rate
+                    </h3>
+                    <p className="text-3xl font-bold">
+                      {(userData?.d_total ?? 0) == 0
+                        ? "N/A"
+                        : `${((userData?.d_win ?? 0) / (userData?.d_total ?? 1)) * 100}%`}
                     </p>
                   </div>
                   <div className="game-card">
