@@ -96,6 +96,7 @@ export default function DashBoard() {
       const userId = user.user.id;
       (async () => {
         const userData = await getUserStats(email);
+        console.log("winRate", userData?.b_wins);
 
         setUserData(userData);
         console.log("userid", userId);
@@ -224,7 +225,7 @@ export default function DashBoard() {
                     <p className="text-3xl font-bold">
                       {(userData?.b_total ?? 0) == 0
                         ? "N/A"
-                        : `${((userData?.b_win ?? 0) / (userData?.b_total ?? 1)) * 100}%`}
+                        : `${((userData?.b_wins ?? 0) / (userData?.b_total ?? 1)) * 100}%`}
                     </p>
                   </div>
                   <div className="game-card">
@@ -234,7 +235,7 @@ export default function DashBoard() {
                     <p className="text-3xl font-bold">
                       {(userData?.d_total ?? 0) == 0
                         ? "N/A"
-                        : `${((userData?.d_win ?? 0) / (userData?.d_total ?? 1)) * 100}%`}
+                        : `${((userData?.d_wins ?? 0) / (userData?.d_total ?? 1)) * 100}%`}
                     </p>
                   </div>
                   <div className="game-card">
