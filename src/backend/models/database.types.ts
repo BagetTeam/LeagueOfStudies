@@ -96,8 +96,8 @@ export type Database = {
           accuracy: number | null;
           email: string;
           b_total: number | null;
-          b_win: number | null;
-          d_win: number | null;
+          b_wins: number | null;
+          d_wins: number | null;
           d_total: number | null;
           totalGames: number | null;
           totalXp: number | null;
@@ -108,8 +108,8 @@ export type Database = {
           accuracy?: number | null;
           email: string;
           b_total?: number | null;
-          b_win?: number | null;
-          d_win?: number | null;
+          b_wins?: number | null;
+          d_wins?: number | null;
           d_total?: number | null;
           totalGames?: number | null;
           totalXp?: number | null;
@@ -120,8 +120,8 @@ export type Database = {
           accuracy?: number | null;
           email?: string;
           b_total?: number | null;
-          b_win?: number | null;
-          d_win?: number | null;
+          b_wins?: number | null;
+          d_wins?: number | null;
           d_total?: number | null;
           totalGames?: number | null;
           totalXp?: number | null;
