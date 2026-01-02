@@ -3,7 +3,7 @@ import { supabase } from "../utils/database";
 export async function addWin(email: string, type: string) {
   const { data: currentData, error: fetchError } = await supabase
     .from("stats")
-    .select("b_win, d_win")
+    .select("b_wins, d_wins")
     .eq("email", email)
     .single();
   if (fetchError) {
@@ -18,12 +18,12 @@ export async function addWin(email: string, type: string) {
     }
     return;
   }
-  const currBWins = currentData?.b_win ?? 0;
-  const currDWins = currentData?.d_win ?? 0;
+  const currBWins = currentData?.b_wins ?? 0;
+  const currDWins = currentData?.d_wins ?? 0;
   if (type == "d") {
     const { error: updateError } = await supabase
       .from("stats")
-      .update({ d_win: currDWins + 1 })
+      .update({ d_wins: currDWins + 1 })
       .eq("email", email);
     if (updateError) {
       console.error(
@@ -35,7 +35,7 @@ export async function addWin(email: string, type: string) {
   } else if (type == "b") {
     const { error: updateError } = await supabase
       .from("stats")
-      .update({ b_win: currBWins + 1 })
+      .update({ b_wins: currBWins + 1 })
       .eq("email", email);
     if (updateError) {
       console.error(
