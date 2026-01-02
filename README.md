@@ -30,7 +30,7 @@ Think of it as **your academic battle arena** — solo or with friends.
 - **Frontend**: Next.js, React, TailwindCSS
 - **Backend**: Node.js, Express.js
 - **Database**: Supabase
-- **Authentication**: Auth0
+- **Authentication**: Supabase Auth
 - **Hosting**: Vercel
 - **Other**: OpenAI (for question generation)
 
