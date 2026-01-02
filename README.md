@@ -34,14 +34,3 @@ Think of it as **your academic battle arena** — solo or with friends.
 - **Hosting**: Vercel
 - **Other**: OpenAI (for question generation)
 
----
-
-## How to Contribute
-
-We welcome ideas, bug reports, and contributions!  
-Coming soon: A public roadmap and issue tracker.
-
-In the meantime:
-- **Feedback**: Open an issue or email us.
-- **Want to help build?** DM us on the site contact form!
-
