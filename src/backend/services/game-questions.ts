@@ -15,6 +15,5 @@ export async function getQuestions(text: string): Promise<QuestionType[]> {
 
   const data = await response.json();
 
-  console.log("✅ Received questions:", data.questions.length);
   return data.questions;
 }

@@ -37,26 +37,31 @@ export default function LobbyScreen() {
   const urlSearchParams = useSearchParams();
   const joinLobbyId = urlSearchParams.get("join");
 
-  const generateQuestions = useCallback(async (topic: string | null) => {
-    try {
-      setLoading(true);
-      topic = topic ?? gameSubject;
+  const generateQuestions = useCallback(
+    async (topic: string | null) => {
+      try {
+        setLoading(true);
+        topic = topic ?? gameSubject;
 
-      const fetchedQuestions = (await getQuestions(topic)) satisfies Question[];
+        const fetchedQuestions = (await getQuestions(
+          topic,
+        )) satisfies Question[];
 
-      if (player.state === "lobby") {
-        const { event, payload } = createBroadcastPayload(
-          BROADCAST_EVENTS.setQuestions,
-          { questions: fetchedQuestions },
-        );
+        if (player.state === "lobby") {
+          const { event, payload } = createBroadcastPayload(
+            BROADCAST_EVENTS.setQuestions,
+            { questions: fetchedQuestions },
+          );
 
-        broadcastAndDispatch(event, payload);
+          broadcastAndDispatch(event, payload);
+        }
+      } catch {
+      } finally {
+        setLoading(false);
       }
-    } catch {
-    } finally {
-      setLoading(false);
-    }
-  }, [gameSubject, player.state, broadcastAndDispatch]);
+    },
+    [gameSubject, player.state, broadcastAndDispatch],
+  );
 
   // Initialize Lobby
   useEffect(() => {
@@ -114,7 +119,14 @@ export default function LobbyScreen() {
         fetchingRef.current = false;
       });
     }
-  }, [player.isHost, title, subject, questions, gameSubject, generateQuestions]);
+  }, [
+    player.isHost,
+    title,
+    subject,
+    questions,
+    gameSubject,
+    generateQuestions,
+  ]);
 
   // starting game
   useEffect(() => {
@@ -157,7 +169,6 @@ export default function LobbyScreen() {
   };
 
   const handleBackToMenuClick = () => {
-    console.log("Leaving lobby...");
     dispatch({ type: "exitLobby", payload: {} });
     router.push("/");
   };
@@ -177,7 +188,6 @@ export default function LobbyScreen() {
           text: "Join me for a fun quiz challenge!",
           url: gameUrl,
         });
-        console.log("Link shared successfully");
       } catch (err) {
         console.error("Error sharing:", err);
         copyInviteLink();

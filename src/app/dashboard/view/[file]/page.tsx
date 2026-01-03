@@ -116,20 +116,12 @@ export default function ViewFilePage() {
     if (!file || !editedTitle.trim() || !user?.user?.id) return;
 
     try {
-      console.log("Updating title:", {
-        prim: file.prim,
-        userId: user.user.id,
-        newTitle: editedTitle.trim(),
-      });
-
       const { data: updateData, error } = await supabase
         .from("notes")
         .update({ title: editedTitle.trim() })
         .eq("prim", file.prim)
         .eq("id", user.user.id)
         .select();
-
-      console.log("Update response:", { updateData, error });
 
       if (error) {
         console.error("Error updating title:", error);
@@ -171,20 +163,12 @@ export default function ViewFilePage() {
     if (!file || !user?.user?.id) return;
 
     try {
-      console.log("Updating tags:", {
-        prim: file.prim,
-        userId: user.user.id,
-        tags: editedTags,
-      });
-
       const { data: updateData, error } = await supabase
         .from("notes")
         .update({ tags: editedTags.length > 0 ? editedTags : null })
         .eq("prim", file.prim)
         .eq("id", user.user.id)
         .select();
-
-      console.log("Update response:", { updateData, error });
 
       if (error) {
         console.error("Error updating tags:", error);
@@ -258,13 +242,7 @@ export default function ViewFilePage() {
       }
       const commentsAsStrings = updatedComments.map((c) => JSON.stringify(c));
 
-      console.log("Saving comments:", {
-        prim: file.prim,
-        userId: user.user.id,
-        commentsCount: commentsAsStrings.length,
-      });
-
-      const { data: updateData, error } = await supabase
+      const { error } = await supabase
         .from("notes")
         .update({
           comments: commentsAsStrings.length > 0 ? commentsAsStrings : null,
@@ -273,16 +251,12 @@ export default function ViewFilePage() {
         .eq("id", user.user.id)
         .select();
 
-      console.log("Update response:", { updateData, error });
-
       if (error) {
         console.error("Error saving comment:", error);
         console.error("Error details:", JSON.stringify(error, null, 2));
         // Revert on failure
         setComments(comments);
         alert(`Failed to save comment: ${error.message}`);
-      } else {
-        console.log("Comment saved successfully");
       }
     } catch (err) {
       console.error("Error saving comment:", err);
@@ -301,13 +275,7 @@ export default function ViewFilePage() {
     try {
       const commentsAsStrings = updatedComments.map((c) => JSON.stringify(c));
 
-      console.log("Deleting comment:", {
-        prim: file.prim,
-        userId: user.user.id,
-        commentsCount: commentsAsStrings.length,
-      });
-
-      const { data: updateData, error } = await supabase
+      const { error } = await supabase
         .from("notes")
         .update({
           comments: commentsAsStrings.length > 0 ? commentsAsStrings : null,
@@ -316,16 +284,12 @@ export default function ViewFilePage() {
         .eq("id", user.user.id)
         .select();
 
-      console.log("Update response:", { updateData, error });
-
       if (error) {
         console.error("Error deleting comment:", error);
         console.error("Error details:", JSON.stringify(error, null, 2));
         // Revert on failure
         setComments(comments);
         alert(`Failed to delete comment: ${error.message}`);
-      } else {
-        console.log("Comment deleted successfully");
       }
     } catch (err) {
       console.error("Error deleting comment:", err);

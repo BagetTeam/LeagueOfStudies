@@ -49,8 +49,6 @@ export default function DashBoard() {
           .download(path);
 
         if (error) {
-          console.error("Error downloading file:", error);
-
           return;
         }
 
@@ -59,10 +57,6 @@ export default function DashBoard() {
         // Store in sessionStorage to persist across navigation
         sessionStorage.setItem("gameTitle", title);
         sessionStorage.setItem("gameSubject", text);
-        console.log(
-          sessionStorage.getItem("gameTitle"),
-          sessionStorage.getItem("gameSubject"),
-        );
         router.push(`/game?source`);
       } catch (err) {
         console.error("Error accessing file:", err);
@@ -74,12 +68,9 @@ export default function DashBoard() {
       const userId = user.user.id;
       (async () => {
         const userData = await getUserStats(email);
-        console.log("winRate", userData?.b_wins);
 
         setUserData(userData);
-        console.log("userid", userId);
         const notes = await getNotes(userId);
-        console.log("notes", notes);
         if (notes) {
           setStudyNotes(notes ?? []);
         } else {

@@ -47,8 +47,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("event", event, "session", session);
-
       // When signed out, session is null, so set user to null immediately
       if (event === "SIGNED_OUT" || !session) {
         setUser(null);

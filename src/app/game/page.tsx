@@ -97,7 +97,6 @@ export default function GameModes() {
     dispatch({ type: "setGameMode", payload: { gameMode: mode } });
 
     if (subject) {
-      console.log("setting subejct");
       dispatch({ type: "setGameSubject", payload: { subject: subject } });
       dispatch({ type: "setGameTitle", payload: { title: subject } });
     }

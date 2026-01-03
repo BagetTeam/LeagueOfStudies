@@ -149,7 +149,6 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
 
     if (nextQuestionIdx >= questions.length) {
       //TODO ALL ANSWERS QUESTIONS (restart questions or end??)
-      console.log("All questions answered, checking remaining players...");
       nextQuestionIdx = 0;
     }
 
@@ -178,7 +177,6 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
       setXpUpdateAttempted(true); // make sure action isn't repeated twice
 
       async function onWinXpChange() {
-        console.log("user email", user?.user?.email);
         if (user?.user?.email) {
           const playerEmail = user?.user?.email;
           const xpChange = player.health > 0 ? XP_GAIN_ON_WIN : XP_LOSS_ON_LOSE;

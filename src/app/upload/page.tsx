@@ -88,16 +88,6 @@ export default function Upload() {
           return;
         }
 
-        console.log("Inserting note with data:", {
-          prim: key,
-          id: noteId,
-          title: title,
-          email: email,
-          path: file_path,
-          subject: subject || null,
-          tags: tags.length > 0 ? tags : null,
-        });
-
         const { error } = await supabase
           .from("notes")
           .insert({
@@ -118,18 +108,6 @@ export default function Upload() {
           setUploading(false);
           return;
         }
-        // if (error) {
-        //   console.error("Database insert error:", error);
-        //   console.error("Error details:", JSON.stringify(error, null, 2));
-        //   console.error("Error code:", error.code);
-        //   console.error("Error message:", error.message);
-        //   console.error("Error hint:", error.hint);
-        // } else {
-        //   console.log("Upload successful:", uploadData);
-        //   console.log("Note inserted:", data);
-        //   setUploadSuccess(true);
-        // }
-
         setUploadSuccess(true);
         setSubjectError(false);
         setTitleError(false);

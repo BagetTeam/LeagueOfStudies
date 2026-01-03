@@ -21,7 +21,6 @@ function PdfExtractor({ onExtract, ref, file }) {
     const selectedFile = event.target.files[0];
     if (file) {
       onExtract(selectedFile);
-      console.log(selectedFile);
     } else {
       pdfToText(selectedFile)
         .then((text) => onExtract(text))
