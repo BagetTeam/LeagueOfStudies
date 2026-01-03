@@ -28,7 +28,7 @@ Think of it as **your academic battle arena** — solo or with friends.
 ## Tech Stack
 
 - **Frontend**: Next.js, React, TailwindCSS
-- **Backend**: Node.js, Express.js
+- **Backend**: Node.js
 - **Database**: Supabase
 - **Authentication**: Supabase Auth
 - **Hosting**: Vercel
