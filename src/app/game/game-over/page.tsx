@@ -62,9 +62,7 @@ export default function GameOver() {
             <div className="mb-6 flex flex-col items-center gap-4">
               <h3 className="font-semibold">Final Results</h3>
               <div className="flex items-center gap-3 text-lg">
-                <span>
-                  Boss Health: {bossHealth}/{gameMode.data.bossHealth} remaining
-                </span>
+                <span>Boss Health: {bossHealth}/100 remaining</span>
               </div>
               <h3 className="mt-2 font-semibold">Team Status</h3>
               {players.map((player) => (
