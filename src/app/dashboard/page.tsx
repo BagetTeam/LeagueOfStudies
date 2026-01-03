@@ -222,65 +222,6 @@ export default function DashBoard() {
                   </div>
                 </div>
               )}
-
-              {/* Recent games */}
-              {/* <div> */}
-              {/*   <div className="mb-4 flex items-center justify-between"> */}
-              {/*     <h2 className="text-xl font-semibold">Recent Games</h2> */}
-              {/*   </div> */}
-              {/*   <span className="border-border mb-4 block border-b"></span> */}
-              {/*   {recentGames.length == 0 && <div>No recent games</div>} */}
-              {/*   {recentGames.length != 0 && ( */}
-              {/*     <div className="overflow-x-auto"> */}
-              {/*       <table className="w-full border-collapse"> */}
-              {/*         <thead> */}
-              {/*           <tr className="border-border border-b"> */}
-              {/*             <th className="px-4 py-3 text-left">Mode</th> */}
-              {/*             <th className="px-4 py-3 text-left">Subject</th> */}
-              {/*             <th className="px-4 py-3 text-left">Topic</th> */}
-              {/*             <th className="px-4 py-3 text-left">Date</th> */}
-              {/*             <th className="px-4 py-3 text-left">Result</th> */}
-              {/*             <th className="px-4 py-3 text-left">Score</th> */}
-              {/*           </tr> */}
-              {/*         </thead> */}
-              {/*         <tbody> */}
-              {/*           {recentGames.map((game) => ( */}
-              {/*             <tr */}
-              {/*               key={game.id} */}
-              {/*               className="hover:bg-muted/50 border-border border-b transition-colors" */}
-              {/*             > */}
-              {/*               <td className="px-4 py-3"> */}
-              {/*                 <div className="flex items-center gap-2"> */}
-              {/*                   {game.mode === "Deathmatch" ? ( */}
-              {/*                     <Trophy className="text-theme-orange h-4 w-4" /> */}
-              {/*                   ) : ( */}
-              {/*                     <Users className="text-theme-blue h-4 w-4" /> */}
-              {/*                   )} */}
-              {/*                   {game.mode} */}
-              {/*                 </div> */}
-              {/*               </td> */}
-              {/*               <td className="px-4 py-3">{game.subject}</td> */}
-              {/*               <td className="px-4 py-3">{game.topic}</td> */}
-              {/*               <td className="text-muted-foreground px-4 py-3"> */}
-              {/*                 {game.date} */}
-              {/*               </td> */}
-              {/*               <td className="px-4 py-3"> */}
-              {/*                 <span */}
-              {/*                   className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${game.result === "Won" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`} */}
-              {/*                 > */}
-              {/*                   {game.result} */}
-              {/*                 </span> */}
-              {/*               </td> */}
-              {/*               <td className="px-4 py-3 font-semibold"> */}
-              {/*                 {game.score} */}
-              {/*               </td> */}
-              {/*             </tr> */}
-              {/*           ))} */}
-              {/*         </tbody> */}
-              {/*       </table> */}
-              {/*     </div> */}
-              {/*   )} */}
-              {/* </div> */}
             </TabsContent>
 
             <TabsContent value="notes">
