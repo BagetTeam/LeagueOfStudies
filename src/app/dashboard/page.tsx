@@ -21,28 +21,6 @@ import { useUser } from "@/lib/UserContext";
 import { supabase } from "@/backend/utils/database";
 import pdfToText from "react-pdftotext";
 
-// const studyNotes = [
-//   {
-//     id: 1,
-//     title: "Biology Midterm Notes",
-//     topics: ["Cell Structure", "Genetics", "Ecology"],
-//     questions: 45,
-//   },
-//   {
-//     id: 2,
-//     title: "History - World War II",
-//     topics: ["European Theater", "Pacific Theater"],
-//     questions: 30,
-//   },
-//   {
-//     id: 3,
-//     title: "Physics - Mechanics",
-//     topics: ["Newton's Laws", "Kinematics"],
-//     questions: 25,
-//   },
-// ];
-//
-
 export default function DashBoard() {
   // const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
   // const [studyNotes, setStudyNotes] = useState([]);

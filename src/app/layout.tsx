@@ -5,21 +5,12 @@ import { Theme } from "@radix-ui/themes";
 import NavBar from "../components/NavBar";
 import { AuthProvider } from "@/lib/UserContext";
 import { GameProvider } from "@/GameContext";
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
 const spaceMono = Space_Mono({
   variable: "--font-space-mono",
   subsets: ["latin"],
   weight: ["400", "700"],
   style: ["normal", "italic"],
 });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
 
 export const metadata: Metadata = {
   title: "League of Studies",
