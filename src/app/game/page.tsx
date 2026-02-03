@@ -256,11 +256,13 @@ export default function GameModes() {
                 </div>
 
                 <Button
-                  className={`text-background w-full gap-2 ${selectedMode === "deathmatch" ? "bg-theme-orange hover:bg-theme-orange/80" : "bg-theme-blue hover:bg-theme-blue/80"}`}
+                  className={`text-background w-full ${selectedMode === "deathmatch" ? "bg-theme-orange hover:bg-theme-orange/80" : "bg-theme-blue hover:bg-theme-blue/80"}`}
                   onClick={() => handlePickSubject(subject.name)}
                 >
-                  <Play className="h-4 w-4" />
-                  Start Game
+                  <span className="flex w-full justify-start gap-2" style={{ display: "flex", width: "100%", justifyContent: "flex-start" }}>
+                    <Play className="h-4 w-4 shrink-0" />
+                    Start Game
+                  </span>
                 </Button>
               </div>
             ))}

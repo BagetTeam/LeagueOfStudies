@@ -12,7 +12,7 @@ export default function Hero() {
         <div className="flex w-full flex-col gap-4">
           <h1 className="text-4xl leading-tight font-bold md:text-5xl lg:text-6xl">
             <span className="font-outline">
-              {user.user ? "Hey," : "Learn Faster"}
+              {user.user ? "Hey," : "Learn Faster,"}
             </span>
             <span className="text-theme-purple">
               {user.user
