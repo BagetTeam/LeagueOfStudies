@@ -218,8 +218,8 @@ export default function GameModes() {
       {/* Subject selection */}
       {selectedMode && !sessionStorage.getItem("gameTitle") && (
         <>
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">Choose a Subject</h2>
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <h2 className="shrink-0 whitespace-nowrap text-2xl font-semibold">Choose a Subject</h2>
 
             <div className="relative">
               <Search className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />

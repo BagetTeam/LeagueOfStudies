@@ -1,24 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Trophy,
-  Users,
-  Search,
-  Play,
-  ArrowRight,
-  FileText,
-} from "lucide-react";
+import { useState, useRef, forwardRef, useImperativeHandle } from "react";
+import { ArrowRight } from "lucide-react";
 import pdfToText from "react-pdftotext";
-import { Button, Input } from "@/ui";
-import { useRef } from "react";
+import { Button } from "@/ui";
 
-function PdfExtractor({ onExtract, ref, file }) {
-  const [fileContent, setFileContent] = useState();
+const PdfExtractor = forwardRef(function PdfExtractor(
+  { onExtract, file },
+  ref
+) {
+  const [fileName, setFileName] = useState(null);
+  const inputRef = useRef(null);
 
-  const myref = useRef(null);
+  useImperativeHandle(ref, () => ({
+    click: () => inputRef.current?.click(),
+  }));
+
   function extractText(event) {
     const selectedFile = event.target.files[0];
+    if (!selectedFile) return;
+    setFileName(selectedFile.name);
     if (file) {
       onExtract(selectedFile);
     } else {
@@ -31,31 +32,33 @@ function PdfExtractor({ onExtract, ref, file }) {
   }
 
   function handleClick(e) {
-    e.stopPropagation;
-    myref.current.click();
+    e.stopPropagation();
+    inputRef.current?.click();
   }
 
   return (
-    <div onClick={handleClick} ref={ref} className="cursor-pointer">
+    <div className="relative w-full max-w-sm">
+      <input
+        type="file"
+        id="material pdf"
+        ref={inputRef}
+        className="absolute inset-0 z-10 cursor-pointer opacity-0"
+        accept=".pdf"
+        onChange={extractText}
+        onClick={(e) => e.stopPropagation()}
+      />
       <Button
         variant="normal"
-        className="cursor-pointer gap-1.5 text-xs sm:gap-2 sm:text-sm md:text-base"
+        onClick={handleClick}
+        className="flex w-full cursor-pointer items-center justify-between gap-2 text-xs sm:text-sm md:text-base"
       >
-        <input
-          className="cursor-pointer"
-          type="file"
-          id="material pdf"
-          ref={myref}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          accept=".pdf"
-          onChange={extractText}
-        />
-        <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+        <span className="min-w-0 truncate no-underline">
+          {fileName ?? "Choose file"}
+        </span>
+        <ArrowRight className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
       </Button>
     </div>
   );
-}
+});
 
 export default PdfExtractor;

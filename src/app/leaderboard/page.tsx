@@ -28,22 +28,31 @@ export default function LeaderboardPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl p-8">
-      <h1 className="mb-8 text-center text-4xl font-bold">🏆 Leaderboard 🏆</h1>
+    <div className="mx-auto max-w-4xl overflow-x-hidden px-4 py-8 sm:p-8">
+      <h1 className="mb-8 text-center text-4xl font-bold">
+        <span className="max-[450px]:hidden">🏆 </span>
+        Leaderboard
+        <span className="max-[450px]:hidden"> 🏆</span>
+      </h1>
 
       <div className="flex flex-col gap-4">
         {leaderboard.map((entry, index) => (
           <div
             key={entry.email}
-            className="flex flex-row items-center justify-between rounded-lg bg-white p-4 shadow"
+            className="flex min-w-0 flex-row items-center justify-between gap-3 rounded-lg bg-white p-4 shadow"
           >
-            <div className="flex flex-row items-center gap-4">
-              <span className="text-2xl">{getBadge(index)}</span>
-              <span className="text-lg font-semibold">{entry.email}</span>
+            <div className="flex min-w-0 flex-1 flex-row items-center gap-3 sm:gap-4">
+              <span className="shrink-0 text-2xl">{getBadge(index)}</span>
+              <span
+                className="min-w-0 truncate text-base font-semibold sm:text-lg"
+                title={entry.email}
+              >
+                {entry.email}
+              </span>
             </div>
 
-            <div className="flex flex-row gap-8">
-              <div className="text-gray-600">{entry.totalXp ?? 0} XP</div>
+            <div className="shrink-0 text-gray-600">
+              {entry.totalXp ?? 0} XP
             </div>
           </div>
         ))}
