@@ -49,40 +49,44 @@
   --font-sans: "IBM VGA 9x16", ui-monospace, monospace;
 }
 :root {
-  --theme-purple-light: 251, 85%, 75%;
-  --theme-purple: 259, 28%, 54%;
-  --theme-purple-dark: 258, 26%, 39%;
+  /* Mint and cream only */
+  --theme-purple-light: 155 35% 94%;
+  --theme-purple: 155 30% 88%;
+  --theme-purple-dark: 155 28% 78%;
 
-  --theme-orange: 25, 95%, 53%;
-  --theme-blue: 194, 86%, 57%;
+  --theme-orange: 155 30% 88%;
+  --theme-blue: 155 30% 88%;
 
-  --background: 258 100% 98%;
-  --foreground: 260 10% 20%;
+  /* Cream background */
+  --background: 45 28% 95%;
+  --foreground: 0 0% 8%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 260 10% 20%;
+  /* Cream windows/cards */
+  --card: 45 25% 98%;
+  --card-foreground: 0 0% 8%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 260 10% 20%;
+  --popover: 45 25% 98%;
+  --popover-foreground: 0 0% 8%;
 
-  --primary: 258 80% 74%;
-  --primary-foreground: 0 0% 100%;
+  /* Mint accent */
+  --primary: 155 30% 88%;
+  --primary-foreground: 0 0% 8%;
 
-  --secondary: 260 28% 54%;
-  --secondary-foreground: 0 0% 100%;
+  --secondary: 155 25% 90%;
+  --secondary-foreground: 0 0% 8%;
 
-  --muted: 260 20% 94%;
-  --muted-foreground: 260 10% 50%;
+  --muted: 45 22% 94%;
+  --muted-foreground: 0 0% 35%;
 
-  --accent: 24 94% 53%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 155 30% 88%;
+  --accent-foreground: 0 0% 8%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 260 20% 86%;
-  --input: 260 20% 86%;
-  --ring: 258 80% 74%;
+  --border: 0 0% 12%;
+  --input: 0 0% 12%;
+  --ring: 155 28% 75%;
 }
 
 /* Cards: same OS style as buttons (white, black border, right/bottom shadow) */
@@ -100,15 +104,15 @@
 }
 
 .game-button {
-  @apply bg-theme-purple hover:bg-theme-purple-dark flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all;
+  @apply flex items-center justify-center gap-2 rounded-lg bg-black px-6 py-3 font-semibold text-white transition-all hover:bg-neutral-800;
 }
 
 .orange-highlight {
-  @apply text-theme-orange font-bold;
+  @apply font-bold text-black;
 }
 
 .blue-highlight {
-  @apply text-theme-blue font-bold;
+  @apply font-bold text-black;
 }
 
 .health-bar {
@@ -116,11 +120,11 @@
 }
 
 .health-bar-fill {
-  @apply bg-theme-purple h-2.5 rounded-full transition-all duration-300;
+  @apply h-2.5 rounded-full bg-black transition-all duration-300;
 }
 
 .health-bar-fill-orange {
-  @apply bg-theme-orange h-2.5 rounded-full transition-all duration-300;
+  @apply h-2.5 rounded-full bg-black transition-all duration-300;
 }
 /* 3. Define Keyframes directly in CSS */
 @keyframes accordion-down {

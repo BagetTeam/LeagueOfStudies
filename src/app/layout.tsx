@@ -19,7 +19,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className="font-sans bg-primary/10 w-[100vw] overflow-x-hidden antialiased"
+        className="font-sans bg-background w-[100vw] overflow-x-hidden antialiased"
       >
         <AuthProvider>
           <GameProvider>
