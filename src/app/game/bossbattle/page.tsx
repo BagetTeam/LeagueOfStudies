@@ -271,7 +271,6 @@ function BossFightGame({ gameData }: BossFightProps) {
     <div className="from-background to-muted min-h-screen bg-gradient-to-b">
       <div className="container px-4 py-4">
         <GameHeader
-          subject={"Hello world"}
           topic={title}
           roundNumber={currentQuestionIndex + 1}
         />

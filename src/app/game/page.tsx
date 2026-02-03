@@ -15,6 +15,7 @@ import { useUser } from "@/lib/UserContext";
 import { useGame } from "../../GameContext";
 import { GameMode } from "@/types/types";
 import { subjects } from "@/test-data/gameModeData";
+import { getRandomBossName } from "@/test-data/bossNames";
 import { INITIAL_BOSS_HEALTH } from "@/types/const";
 import { defaultLobby } from "@/gameState";
 import { createBroadcastPayload } from "@/utils/utils";
@@ -58,7 +59,7 @@ export default function GameModes() {
         mode = {
           type: selectedMode,
           data: {
-            bossName: "teacher Bob",
+            bossName: getRandomBossName(),
             bossHealth: INITIAL_BOSS_HEALTH,
             time: 20,
           },
@@ -88,7 +89,7 @@ export default function GameModes() {
         mode = {
           type: selectedMode,
           data: {
-            bossName: "teacher Bob",
+            bossName: getRandomBossName(),
             bossHealth: INITIAL_BOSS_HEALTH,
             time: 20,
           },
@@ -112,7 +113,7 @@ export default function GameModes() {
         mode = {
           type: selectedMode,
           data: {
-            bossName: "teacher Bob",
+            bossName: getRandomBossName(),
             bossHealth: INITIAL_BOSS_HEALTH,
             time: 20,
           },
