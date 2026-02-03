@@ -25,9 +25,7 @@ const PdfExtractor = forwardRef(function PdfExtractor(
     } else {
       pdfToText(selectedFile)
         .then((text) => onExtract(text))
-        .catch((error) =>
-          console.error("Failed to extract text from pdf", error),
-        );
+        .catch(() => {});
     }
   }
 

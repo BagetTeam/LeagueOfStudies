@@ -11,9 +11,7 @@ import {
   Play,
   Plus,
   Trophy,
-  // Clock,
   Users,
-  // Star,
 } from "lucide-react";
 import { Tables } from "@/backend/models/database.types";
 import { getUserStats, getNotes } from "@/backend/db/dashboard";
@@ -22,8 +20,6 @@ import { supabase } from "@/backend/utils/database";
 import pdfToText from "react-pdftotext";
 
 export default function DashBoard() {
-  // const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
-  // const [studyNotes, setStudyNotes] = useState([]);
   const router = useRouter();
   const [studyNotes, setStudyNotes] = useState<
     {
@@ -36,7 +32,6 @@ export default function DashBoard() {
       subject: string | null;
     }[]
   >([]);
-  // const { dispatch } = useGame();
   const [userData, setUserData] = useState<Tables<"stats"> | null>(null);
   const user = useUser();
   const email = user?.user?.user_metadata.email;
@@ -54,12 +49,10 @@ export default function DashBoard() {
 
         const file = new File([data], path, { type: "application/pdf" });
         const text = await pdfToText(file);
-        // Store in sessionStorage to persist across navigation
         sessionStorage.setItem("gameTitle", title);
         sessionStorage.setItem("gameSubject", text);
         router.push(`/game?source`);
-      } catch (err) {
-        console.error("Error accessing file:", err);
+      } catch {
       }
     }
   }
@@ -143,7 +136,6 @@ export default function DashBoard() {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-8">
-              {/* Quick actions */}
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <Link href="/upload" className="game-card p-4 text-center">
                   <div className="bg-theme-purple/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
@@ -177,7 +169,6 @@ export default function DashBoard() {
                 </Link>
               </div>
 
-              {/* Quick stats */}
               {loading && <div>Loading...</div>}
               {!loading && (
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

@@ -43,23 +43,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     fetchUser();
 
-    // Set up auth state change listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      // When signed out, session is null, so set user to null immediately
       if (event === "SIGNED_OUT" || !session) {
         setUser(null);
         return;
       }
 
-      // For other events, update user from session or fetch fresh
       setUser(session.user);
       setBearer(session.access_token);
-      // Fallback: fetch user if not in session
     });
 
-    // Cleanup subscription on unmount
     return () => {
       subscription.unsubscribe();
     };

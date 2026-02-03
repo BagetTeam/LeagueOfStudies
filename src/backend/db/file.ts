@@ -7,7 +7,6 @@ export async function getNotes(id: string) {
     .eq("id", id)
     .maybeSingle();
   if (error) {
-    console.error("Error fetching user stats:", error);
     return;
   }
   return data;
@@ -21,7 +20,6 @@ export async function getFileByPath(prim: string, userId: string) {
     .eq("id", userId)
     .maybeSingle();
   if (error) {
-    console.error("Error fetching file by path:", error);
     return null;
   }
   return data;

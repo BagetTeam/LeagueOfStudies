@@ -45,7 +45,6 @@ export default function ViewFilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Edit states
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [isEditingTags, setIsEditingTags] = useState(false);
@@ -73,16 +72,13 @@ export default function ViewFilePage() {
       setEditedTitle(fileData.title);
       setEditedTags(fileData.tags || []);
 
-      // Load comments from database
       if (fileData.comments && Array.isArray(fileData.comments)) {
         try {
-          // Comments are stored as string[] in DB, parse each as JSON to get Comment objects
           const parsedComments = fileData.comments
             .map((commentStr) => {
               try {
                 return JSON.parse(commentStr) as Comment;
               } catch {
-                // Fallback: if it's not JSON, treat as plain text
                 return {
                   id: crypto.randomUUID(),
                   text: commentStr,
@@ -92,15 +88,13 @@ export default function ViewFilePage() {
             })
             .filter(Boolean);
           setComments(parsedComments);
-        } catch (err) {
-          console.error("Error parsing comments:", err);
+        } catch {
           setComments([]);
         }
       } else {
         setComments([]);
       }
-    } catch (err) {
-      console.error("Error loading file:", err);
+    } catch {
       setError("Failed to load file");
     } finally {
       setLoading(false);
@@ -124,15 +118,11 @@ export default function ViewFilePage() {
         .select();
 
       if (error) {
-        console.error("Error updating title:", error);
-        console.error("Error details:", JSON.stringify(error, null, 2));
         alert(`Failed to update title: ${error.message}`);
         return;
       }
 
       if (!updateData || updateData.length === 0) {
-        console.warn("Update succeeded but no data returned");
-        // Fetch updated file
         const { data, error: fetchError } = await supabase
           .from("notes")
           .select("*")
@@ -141,7 +131,6 @@ export default function ViewFilePage() {
           .single();
 
         if (fetchError || !data) {
-          console.error("Error fetching updated file:", fetchError);
           alert("Failed to update title. Please try again.");
           return;
         }
@@ -153,8 +142,7 @@ export default function ViewFilePage() {
 
       setFile(updateData[0]);
       setIsEditingTitle(false);
-    } catch (err) {
-      console.error("Error updating title:", err);
+    } catch {
       alert("Failed to update title");
     }
   }
@@ -171,15 +159,11 @@ export default function ViewFilePage() {
         .select();
 
       if (error) {
-        console.error("Error updating tags:", error);
-        console.error("Error details:", JSON.stringify(error, null, 2));
         alert(`Failed to update tags: ${error.message}`);
         return;
       }
 
       if (!updateData || updateData.length === 0) {
-        console.warn("Update succeeded but no data returned");
-        // Fetch updated file
         const { data, error: fetchError } = await supabase
           .from("notes")
           .select("*")
@@ -188,7 +172,6 @@ export default function ViewFilePage() {
           .single();
 
         if (fetchError || !data) {
-          console.error("Error fetching updated file:", fetchError);
           alert("Failed to update tags. Please try again.");
           return;
         }
@@ -202,8 +185,7 @@ export default function ViewFilePage() {
       setFile(updateData[0]);
       setIsEditingTags(false);
       setNewTag("");
-    } catch (err) {
-      console.error("Error updating tags:", err);
+    } catch {
       alert("Failed to update tags");
     }
   }
@@ -233,7 +215,6 @@ export default function ViewFilePage() {
     setNewComment("");
     setIsAddingComment(false);
 
-    // Save comments to database as string array
     try {
       if (!user?.user?.id) {
         setComments(comments);
@@ -252,15 +233,10 @@ export default function ViewFilePage() {
         .select();
 
       if (error) {
-        console.error("Error saving comment:", error);
-        console.error("Error details:", JSON.stringify(error, null, 2));
-        // Revert on failure
         setComments(comments);
         alert(`Failed to save comment: ${error.message}`);
       }
-    } catch (err) {
-      console.error("Error saving comment:", err);
-      // Revert on failure
+    } catch {
       setComments(comments);
       alert("Failed to save comment");
     }
@@ -271,7 +247,6 @@ export default function ViewFilePage() {
     const updatedComments = comments.filter((c) => c.id !== commentId);
     setComments(updatedComments);
 
-    // Save comments to database as string array
     try {
       const commentsAsStrings = updatedComments.map((c) => JSON.stringify(c));
 
@@ -285,15 +260,10 @@ export default function ViewFilePage() {
         .select();
 
       if (error) {
-        console.error("Error deleting comment:", error);
-        console.error("Error details:", JSON.stringify(error, null, 2));
-        // Revert on failure
         setComments(comments);
         alert(`Failed to delete comment: ${error.message}`);
       }
-    } catch (err) {
-      console.error("Error deleting comment:", err);
-      // Revert on failure
+    } catch {
       setComments(comments);
       alert("Failed to delete comment");
     }
@@ -318,12 +288,9 @@ export default function ViewFilePage() {
           .from("notes")
           .remove([file.path]);
         if (storageError) {
-          console.error("Error deleting file from storage:", storageError);
-          // Continue with DB deletion even if storage fails
         }
       }
 
-      // Delete from database
       const { error } = await supabase
         .from("notes")
         .delete()
@@ -331,15 +298,13 @@ export default function ViewFilePage() {
         .eq("id", user.user.id);
 
       if (error) {
-        console.error("Error deleting file from database:", error);
         alert("Failed to delete file");
         setIsDeleting(false);
         return;
       }
 
       router.push("/dashboard");
-    } catch (err) {
-      console.error("Error deleting file:", err);
+    } catch {
       alert("Failed to delete file");
       setIsDeleting(false);
     }
@@ -390,7 +355,6 @@ export default function ViewFilePage() {
         </Link>
       </div>
       <div className="space-y-6">
-        {/* File Info Card */}
         <Card>
           <CardHeader>
             <div className="flex-1">
@@ -444,7 +408,6 @@ export default function ViewFilePage() {
           </CardHeader>
         </Card>
 
-        {/* Tags Card */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -542,7 +505,6 @@ export default function ViewFilePage() {
           </CardContent>
         </Card>
 
-        {/* Comments Card */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -631,7 +593,6 @@ export default function ViewFilePage() {
           </CardContent>
         </Card>
 
-        {/* Delete File Section */}
         <Card>
           <CardHeader>
             <CardTitle className="text-destructive">Danger Zone</CardTitle>

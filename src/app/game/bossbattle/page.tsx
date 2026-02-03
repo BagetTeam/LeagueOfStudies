@@ -86,7 +86,6 @@ function BossFightGame({ gameData }: BossFightProps) {
     setFeedbackMessage("Answer submitted! Waiting for team...");
     setShowFeedback(true);
 
-    // Broadcast the answer
     const { event, payload } = createBroadcastPayload(
       BROADCAST_EVENTS.recordPlayerAnswer,
       {
@@ -98,7 +97,6 @@ function BossFightGame({ gameData }: BossFightProps) {
     broadcastAndDispatch(event, payload);
   };
 
-  // clear all states when question changes (turnStartTime change)
   useEffect(() => {
     setIsAnsweredLocally(false);
     setSelectedOption(null);
@@ -107,7 +105,6 @@ function BossFightGame({ gameData }: BossFightProps) {
     setIsResolvingRound(false);
   }, [turnStartTime]);
 
-  // handle setting and calculating Time
   useEffect(() => {
     if (isGameOver || turnStartTime === null || isResolvingRound) {
       setTimeLeft(0);
@@ -120,14 +117,13 @@ function BossFightGame({ gameData }: BossFightProps) {
       const remaining = TURN_DURATION_SECONDS - elapsed;
       setTimeLeft(Math.max(0, remaining));
 
-      // Check if time ran out
       if (
         remaining <= 0 &&
         !isAnsweredLocally &&
         !isGameOver &&
         !isResolvingRound
       ) {
-        handleAnswer(null); // Submit a timeout answer (null = incorrect)
+        handleAnswer(null);
       }
     };
 
@@ -139,7 +135,6 @@ function BossFightGame({ gameData }: BossFightProps) {
     };
   }, [turnStartTime, isGameOver, isAnsweredLocally, isResolvingRound]);
 
-  // --- HOST ONLY: Round Resolution Logic ---
   useEffect(() => {
     if (
       !player.isHost ||
@@ -150,7 +145,7 @@ function BossFightGame({ gameData }: BossFightProps) {
       return;
     }
 
-    const activePlayers = players.filter((p) => p.state === "playing"); // Get currently living players
+    const activePlayers = players.filter((p) => p.state === "playing");
     const allAnsweredPlayerId = new Set(Object.keys(playerAnswers));
 
     const timeExpired =
@@ -159,7 +154,6 @@ function BossFightGame({ gameData }: BossFightProps) {
       allAnsweredPlayerId.has(p.playerId),
     );
 
-    // resolve round -> advance to next round
     if (timeExpired || allPlayersAnswered) {
       setIsResolvingRound(true);
 
@@ -167,9 +161,7 @@ function BossFightGame({ gameData }: BossFightProps) {
         (p) => playerAnswers[p.playerId]?.isCorrect,
       );
 
-      // -- Determine outcome --
       if (allPlayerAnswersCorrect && activePlayers.length > 0) {
-        // SUCCESS -> Damage Boss
         const damage = 10 * activePlayers.length;
         const newBossHealth = Math.max(0, (bossHealth ?? 0) - damage);
 
@@ -190,7 +182,6 @@ function BossFightGame({ gameData }: BossFightProps) {
           return;
         }
       } else {
-        //  FAILURE -> Damage Team
         const healthUpdates: { [playerId: string]: number } = {};
 
         activePlayers.forEach((p) => {
@@ -203,7 +194,6 @@ function BossFightGame({ gameData }: BossFightProps) {
         );
         broadcastAndDispatch(event, payload);
 
-        // Check if team lost
         const teamWiped = activePlayers.every(
           (p) => (healthUpdates[p.playerId] ?? p.health) <= 0,
         );
@@ -229,18 +219,17 @@ function BossFightGame({ gameData }: BossFightProps) {
   }, [
     player.isHost,
     turnStartTime,
-    players, // react to health changes
+    players,
     playerAnswers,
     currentQuestionIndex,
     bossHealth,
     isResolvingRound,
   ]);
 
-  // HANDLE GAME OVER -> xp + go gameover page
   const user = useUser();
   useEffect(() => {
     if (isGameOver && !xpUpdateAttempted) {
-      setXpUpdateAttempted(true); // make sure action isn't repeated twice
+      setXpUpdateAttempted(true);
 
       async function onWinXpChange() {
         if (user?.user?.email) {
@@ -263,7 +252,6 @@ function BossFightGame({ gameData }: BossFightProps) {
     }
   }, [isGameOver, isTeamVictory, xpUpdateAttempted, user?.user?.email, router]);
 
-  // --- UI Rendering ---
   const canAnswer =
     player.health > 0 && !isAnsweredLocally && !isResolvingRound && !isGameOver;
 
@@ -280,13 +268,12 @@ function BossFightGame({ gameData }: BossFightProps) {
             bossName={bossName}
             bossHealth={bossHealth}
             maxHealth={100}
-            isAttacking={false} // Attack animation could be triggered by TEAM_DAMAGED broadcast maybe?
+            isAttacking={false}
             feedback={feedbackMessage}
             showFeedback={showFeedback}
           />
         </div>
 
-        {/* TeamStatus might need slight adjustment if getBossAttackClass is removed/changed */}
         <TeamStatus
           players={players}
           getBossAttackClass={() => ""}
@@ -312,7 +299,6 @@ function BossFightGame({ gameData }: BossFightProps) {
                 </p>
               </div>
             )}
-            {/* Indicate waiting gameState */}
             {isAnsweredLocally && !isResolvingRound && (
               <div className="bg-muted mt-6 rounded-md p-3 text-center">
                 <p className="text-muted-foreground animate-pulse">

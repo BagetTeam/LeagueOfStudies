@@ -64,8 +64,7 @@ export async function POST(req: NextRequest) {
       { message: "Questions generated!", questions: questions },
       { status: 200 },
     );
-  } catch (error) {
-    console.error("Error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to handle request" },
       { status: 500 },

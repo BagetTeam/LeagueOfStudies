@@ -63,7 +63,6 @@ export default function LobbyScreen() {
     [gameSubject, player.state, broadcastAndDispatch],
   );
 
-  // Initialize Lobby
   useEffect(() => {
     if (lobbyId == "") {
       const newPlayerId = crypto.randomUUID();
@@ -76,16 +75,13 @@ export default function LobbyScreen() {
         name: newPlayerName,
       };
 
-      // join lobby
       if (joinLobbyId) {
         const joinLobby: Lobby = { ...lobby, lobbyId: joinLobbyId };
         dispatch({
           type: "joinLobby",
           payload: { lobby: joinLobby, player: updatedPlayer },
-        }); // TODO fix this
-      }
-      // create lobby
-      else {
+        });
+      } else {
         const newLobbyId = "game-" + crypto.randomUUID().toString();
         const newLobby: Lobby = {
           ...defaultLobby,
@@ -101,12 +97,10 @@ export default function LobbyScreen() {
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchingRef = useRef(false);
 
-  // initialize questions
   useEffect(() => {
     if (!player.isHost) return;
 
@@ -128,7 +122,6 @@ export default function LobbyScreen() {
     generateQuestions,
   ]);
 
-  // starting game
   useEffect(() => {
     if (player.state === "playing") {
       if (lobby.gameMode.type === "deathmatch") {
@@ -163,8 +156,6 @@ export default function LobbyScreen() {
         },
       );
       broadcastAndDispatch(event, payload);
-    } else {
-      console.warn("Cannot start game: Not host or no players.");
     }
   };
 
@@ -174,10 +165,7 @@ export default function LobbyScreen() {
   };
 
   const copyInviteLink = () => {
-    navigator.clipboard
-      .writeText(gameUrl)
-      .then(() => console.log("Invite link copied"))
-      .catch((err) => console.error("Failed to copy link: ", err));
+    navigator.clipboard.writeText(gameUrl);
   };
 
   const shareInviteLink = async () => {
@@ -188,8 +176,7 @@ export default function LobbyScreen() {
           text: "Join me for a fun quiz challenge!",
           url: gameUrl,
         });
-      } catch (err) {
-        console.error("Error sharing:", err);
+      } catch {
         copyInviteLink();
       }
     } else {
@@ -220,7 +207,7 @@ export default function LobbyScreen() {
           </div>
           <button
             onClick={async () => {
-              if (!studyText) return; // Prevent empty submissions
+              if (!studyText) return;
 
               dispatch({
                 type: "setGameSubject",
@@ -228,13 +215,12 @@ export default function LobbyScreen() {
               });
               generateQuestions(studyText);
             }}
-            disabled={loading || !studyText} // Disable if loading or no text
+            disabled={loading || !studyText}
             className="w-full max-w-3xl border border-black bg-white px-4 py-3 text-black shadow-[2px_2px_0_0_black] transition-shadow hover:shadow-[1px_1px_0_0_black] disabled:opacity-50 min-[1150px]:max-w-xl min-[1150px]:w-full"
           >
             {loading ? "Generating..." : "Submit"}
           </button>
 
-          {/* Display questions */}
           {questions.length > 0 && (
             <div className="mt-6 grid w-full max-w-5xl grid-cols-1 gap-4 min-[1150px]:mt-6 min-[1150px]:max-w-xl min-[1150px]:gap-4">
               {questions.map((qa, idx) => (
@@ -251,7 +237,6 @@ export default function LobbyScreen() {
         </div>
       )}
       <div className="order-1 flex min-w-0 flex-1 flex-col items-center gap-4 p-4 min-[1150px]:order-2 min-[1150px]:basis-0 min-[1150px]:p-6">
-        {/* Back Button */}
         <Button
           onClick={handleBackToMenuClick}
           className="mb-2 flex items-center gap-2 self-start min-[1150px]:mb-4"
@@ -260,9 +245,7 @@ export default function LobbyScreen() {
           <span>Back to Menu</span>
         </Button>
 
-        {/* Lobby Title */}
         <h1 className="mb-2 text-center text-2xl font-bold min-[1150px]:text-3xl">Game Lobby</h1>
-        {/* Display Game Mode */}
         <p className="text-muted-foreground mb-4 text-center text-sm capitalize min-[1150px]:mb-6 min-[1150px]:text-base">
           Mode: {lobby.gameMode.type}{" "}
           {lobby.gameMode.type === "deathmatch"
@@ -270,7 +253,6 @@ export default function LobbyScreen() {
             : ""}
         </p>
 
-        {/* Invite Section */}
         <div className="bg-secondary/30 border-secondary flex w-full flex-col gap-3 rounded-lg border p-3 min-[1150px]:p-4">
           <div className="text-center text-xs font-medium min-[1150px]:text-left min-[1150px]:text-sm">
             Invite players with this link:
@@ -301,13 +283,11 @@ export default function LobbyScreen() {
           </p>
         </div>
 
-        {/* Player List Section */}
         <div className="mt-2 w-full min-w-0 min-[1150px]:mt-4">
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-base font-semibold min-[1150px]:text-lg">
               Players ({players.length})
             </h2>
-            {/* Start Game Button for Host */}
             {player.isHost && (
               <Button
                 onClick={startGame}
@@ -333,7 +313,6 @@ export default function LobbyScreen() {
             )}
           </div>
 
-          {/* Player List Component */}
           {players.length > 0 ? (
             <PlayerList players={players} currentPlayerId={player.playerId} />
           ) : (

@@ -98,7 +98,6 @@ export default function NavBar() {
           </div>
         </Link>
 
-        {/* Desktop nav links */}
         <div className="hidden flex-shrink-0 items-center gap-2 sm:gap-4 min-[860px]:flex">
           {user && (
             <Link href="/dashboard">
@@ -139,7 +138,6 @@ export default function NavBar() {
           )}
         </div>
 
-        {/* Mobile hamburger button */}
         <div className="flex-shrink-0 min-[860px]:hidden">
           <Button
             className="flex h-8 w-8 items-center justify-center p-0 shadow-none hover:shadow-[1px_1px_0_0_black]"
@@ -151,7 +149,6 @@ export default function NavBar() {
         </div>
       </div>
 
-      {/* Mobile dropdown menu (portaled to body so it isn't clipped by navbar overflow) */}
       {menuPortal}
     </div>
   );

@@ -34,7 +34,6 @@ export default function GameModes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const dashboardRef = useRef<HTMLAnchorElement | null>(null);
-  // clear any existing loaded lobby setups
   useEffect(() => {
     const { event, payload } = createBroadcastPayload("setLobby", {
       lobby: defaultLobby,
@@ -135,7 +134,6 @@ export default function GameModes() {
         team up with friends!
       </p>
 
-      {/* Game modes section */}
       <div className="mb-12 grid gap-6 md:grid-cols-2">
         <div
           className={`game-card cursor-pointer transition-all ${selectedMode === "deathmatch" ? "ring-2 ring-black" : ""}`}
@@ -216,7 +214,6 @@ export default function GameModes() {
         </div>
       </div>
 
-      {/* Subject selection */}
       {selectedMode && !sessionStorage.getItem("gameTitle") && (
         <>
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -300,7 +297,6 @@ export default function GameModes() {
         </>
       )}
 
-      {/* Placeholder -- Call-to-action for creating custom game */}
       <div className="bg-theme-purple/10 rounded-xl p-6 md:p-8">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row"></div>
       </div>

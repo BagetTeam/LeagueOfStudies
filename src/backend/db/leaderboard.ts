@@ -7,13 +7,7 @@ export async function addWin(email: string, type: string) {
     .eq("email", email)
     .single();
   if (fetchError) {
-    if (fetchError.code === "PGRST116") {
-      // Supabase code for 'Not Found'
-      console.warn(
-        `No stats row found for ${email}. Cannot update wins directly.`,
-      );
-    } else {
-      console.error(`Error fetching user wins for ${email}:`, fetchError);
+    if (fetchError.code !== "PGRST116") {
       throw fetchError;
     }
     return;
@@ -26,10 +20,6 @@ export async function addWin(email: string, type: string) {
       .update({ d_wins: currDWins + 1 })
       .eq("email", email);
     if (updateError) {
-      console.error(
-        `Error updating user boss fight wins for ${email}:`,
-        updateError,
-      );
       throw updateError;
     }
   } else if (type == "b") {
@@ -38,10 +28,6 @@ export async function addWin(email: string, type: string) {
       .update({ b_wins: currBWins + 1 })
       .eq("email", email);
     if (updateError) {
-      console.error(
-        `Error updating user boss fight wins for ${email}:`,
-        updateError,
-      );
       throw updateError;
     }
   }
@@ -59,19 +45,12 @@ export async function updateLeaderboard(
       .single();
 
     if (fetchError) {
-      if (fetchError.code === "PGRST116") {
-        // Supabase code for 'Not Found'
-        console.warn(
-          `No stats row found for ${email}. Cannot update XP directly.`,
-        );
-      } else {
-        console.error(`Error fetching user stats for ${email}:`, fetchError);
+      if (fetchError.code !== "PGRST116") {
         throw fetchError;
       }
       return;
     }
 
-    // Make sure playing xp doesn't go negative
     const currentXp = currentStats?.totalXp ?? 0;
     const curr_d_total = currentStats?.d_total ?? 0;
     const curr_b_total = currentStats?.b_total ?? 0;
@@ -87,10 +66,6 @@ export async function updateLeaderboard(
         .update({ b_total: curr_b_total + 1 })
         .eq("email", email);
       if (totalError) {
-        console.error(
-          `Error updating user boss fight total for ${email}:`,
-          totalError,
-        );
         throw totalError;
       }
     } else if (type == "d") {
@@ -99,19 +74,13 @@ export async function updateLeaderboard(
         .update({ d_total: curr_d_total + 1 })
         .eq("email", email);
       if (totalError) {
-        console.error(
-          `Error updating user deathmatch total for ${email}:`,
-          totalError,
-        );
         throw totalError;
       }
     }
     if (updateError) {
-      console.error(`Error updating user XP for ${email}:`, updateError);
       throw updateError;
     }
-  } catch (error) {
-    console.error("Failed to update user XP:", error);
+  } catch {
   }
 }
 
@@ -124,11 +93,10 @@ export async function fetchLeaderboard() {
       .order("totalXp", { ascending: false });
 
     if (error) {
-      console.error("Error fetching leaderboard:", error);
-    } else {
-      return data || [];
+      return [];
     }
-  } catch (error) {
-    console.error("Error fetching leaderboard:", error);
+    return data || [];
+  } catch {
+    return [];
   }
 }

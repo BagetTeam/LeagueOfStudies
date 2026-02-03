@@ -255,7 +255,7 @@ export function gameStatereducer(
     }
 
     case "setBossHealth":
-      if (state.lobby.gameMode.type !== "bossfight") return state; // Only run in boss mode
+      if (state.lobby.gameMode.type !== "bossfight") return state;
       return {
         ...state,
         lobby: {
@@ -271,7 +271,6 @@ export function gameStatereducer(
       };
 
     case "recordPlayerAnswer":
-      // Only record if the answer is for the current question index state
       if (action.payload.questionIndex !== state.lobby.currentQuestionIndex) {
         return state;
       }
@@ -365,17 +364,14 @@ export function gameStatereducer(
         }
       }
 
-      // Answering player answered before -> Health reduction for current player
       if (isCorrect && answeringPlayerId !== currentPlayerId) {
         removeHealth(currentPlayerId);
       }
 
-      // If answer is not correct
       if (!isCorrect) {
         removeHealth(answeringPlayerId);
       }
 
-      // Find the next player who is still alive (using the updated player list)
       let nextIndex = (currentPlayerIndex + 1) % newPlayers.length;
       while (
         newPlayers[nextIndex]?.state !== "playing" ||

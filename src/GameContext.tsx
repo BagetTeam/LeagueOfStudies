@@ -33,9 +33,6 @@ export const BROADCAST_EVENTS = Object.fromEntries(
 
 type BroadcastEventType = keyof BroadcastingPayloads;
 
-// export type BroadcastEventType =
-//   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
-
 type GameContextType = {
   gameState: GameState;
   dispatch: React.Dispatch<GameStateActions>;
@@ -62,44 +59,39 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const { player, lobby } = gameState;
 
   useEffect(() => {
-    // remove channel is already existent
     if (channelRef.current) {
       channelRef.current.unsubscribe();
       channelRef.current = null;
     }
 
-    // add Lobby channel to player
     if (lobby.lobbyId && player.playerId.length > 0) {
       const channel = supabase.channel(lobby.lobbyId, {
         config: {
-          presence: {
+            presence: {
             key: gameState.player.playerId.toString(),
           },
           broadcast: {
-            ack: true, // Optional: Wait for ack from server
+            ack: true,
           },
         },
       });
       channelRef.current = channel;
 
-      // --- Presence Handlers ---
       channel.on("presence", { event: "sync" }, () => {
         const presenceState = channel.presenceState<{ playerInfo: Player }>();
         const updatedPlayers = Object.values(presenceState)
           .map((presence) => presence[0]?.playerInfo)
           .filter(
             (player): player is Player => !!player && player.playerId !== "",
-          ); // Filter out invalid/guest players
+          );
 
         dispatch({ type: "setPlayers", payload: { players: updatedPlayers } });
       });
 
-      channel.on("presence", { event: "join" }, ({ key, newPresences }) => {
-        console.log("Presence join:", key, newPresences);
+      channel.on("presence", { event: "join" }, ({ newPresences }) => {
         const joinedPlayerInfo = newPresences[0]?.playerInfo as
           | Player
           | undefined;
-        // Ensure valid player joined
         if (joinedPlayerInfo && joinedPlayerInfo.playerId !== "") {
           const currentPlayers = lobby.players;
           if (
@@ -126,10 +118,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       });
 
-      channel.on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-        console.log("Presence leave:", key, leftPresences);
-        // Rely on the next 'sync' event triggered by leave, or explicitly remove
-        const leftPlayerId = parseInt(key, 10); // Key is the player ID
+      channel.on("presence", { event: "leave" }, ({ key }) => {
+        const leftPlayerId = parseInt(key, 10);
         if (!isNaN(leftPlayerId)) {
           const remainingPlayers = lobby.players.filter(
             (p) => p.playerId !== leftPlayerId.toString(),
@@ -141,7 +131,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       });
 
-      // --- Broadcast Handlers ---
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.setLobby },
@@ -300,21 +289,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         },
       );
 
-      // Add player to lobby connections
       channel.subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          // Track this user's presence once subscribed, and sync other players
           if (gameState.player.playerId.length > 0) {
             await channel.track({ playerInfo: gameState.player });
           }
-        } else if (status === "CHANNEL_ERROR") {
-          console.error(`Channel Error for ${gameState.lobby.lobbyId}`);
-        } else if (status === "TIMED_OUT") {
-          console.warn(
-            `Channel subscription timed out for ${gameState.lobby.lobbyId}`,
-          );
-        } else if (status === "CLOSED") {
-          console.log(`Channel ${gameState.lobby.lobbyId} closed.`);
         }
       });
 
@@ -339,13 +318,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
             event: event,
             payload: payload,
           })
-          .catch((error) => {
-            console.error(`Broadcast ${event} failed:`, error);
-          });
-      } else {
-        console.warn(
-          "Cannot send broadcast, channel not available or not subscribed yet.",
-        );
+          .catch(() => {});
       }
     },
     [dispatch],
