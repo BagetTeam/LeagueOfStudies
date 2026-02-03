@@ -49,36 +49,37 @@
   --font-sans: "IBM VGA 9x16", ui-monospace, monospace;
 }
 :root {
-  /* Mint and cream only */
-  --theme-purple-light: 155 35% 94%;
-  --theme-purple: 155 30% 88%;
-  --theme-purple-dark: 155 28% 78%;
+  /* Highlight #B6C2ED (soft periwinkle) */
+  --theme-purple-light: 227 65% 90%;
+  --theme-purple: 227 60% 82%;
+  --theme-purple-dark: 227 55% 72%;
 
-  --theme-orange: 155 30% 88%;
-  --theme-blue: 155 30% 88%;
+  --theme-orange: 227 60% 82%;
+  --theme-blue: 227 60% 82%;
 
-  /* Cream background */
-  --background: 45 28% 95%;
+  /* Cream #FDF9F3 */
+  --background: 36 70% 97%;
   --foreground: 0 0% 8%;
 
   /* Cream windows/cards */
-  --card: 45 25% 98%;
+  --card: 36 60% 99%;
   --card-foreground: 0 0% 8%;
 
-  --popover: 45 25% 98%;
+  --popover: 36 60% 99%;
   --popover-foreground: 0 0% 8%;
 
-  /* Mint accent */
-  --primary: 155 30% 88%;
+  /* Saturated mint */
+  /* Highlight #B6C2ED */
+  --primary: 227 60% 82%;
   --primary-foreground: 0 0% 8%;
 
-  --secondary: 155 25% 90%;
+  --secondary: 227 55% 86%;
   --secondary-foreground: 0 0% 8%;
 
-  --muted: 45 22% 94%;
+  --muted: 36 55% 95%;
   --muted-foreground: 0 0% 35%;
 
-  --accent: 155 30% 88%;
+  --accent: 227 60% 82%;
   --accent-foreground: 0 0% 8%;
 
   --destructive: 0 84% 60%;
@@ -86,7 +87,7 @@
 
   --border: 0 0% 12%;
   --input: 0 0% 12%;
-  --ring: 155 28% 75%;
+  --ring: 227 55% 70%;
 }
 
 /* Cards: same OS style as buttons (white, black border, right/bottom shadow) */

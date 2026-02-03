@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/ui";
-import { GraduationCap, LogIn, User } from "lucide-react";
+import { LogIn, User } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/UserContext";
@@ -18,7 +19,13 @@ export default function NavBar() {
           href="/"
           className="flex flex-shrink-0 gap-2 text-xl font-bold underline underline-offset-2 sm:gap-3 sm:text-2xl"
         >
-          <GraduationCap className="text-primary h-6 w-6 sm:h-8 sm:w-8" />
+          <Image
+            src="/mac_icon.png"
+            alt="League of Studies"
+            width={32}
+            height={32}
+            className="h-6 w-6 shrink-0 bg-transparent object-contain sm:h-8 sm:w-8"
+          />
           <div className="hidden md:block">
             League
             <span className="text-secondary">
