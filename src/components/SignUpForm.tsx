@@ -14,7 +14,7 @@ import { signup } from "@/lib/auth-actions";
 
 export function SignUpForm() {
   return (
-    <Card className="mx-auto max-w-sm border-border border border-solid bg-white">
+    <Card className="mx-auto max-w-sm">
       <CardHeader>
         <CardTitle className="text-xl">Sign Up</CardTitle>
         <CardDescription>

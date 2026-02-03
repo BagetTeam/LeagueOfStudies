@@ -137,7 +137,7 @@ export default function GameModes() {
       {/* Game modes section */}
       <div className="mb-12 grid gap-6 md:grid-cols-2">
         <div
-          className={`game-card hover:border-theme-orange cursor-pointer transition-all ${selectedMode === "deathmatch" ? "border-theme-orange ring-theme-orange/20 ring-2" : ""}`}
+          className={`game-card cursor-pointer transition-all ${selectedMode === "deathmatch" ? "ring-2 ring-black" : ""}`}
           onClick={() => {
             setSelectedMode("deathmatch");
             if (sessionStorage.getItem("gameSubject")) {
@@ -176,7 +176,7 @@ export default function GameModes() {
         </div>
 
         <div
-          className={`game-card hover:border-theme-blue cursor-pointer transition-all ${selectedMode === "bossfight" ? "border-theme-blue ring-theme-blue/20 ring-2" : ""}`}
+          className={`game-card cursor-pointer transition-all ${selectedMode === "bossfight" ? "ring-2 ring-black" : ""}`}
           onClick={() => {
             setSelectedMode("bossfight");
             if (sessionStorage.getItem("gameSubject")) {

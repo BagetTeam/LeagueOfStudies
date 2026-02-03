@@ -19,10 +19,7 @@ export default function Button({
     <motion.button
       {...props}
       className={cn(
-        "flex items-center rounded-xl p-3 hover:cursor-pointer",
-        variant === "normal" &&
-          "border-border border border-solid bg-transparent",
-        variant === "special" && "bg-theme-purple text-background",
+        "flex items-center rounded-none border border-black bg-white p-3 text-black shadow-[2px_2px_0_0_black] hover:cursor-pointer hover:shadow-[1px_1px_0_0_black] active:shadow-[1px_1px_0_0_black]",
         className,
       )}
     >

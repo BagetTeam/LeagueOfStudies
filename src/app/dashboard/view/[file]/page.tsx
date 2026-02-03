@@ -632,7 +632,7 @@ export default function ViewFilePage() {
         </Card>
 
         {/* Delete File Section */}
-        <Card className="border-destructive/50">
+        <Card>
           <CardHeader>
             <CardTitle className="text-destructive">Danger Zone</CardTitle>
             <CardDescription>

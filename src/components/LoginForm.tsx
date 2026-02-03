@@ -32,7 +32,7 @@ export function LoginForm() {
     redirect("/");
   }
   return (
-    <Card className="border-border mx-auto max-w-sm border border-solid bg-white">
+    <Card className="mx-auto max-w-sm">
       <CardHeader>
         <CardTitle className="text-2xl">Login</CardTitle>
         <CardDescription>

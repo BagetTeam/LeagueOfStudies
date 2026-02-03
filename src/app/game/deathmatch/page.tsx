@@ -240,7 +240,7 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
                     ? "bg-muted/50 text-muted-foreground border-muted opacity-60"
                     : players[index].playerId === player.playerId
                       ? "bg-blue-600"
-                      : "bg-card" // Default card style
+                      : "bg-white" // OS-style card
               }`}
             >
               <div className="mb-2 flex items-start justify-between">
@@ -322,7 +322,7 @@ function DeathmatchGame({ gameData }: DeathMatchProps) {
           </div>
 
           {/* Question */}
-          <div className="game-card bg-card mb-8 rounded-lg border p-6 shadow-sm">
+          <div className="game-card mb-8 p-6">
             <h2 className="mb-2 text-xl font-semibold md:text-2xl">
               {currentQuestion.question}
             </h2>

@@ -85,8 +85,13 @@
   --ring: 258 80% 74%;
 }
 
+/* Cards: same OS style as buttons (white, black border, right/bottom shadow) */
 .game-card {
-  @apply bg-card border-border relative overflow-hidden rounded-xl border p-6 shadow-md transition-all hover:shadow-lg;
+  @apply relative overflow-hidden border border-black bg-white p-6 text-black shadow-[2px_2px_0_0_black] transition-shadow;
+}
+
+.game-card:hover {
+  @apply shadow-[1px_1px_0_0_black];
 }
 
 .game-card::before {
@@ -242,9 +247,13 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Button hover effects - underline and shift right */
+/* OS-style buttons: white bg, black border, shadow on right and bottom only */
 button {
-  transition: text-decoration 0.2s ease-in-out;
+  background: white !important;
+  border: 1px solid black !important;
+  box-shadow: 2px 2px 0 black;
+  color: black;
+  transition: text-decoration 0.2s ease-in-out, box-shadow 0.15s ease;
 }
 
 button:hover {
@@ -252,12 +261,15 @@ button:hover {
   text-underline-offset: 4px;
 }
 
+button:active {
+  box-shadow: 1px 1px 0 black;
+}
+
 /* Shift button content to the right on hover */
 button:hover > * {
   transform: translateX(4px);
 }
 
-/* Ensure transition is smooth for button content */
 button > * {
   transition: transform 0.2s ease-in-out;
   display: inline-block;

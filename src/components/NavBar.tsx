@@ -16,17 +16,17 @@ export default function NavBar() {
         {/* {JSON.stringify(user?.user_metadata)} */}
         <Link
           href="/"
-          className="flex flex-shrink-0 gap-2 text-xl font-bold sm:gap-3 sm:text-2xl"
+          className="flex flex-shrink-0 gap-2 text-xl font-bold underline underline-offset-2 sm:gap-3 sm:text-2xl"
         >
           <GraduationCap className="text-primary h-6 w-6 sm:h-8 sm:w-8" />
-          <div className="hidden hover:underline hover:decoration-black md:block">
+          <div className="hidden md:block">
             League
-            <span className="text-secondary hover:underline hover:decoration-black">
+            <span className="text-secondary">
               Of
             </span>
             Studies
           </div>
-          <div className="hover:underline hover:decoration-black md:hidden">
+          <div className="md:hidden">
             L
             <span className="text-secondary hover:underline hover:decoration-black">
               o
@@ -36,28 +36,27 @@ export default function NavBar() {
         </Link>
         <div className="flex flex-shrink-0 items-center gap-2 sm:gap-4">
           {user && (
-            <Link href="/dashboard">
+            <Link href="/dashboard" className="underline underline-offset-2">
               <Button className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
                 Dashboard
               </Button>
             </Link>
           )}
-          <Link href="/game">
+          <Link href="/game" className="underline underline-offset-2">
             <Button className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
               Games
             </Button>
           </Link>
-          <Link href="/leaderboard">
+          <Link href="/leaderboard" className="underline underline-offset-2">
             <Button className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
               Leaderboard
             </Button>
           </Link>
 
           {user ? (
-            <Link href="/logout">
+            <Link href="/logout" className="underline underline-offset-2">
               <Button
                 className="flex items-center justify-center gap-1 px-2 py-1 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
-                variant="special"
               >
                 <span className="sm:hidden">Log Out</span>
                 <User className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -65,7 +64,6 @@ export default function NavBar() {
             </Link>
           ) : (
             <Button
-              variant="special"
               className="flex items-center justify-center gap-1 px-2 py-1 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
               onClick={() => {
                 router.push("/login");
