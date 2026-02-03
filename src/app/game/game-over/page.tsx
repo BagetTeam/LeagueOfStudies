@@ -34,7 +34,7 @@ export default function GameOver() {
   };
 
   return (
-    <div className="game-card bg-card mx-auto max-w-2xl rounded-lg border p-8 text-center shadow-lg">
+    <div className="game-card mx-auto max-w-2xl p-8 text-center">
       <>
         {/* BossFight Game Over Screen */}
         {gameMode.type === "bossfight" ? (

@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/ui";
-import { GraduationCap, LogIn, User } from "lucide-react";
+import { LogIn, User } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/lib/UserContext";
@@ -16,17 +17,23 @@ export default function NavBar() {
         {/* {JSON.stringify(user?.user_metadata)} */}
         <Link
           href="/"
-          className="flex flex-shrink-0 gap-2 text-xl font-bold sm:gap-3 sm:text-2xl"
+          className="flex flex-shrink-0 gap-2 text-xl font-bold underline underline-offset-2 sm:gap-3 sm:text-2xl"
         >
-          <GraduationCap className="text-primary h-6 w-6 sm:h-8 sm:w-8" />
-          <div className="hidden hover:underline hover:decoration-black md:block">
+          <Image
+            src="/mac_icon.png"
+            alt="League of Studies"
+            width={32}
+            height={32}
+            className="h-6 w-6 shrink-0 bg-transparent object-contain sm:h-8 sm:w-8"
+          />
+          <div className="hidden md:block">
             League
-            <span className="text-secondary hover:underline hover:decoration-black">
+            <span className="text-secondary">
               Of
             </span>
             Studies
           </div>
-          <div className="hover:underline hover:decoration-black md:hidden">
+          <div className="md:hidden">
             L
             <span className="text-secondary hover:underline hover:decoration-black">
               o
@@ -57,7 +64,6 @@ export default function NavBar() {
             <Link href="/logout">
               <Button
                 className="flex items-center justify-center gap-1 px-2 py-1 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
-                variant="special"
               >
                 <span className="sm:hidden">Log Out</span>
                 <User className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -65,7 +71,6 @@ export default function NavBar() {
             </Link>
           ) : (
             <Button
-              variant="special"
               className="flex items-center justify-center gap-1 px-2 py-1 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
               onClick={() => {
                 router.push("/login");

@@ -14,7 +14,7 @@ export default function GameMode() {
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="game-card border-theme-purple/30 hover:border-theme-purple transition-all">
+        <div className="game-card transition-all">
           <div className="mb-4 flex items-center gap-3">
             <div className="bg-theme-orange/20 flex h-10 w-10 items-center justify-center rounded-full">
               <Trophy className="text-theme-orange h-5 w-5" />
@@ -36,7 +36,7 @@ export default function GameMode() {
           </Button>
         </div>
 
-        <div className="game-card border-theme-purple/30 hover:border-theme-purple transition-all">
+        <div className="game-card transition-all">
           <div className="mb-4 flex items-center gap-3">
             <div className="bg-theme-blue/20 flex h-10 w-10 items-center justify-center rounded-full">
               <Users className="text-theme-blue h-5 w-5" />
