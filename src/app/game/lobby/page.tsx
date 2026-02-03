@@ -202,17 +202,17 @@ export default function LobbyScreen() {
   };
 
   return (
-    <div className="flex w-full basis-full gap-8 p-4">
+    <div className="flex w-full basis-full flex-col gap-6 p-4 min-[1150px]:flex-row min-[1150px]:gap-8 min-[1150px]:p-6">
       {player.isHost && (
-        <div className="flex h-full basis-full flex-col items-center justify-start bg-gray-100 p-8">
-          <h1 className="mb-8 text-3xl font-bold">Study Question Generator</h1>
+        <div className="order-2 flex min-h-0 flex-1 flex-col items-center justify-start bg-gray-100 p-4 min-[1150px]:order-1 min-[1150px]:max-w-xl min-[1150px]:shrink-0 min-[1150px]:p-6">
+          <h1 className="mb-4 text-2xl font-bold min-[1150px]:mb-6 min-[1150px]:text-2xl">Study Question Generator</h1>
           <textarea
             value={studyText}
             onChange={handleChange}
             placeholder="Write your study material here..."
-            className="h-56 w-full max-w-3xl resize-none rounded-lg border border-gray-300 p-4 text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            className="h-40 w-full max-w-3xl resize-none rounded-lg border border-gray-300 p-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 min-[1150px]:h-44 min-[1150px]:max-w-xl"
           />
-          <div className="my-8">
+          <div className="my-4 min-[1150px]:my-6">
             <PDF_reader
               file={false}
               onExtract={(text: string) => setStudyText(text)}
@@ -229,41 +229,41 @@ export default function LobbyScreen() {
               generateQuestions(studyText);
             }}
             disabled={loading || !studyText} // Disable if loading or no text
-            className="..."
+            className="w-full max-w-3xl border border-black bg-white px-4 py-3 text-black shadow-[2px_2px_0_0_black] transition-shadow hover:shadow-[1px_1px_0_0_black] disabled:opacity-50 min-[1150px]:max-w-xl min-[1150px]:w-full"
           >
             {loading ? "Generating..." : "Submit"}
           </button>
 
           {/* Display questions */}
           {questions.length > 0 && (
-            <div className="mt-10 grid w-full max-w-5xl grid-cols-1 gap-6">
+            <div className="mt-6 grid w-full max-w-5xl grid-cols-1 gap-4 min-[1150px]:mt-6 min-[1150px]:max-w-xl min-[1150px]:gap-4">
               {questions.map((qa, idx) => (
                 <div
                   key={idx}
-                  className="rounded-lg bg-white p-6 shadow-md transition hover:shadow-lg"
+                  className="rounded-lg bg-white p-4 shadow-md transition hover:shadow-lg min-[1150px]:p-4"
                 >
-                  <h2 className="mb-2 text-xl font-bold">{qa.question}</h2>
-                  <p className="text-gray-700">{qa.options[idx]}</p>
+                  <h2 className="mb-2 text-base font-bold min-[1150px]:text-sm">{qa.question}</h2>
+                  <p className="text-gray-700 text-sm min-[1150px]:text-xs">{qa.options[idx]}</p>
                 </div>
               ))}
             </div>
           )}
         </div>
       )}
-      <div className="flex basis-1/2 flex-col items-center gap-4 p-4">
+      <div className="order-1 flex min-w-0 flex-1 flex-col items-center gap-4 p-4 min-[1150px]:order-2 min-[1150px]:basis-0 min-[1150px]:p-6">
         {/* Back Button */}
         <Button
           onClick={handleBackToMenuClick}
-          className="mb-4 flex items-center gap-2 self-start" // Align left
+          className="mb-2 flex items-center gap-2 self-start min-[1150px]:mb-4"
         >
           <ArrowLeft size={16} />
           <span>Back to Menu</span>
         </Button>
 
         {/* Lobby Title */}
-        <h1 className="mb-2 text-center text-3xl font-bold">Game Lobby</h1>
+        <h1 className="mb-2 text-center text-2xl font-bold min-[1150px]:text-3xl">Game Lobby</h1>
         {/* Display Game Mode */}
-        <p className="text-muted-foreground mb-6 text-center capitalize">
+        <p className="text-muted-foreground mb-4 text-center text-sm capitalize min-[1150px]:mb-6 min-[1150px]:text-base">
           Mode: {lobby.gameMode.type}{" "}
           {lobby.gameMode.type === "deathmatch"
             ? `(${lobby.gameMode.data.time}s)`
@@ -271,14 +271,14 @@ export default function LobbyScreen() {
         </p>
 
         {/* Invite Section */}
-        <div className="bg-secondary/30 border-secondary flex w-full flex-col gap-3 rounded-lg border p-4">
-          <div className="text-center text-sm font-medium md:text-left">
+        <div className="bg-secondary/30 border-secondary flex w-full flex-col gap-3 rounded-lg border p-3 min-[1150px]:p-4">
+          <div className="text-center text-xs font-medium min-[1150px]:text-left min-[1150px]:text-sm">
             Invite players with this link:
           </div>
-          <div className="bg-background truncate rounded border p-2 text-center font-mono text-xs select-all">
+          <div className="bg-background max-w-full truncate rounded border p-2 text-center font-mono text-xs select-all">
             {gameUrl}
           </div>
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2 min-[1150px]:flex-nowrap">
             <Button
               onClick={copyInviteLink}
               className="flex items-center gap-1"
@@ -302,9 +302,9 @@ export default function LobbyScreen() {
         </div>
 
         {/* Player List Section */}
-        <div className="mt-4 w-full">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">
+        <div className="mt-2 w-full min-w-0 min-[1150px]:mt-4">
+          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-base font-semibold min-[1150px]:text-lg">
               Players ({players.length})
             </h2>
             {/* Start Game Button for Host */}
@@ -317,7 +317,7 @@ export default function LobbyScreen() {
                   questions.length === 0 ||
                   (players.length < 2 && gameMode.type === "deathmatch")
                 }
-                className="flex items-center gap-2 bg-green-600 text-white hover:bg-green-700"
+                className="flex w-full items-center justify-center gap-2 bg-green-600 text-white hover:bg-green-700 sm:w-auto"
               >
                 <Play size={16} />
                 {loading ? (
