@@ -224,6 +224,18 @@ h1, h2, h3, h4, h5, h6 {
   font-family: "IBM VGA 9x16", ui-monospace, monospace;
 }
 
+/* Hollow/outline text – pixel font with only letter outlines (no fill) */
+.font-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px black;
+  paint-order: stroke fill;
+}
+.font-outline-accent {
+  color: transparent;
+  -webkit-text-stroke: 1.5px hsl(var(--primary));
+  paint-order: stroke fill;
+}
+
 /* Radix Theme – IBM VGA 9x16 */
 .radix-themes {
   --default-font-family: "IBM VGA 9x16", ui-monospace, monospace;
@@ -258,12 +270,13 @@ button {
   border: 1px solid black !important;
   box-shadow: 2px 2px 0 black;
   color: black;
-  transition: text-decoration 0.2s ease-in-out, box-shadow 0.15s ease;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: text-decoration-style 0.2s ease-in-out, box-shadow 0.15s ease;
 }
 
 button:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  text-decoration-style: double;
 }
 
 button:active {

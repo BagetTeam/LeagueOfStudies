@@ -11,7 +11,9 @@ export default function Hero() {
       <div className="flex basis-full flex-col-reverse items-center justify-between gap-12 md:flex-row">
         <div className="flex w-full flex-col gap-4">
           <h1 className="text-4xl leading-tight font-bold md:text-5xl lg:text-6xl">
-            {user.user ? "Hey," : "Learn Faster"}
+            <span className="font-outline">
+              {user.user ? "Hey," : "Learn Faster"}
+            </span>
             <span className="text-theme-purple">
               {user.user
                 ? ` ${user.user.user_metadata.full_name.split(" ")[0]}!`

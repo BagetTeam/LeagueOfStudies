@@ -43,25 +43,25 @@ export default function NavBar() {
         </Link>
         <div className="flex flex-shrink-0 items-center gap-2 sm:gap-4">
           {user && (
-            <Link href="/dashboard" className="underline underline-offset-2">
+            <Link href="/dashboard">
               <Button className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
                 Dashboard
               </Button>
             </Link>
           )}
-          <Link href="/game" className="underline underline-offset-2">
+          <Link href="/game">
             <Button className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
               Games
             </Button>
           </Link>
-          <Link href="/leaderboard" className="underline underline-offset-2">
+          <Link href="/leaderboard">
             <Button className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
               Leaderboard
             </Button>
           </Link>
 
           {user ? (
-            <Link href="/logout" className="underline underline-offset-2">
+            <Link href="/logout">
               <Button
                 className="flex items-center justify-center gap-1 px-2 py-1 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
               >
