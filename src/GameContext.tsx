@@ -148,165 +148,14 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       });
 
-      // Broadcast listeners: each game event type dispatches into the local
+      // Register a broadcast listener for every broadcastable action.
+      // Each listener simply dispatches the received payload into the local
       // reducer so all clients converge on the same state.
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.setLobby },
-        ({ payload }: { payload: BroadcastingPayloads["setLobby"] }) => {
-          dispatch({
-            type: "setLobby",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.setStartGame },
-        ({ payload }: { payload: BroadcastingPayloads["setStartGame"] }) => {
-          dispatch({
-            type: "setStartGame",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.setHealth },
-        ({ payload }: { payload: BroadcastingPayloads["setHealth"] }) => {
-          dispatch({
-            type: "setHealth",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.setPlayerState },
-        ({ payload }: { payload: BroadcastingPayloads["setPlayerState"] }) => {
-          dispatch({
-            type: "setPlayerState",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.advanceTurnDeathmatch },
-        ({
-          payload,
-        }: {
-          payload: BroadcastingPayloads["advanceTurnDeathmatch"];
-        }) => {
-          dispatch({
-            type: "advanceTurnDeathmatch",
-            payload: payload,
-          });
-        },
-      );
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.advanceTurnBossfight },
-        ({
-          payload,
-        }: {
-          payload: BroadcastingPayloads["advanceTurnBossfight"];
-        }) => {
-          dispatch({
-            type: "advanceTurnBossfight",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.submitAnswerDeathmatch },
-        ({
-          payload,
-        }: {
-          payload: BroadcastingPayloads["submitAnswerDeathmatch"];
-        }) => {
-          dispatch({
-            type: "submitAnswerDeathmatch",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.recordPlayerAnswer },
-        ({
-          payload,
-        }: {
-          payload: BroadcastingPayloads["recordPlayerAnswer"];
-        }) => {
-          dispatch({
-            type: "recordPlayerAnswer",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.setBossHealth },
-        ({ payload }: { payload: BroadcastingPayloads["setBossHealth"] }) => {
-          dispatch({
-            type: "setBossHealth",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.setGameOver },
-        ({ payload }: { payload: BroadcastingPayloads["setGameOver"] }) => {
-          dispatch({
-            type: "setGameOver",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.teamDamage },
-        ({ payload }: { payload: BroadcastingPayloads["teamDamage"] }) => {
-          dispatch({
-            type: "teamDamage",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.setQuestions },
-        ({ payload }: { payload: BroadcastingPayloads["setQuestions"] }) => {
-          dispatch({
-            type: "setQuestions",
-            payload: payload,
-          });
-        },
-      );
-
-      channel.on(
-        "broadcast",
-        { event: BROADCAST_EVENTS.restartGame },
-        ({ payload }: { payload: BroadcastingPayloads["restartGame"] }) => {
-          dispatch({
-            type: "restartGame",
-            payload: payload,
-          });
-        },
-      );
+      for (const key of BROADCASTING_ACTION_KEYS) {
+        channel.on("broadcast", { event: key }, ({ payload }) => {
+          dispatch({ type: key, payload } as GameStateActions);
+        });
+      }
 
       channel.subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
@@ -337,10 +186,12 @@ export const GameProvider = ({ children }: GameProviderProps) => {
             event: event,
             payload: payload,
           })
-          .catch(() => {});
+          .catch((error) => {
+            console.error(`Broadcast ${event} failed:`, error);
+          });
       }
     },
-    [dispatch],
+    [],
   );
 
   const broadcastAndDispatch = useCallback(
@@ -354,7 +205,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         payload: payload,
       } as GameStateActions);
     },
-    [],
+    [sendBroadcast],
   );
 
   const contextValue = useMemo(
