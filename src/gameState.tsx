@@ -1,6 +1,6 @@
 import { INITIAL_PLAYER_HEALTH } from "./types/const";
 import { GameStateActionPayloads } from "./types/gameStatePayloads";
-import { GameState, Lobby } from "./types/types";
+import { GameState, Lobby, Player } from "./types/types";
 
 export const defaultLobby = {
   lobbyId: "",
@@ -17,15 +17,17 @@ export const defaultLobby = {
   turnStartTime: null,
 } satisfies Lobby;
 
+export const defaultPlayer = {
+  playerId: "",
+  name: "",
+  score: 0,
+  health: 5,
+  isHost: false,
+  state: "lobby",
+} satisfies Player;
+
 export const defaultState = {
-  player: {
-    playerId: "",
-    name: "",
-    score: 0,
-    health: 5,
-    isHost: false,
-    state: "lobby",
-  },
+  player: defaultPlayer,
   lobby: defaultLobby,
 } satisfies GameState;
 
@@ -53,14 +55,14 @@ export function gameStatereducer(
       ) {
         return state;
       }
-      action.payload.player.state = "lobby";
+      const newPlayer: Player = { ...action.payload.player, state: "lobby" };
       const updatedLobby: Lobby = {
         ...action.payload.lobby,
-        players: [...state.lobby.players, action.payload.player],
+        players: [...state.lobby.players, newPlayer],
       };
       return {
         ...state,
-        player: action.payload.player,
+        player: newPlayer,
         lobby: updatedLobby,
       };
     }
