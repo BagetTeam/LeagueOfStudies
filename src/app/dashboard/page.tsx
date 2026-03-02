@@ -11,9 +11,7 @@ import {
   Play,
   Plus,
   Trophy,
-  // Clock,
   Users,
-  // Star,
 } from "lucide-react";
 import { Tables } from "@/backend/models/database.types";
 import { getUserStats, getNotes } from "@/backend/db/dashboard";
@@ -21,31 +19,7 @@ import { useUser } from "@/lib/UserContext";
 import { supabase } from "@/backend/utils/database";
 import pdfToText from "react-pdftotext";
 
-// const studyNotes = [
-//   {
-//     id: 1,
-//     title: "Biology Midterm Notes",
-//     topics: ["Cell Structure", "Genetics", "Ecology"],
-//     questions: 45,
-//   },
-//   {
-//     id: 2,
-//     title: "History - World War II",
-//     topics: ["European Theater", "Pacific Theater"],
-//     questions: 30,
-//   },
-//   {
-//     id: 3,
-//     title: "Physics - Mechanics",
-//     topics: ["Newton's Laws", "Kinematics"],
-//     questions: 25,
-//   },
-// ];
-//
-
 export default function DashBoard() {
-  // const [recentGames, setRecentGames] = useState<Tables<"game">[]>([]);
-  // const [studyNotes, setStudyNotes] = useState([]);
   const router = useRouter();
   const [studyNotes, setStudyNotes] = useState<
     {
@@ -58,7 +32,6 @@ export default function DashBoard() {
       subject: string | null;
     }[]
   >([]);
-  // const { dispatch } = useGame();
   const [userData, setUserData] = useState<Tables<"stats"> | null>(null);
   const user = useUser();
   const email = user?.user?.user_metadata.email;
@@ -71,23 +44,15 @@ export default function DashBoard() {
           .download(path);
 
         if (error) {
-          console.error("Error downloading file:", error);
-
           return;
         }
 
         const file = new File([data], path, { type: "application/pdf" });
         const text = await pdfToText(file);
-        // Store in sessionStorage to persist across navigation
         sessionStorage.setItem("gameTitle", title);
         sessionStorage.setItem("gameSubject", text);
-        console.log(
-          sessionStorage.getItem("gameTitle"),
-          sessionStorage.getItem("gameSubject"),
-        );
         router.push(`/game?source`);
-      } catch (err) {
-        console.error("Error accessing file:", err);
+      } catch {
       }
     }
   }
@@ -96,12 +61,9 @@ export default function DashBoard() {
       const userId = user.user.id;
       (async () => {
         const userData = await getUserStats(email);
-        console.log("winRate", userData?.b_wins);
 
         setUserData(userData);
-        console.log("userid", userId);
         const notes = await getNotes(userId);
-        console.log("notes", notes);
         if (notes) {
           setStudyNotes(notes ?? []);
         } else {
@@ -174,7 +136,6 @@ export default function DashBoard() {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-8">
-              {/* Quick actions */}
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <Link href="/upload" className="game-card p-4 text-center">
                   <div className="bg-theme-purple/10 mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full">
@@ -208,7 +169,6 @@ export default function DashBoard() {
                 </Link>
               </div>
 
-              {/* Quick stats */}
               {loading && <div>Loading...</div>}
               {!loading && (
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -244,65 +204,6 @@ export default function DashBoard() {
                   </div>
                 </div>
               )}
-
-              {/* Recent games */}
-              {/* <div> */}
-              {/*   <div className="mb-4 flex items-center justify-between"> */}
-              {/*     <h2 className="text-xl font-semibold">Recent Games</h2> */}
-              {/*   </div> */}
-              {/*   <span className="border-border mb-4 block border-b"></span> */}
-              {/*   {recentGames.length == 0 && <div>No recent games</div>} */}
-              {/*   {recentGames.length != 0 && ( */}
-              {/*     <div className="overflow-x-auto"> */}
-              {/*       <table className="w-full border-collapse"> */}
-              {/*         <thead> */}
-              {/*           <tr className="border-border border-b"> */}
-              {/*             <th className="px-4 py-3 text-left">Mode</th> */}
-              {/*             <th className="px-4 py-3 text-left">Subject</th> */}
-              {/*             <th className="px-4 py-3 text-left">Topic</th> */}
-              {/*             <th className="px-4 py-3 text-left">Date</th> */}
-              {/*             <th className="px-4 py-3 text-left">Result</th> */}
-              {/*             <th className="px-4 py-3 text-left">Score</th> */}
-              {/*           </tr> */}
-              {/*         </thead> */}
-              {/*         <tbody> */}
-              {/*           {recentGames.map((game) => ( */}
-              {/*             <tr */}
-              {/*               key={game.id} */}
-              {/*               className="hover:bg-muted/50 border-border border-b transition-colors" */}
-              {/*             > */}
-              {/*               <td className="px-4 py-3"> */}
-              {/*                 <div className="flex items-center gap-2"> */}
-              {/*                   {game.mode === "Deathmatch" ? ( */}
-              {/*                     <Trophy className="text-theme-orange h-4 w-4" /> */}
-              {/*                   ) : ( */}
-              {/*                     <Users className="text-theme-blue h-4 w-4" /> */}
-              {/*                   )} */}
-              {/*                   {game.mode} */}
-              {/*                 </div> */}
-              {/*               </td> */}
-              {/*               <td className="px-4 py-3">{game.subject}</td> */}
-              {/*               <td className="px-4 py-3">{game.topic}</td> */}
-              {/*               <td className="text-muted-foreground px-4 py-3"> */}
-              {/*                 {game.date} */}
-              {/*               </td> */}
-              {/*               <td className="px-4 py-3"> */}
-              {/*                 <span */}
-              {/*                   className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${game.result === "Won" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`} */}
-              {/*                 > */}
-              {/*                   {game.result} */}
-              {/*                 </span> */}
-              {/*               </td> */}
-              {/*               <td className="px-4 py-3 font-semibold"> */}
-              {/*                 {game.score} */}
-              {/*               </td> */}
-              {/*             </tr> */}
-              {/*           ))} */}
-              {/*         </tbody> */}
-              {/*       </table> */}
-              {/*     </div> */}
-              {/*   )} */}
-              {/* </div> */}
             </TabsContent>
 
             <TabsContent value="notes">

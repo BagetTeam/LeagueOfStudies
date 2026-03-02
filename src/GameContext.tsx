@@ -33,9 +33,6 @@ export const BROADCAST_EVENTS = Object.fromEntries(
 
 type BroadcastEventType = keyof BroadcastingPayloads;
 
-// export type BroadcastEventType =
-//   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
-
 /**
  * Three ways to mutate / communicate state:
  *  - dispatch:             local-only reducer update (no network)
@@ -77,17 +74,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   // 3. Registers handlers for presence sync/join/leave and all broadcast event types
   // 4. Subscribes and tracks this player's presence once connected
   useEffect(() => {
-    console.log(lobby.lobbyId);
-
     if (channelRef.current) {
-      console.log(
-        `Unsubscribing from previous channel: ${channelRef.current.topic}`,
-      );
       channelRef.current.unsubscribe();
       channelRef.current = null;
     }
 
-    // add Lobby channel to player
     if (lobby.lobbyId && player.playerId.length > 0) {
       const channel = supabase.channel(lobby.lobbyId, {
         config: {
@@ -95,7 +86,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
             key: gameState.player.playerId.toString(),
           },
           broadcast: {
-            ack: true, // Optional: Wait for ack from server
+            ack: true,
           },
         },
       });
@@ -107,16 +98,14 @@ export const GameProvider = ({ children }: GameProviderProps) => {
           .map((presence) => presence[0]?.playerInfo)
           .filter(
             (player): player is Player => !!player && player.playerId !== "",
-          ); // Filter out invalid/guest players
+          );
 
-        console.log("Synced players:", updatedPlayers);
         dispatch({ type: "setPlayers", payload: { players: updatedPlayers } });
       });
 
       // When a new player joins, the host broadcasts the updated lobby so
       // the joiner receives the full current state (questions, game mode, etc.)
-      channel.on("presence", { event: "join" }, ({ key, newPresences }) => {
-        console.log("Presence join:", key, newPresences);
+      channel.on("presence", { event: "join" }, ({ newPresences }) => {
         const joinedPlayerInfo = newPresences[0]?.playerInfo as
           | Player
           | undefined;
@@ -146,10 +135,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       });
 
-      channel.on("presence", { event: "leave" }, ({ key, leftPresences }) => {
-        console.log("Presence leave:", key, leftPresences);
-        // Rely on the next 'sync' event triggered by leave, or explicitly remove
-        const leftPlayerId = parseInt(key, 10); // Key is the player ID
+      channel.on("presence", { event: "leave" }, ({ key }) => {
+        const leftPlayerId = parseInt(key, 10);
         if (!isNaN(leftPlayerId)) {
           const remainingPlayers = lobby.players.filter(
             (p) => p.playerId !== leftPlayerId.toString(),
@@ -321,26 +308,15 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         },
       );
 
-      // Add player to lobby connections
       channel.subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          // Track this user's presence once subscribed, and sync other players
           if (gameState.player.playerId.length > 0) {
             await channel.track({ playerInfo: gameState.player });
           }
-        } else if (status === "CHANNEL_ERROR") {
-          console.error(`Channel Error for ${gameState.lobby.lobbyId}`);
-        } else if (status === "TIMED_OUT") {
-          console.warn(
-            `Channel subscription timed out for ${gameState.lobby.lobbyId}`,
-          );
-        } else if (status === "CLOSED") {
-          console.log(`Channel ${gameState.lobby.lobbyId} closed.`);
         }
       });
 
       return () => {
-        console.log(`Cleaning up channel`);
         if (channelRef.current) {
           channelRef.current.unsubscribe();
           channelRef.current = null;
@@ -348,14 +324,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       };
     }
   }, [gameState.lobby.lobbyId, gameState.player.playerId]);
-
-  // function specialDispatch<K extends keyof GameStateActionPayloads>(
-  //   event: K,
-  //   payload: GameStateActionPayloads[K],
-  // ) {
-  //   const action = { type: event, payload } as GameStateActions;
-  //   dispatch(action);
-  // }
 
   const sendBroadcast = useCallback(
     <E extends BroadcastEventType>(
@@ -369,13 +337,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
             event: event,
             payload: payload,
           })
-          .catch((error) => {
-            console.error(`Broadcast ${event} failed:`, error);
-          });
-      } else {
-        console.warn(
-          "Cannot send broadcast, channel not available or not subscribed yet.",
-        );
+          .catch(() => {});
       }
     },
     [dispatch],

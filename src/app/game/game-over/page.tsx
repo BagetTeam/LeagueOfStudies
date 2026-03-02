@@ -34,9 +34,8 @@ export default function GameOver() {
   };
 
   return (
-    <div className="game-card bg-card mx-auto max-w-2xl rounded-lg border p-8 text-center shadow-lg">
+    <div className="game-card mx-auto max-w-2xl p-8 text-center">
       <>
-        {/* BossFight Game Over Screen */}
         {gameMode.type === "bossfight" ? (
           <>
             <div className="mb-6">
@@ -62,9 +61,7 @@ export default function GameOver() {
             <div className="mb-6 flex flex-col items-center gap-4">
               <h3 className="font-semibold">Final Results</h3>
               <div className="flex items-center gap-3 text-lg">
-                <span>
-                  Boss Health: {bossHealth}/{gameMode.data.bossHealth} remaining
-                </span>
+                <span>Boss Health: {bossHealth}/100 remaining</span>
               </div>
               <h3 className="mt-2 font-semibold">Team Status</h3>
               {players.map((player) => (
@@ -100,7 +97,7 @@ export default function GameOver() {
                 Final Results
               </h3>
               {players
-                .sort((a, b) => (b.health ?? 0) - (a.health ?? 0)) // Sort by health descending
+                .sort((a, b) => (b.health ?? 0) - (a.health ?? 0))
                 .map((player) => (
                   <div
                     key={player.playerId}

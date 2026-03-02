@@ -15,6 +15,7 @@ import { useUser } from "@/lib/UserContext";
 import { useGame } from "../../GameContext";
 import { GameMode } from "@/types/types";
 import { subjects } from "@/test-data/gameModeData";
+import { getRandomBossName } from "@/test-data/bossNames";
 import { INITIAL_BOSS_HEALTH } from "@/types/const";
 import { defaultLobby } from "@/gameState";
 import { createBroadcastPayload } from "@/utils/utils";
@@ -33,7 +34,6 @@ export default function GameModes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const dashboardRef = useRef<HTMLAnchorElement | null>(null);
-  // clear any existing loaded lobby setups
   useEffect(() => {
     const { event, payload } = createBroadcastPayload("setLobby", {
       lobby: defaultLobby,
@@ -58,7 +58,7 @@ export default function GameModes() {
         mode = {
           type: selectedMode,
           data: {
-            bossName: "teacher Bob",
+            bossName: getRandomBossName(),
             bossHealth: INITIAL_BOSS_HEALTH,
             time: 20,
           },
@@ -88,7 +88,7 @@ export default function GameModes() {
         mode = {
           type: selectedMode,
           data: {
-            bossName: "teacher Bob",
+            bossName: getRandomBossName(),
             bossHealth: INITIAL_BOSS_HEALTH,
             time: 20,
           },
@@ -97,7 +97,6 @@ export default function GameModes() {
     dispatch({ type: "setGameMode", payload: { gameMode: mode } });
 
     if (subject) {
-      console.log("setting subejct");
       dispatch({ type: "setGameSubject", payload: { subject: subject } });
       dispatch({ type: "setGameTitle", payload: { title: subject } });
     }
@@ -113,7 +112,7 @@ export default function GameModes() {
         mode = {
           type: selectedMode,
           data: {
-            bossName: "teacher Bob",
+            bossName: getRandomBossName(),
             bossHealth: INITIAL_BOSS_HEALTH,
             time: 20,
           },
@@ -135,10 +134,9 @@ export default function GameModes() {
         team up with friends!
       </p>
 
-      {/* Game modes section */}
       <div className="mb-12 grid gap-6 md:grid-cols-2">
         <div
-          className={`game-card hover:border-theme-orange cursor-pointer transition-all ${selectedMode === "deathmatch" ? "border-theme-orange ring-theme-orange/20 ring-2" : ""}`}
+          className={`game-card cursor-pointer transition-all ${selectedMode === "deathmatch" ? "ring-2 ring-black" : ""}`}
           onClick={() => {
             setSelectedMode("deathmatch");
             if (sessionStorage.getItem("gameSubject")) {
@@ -177,7 +175,7 @@ export default function GameModes() {
         </div>
 
         <div
-          className={`game-card hover:border-theme-blue cursor-pointer transition-all ${selectedMode === "bossfight" ? "border-theme-blue ring-theme-blue/20 ring-2" : ""}`}
+          className={`game-card cursor-pointer transition-all ${selectedMode === "bossfight" ? "ring-2 ring-black" : ""}`}
           onClick={() => {
             setSelectedMode("bossfight");
             if (sessionStorage.getItem("gameSubject")) {
@@ -216,11 +214,10 @@ export default function GameModes() {
         </div>
       </div>
 
-      {/* Subject selection */}
       {selectedMode && !sessionStorage.getItem("gameTitle") && (
         <>
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold">Choose a Subject</h2>
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <h2 className="shrink-0 whitespace-nowrap text-2xl font-semibold">Choose a Subject</h2>
 
             <div className="relative">
               <Search className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
@@ -257,11 +254,13 @@ export default function GameModes() {
                 </div>
 
                 <Button
-                  className={`text-background w-full gap-2 ${selectedMode === "deathmatch" ? "bg-theme-orange hover:bg-theme-orange/80" : "bg-theme-blue hover:bg-theme-blue/80"}`}
+                  className={`text-background w-full ${selectedMode === "deathmatch" ? "bg-theme-orange hover:bg-theme-orange/80" : "bg-theme-blue hover:bg-theme-blue/80"}`}
                   onClick={() => handlePickSubject(subject.name)}
                 >
-                  <Play className="h-4 w-4" />
-                  Start Game
+                  <span className="flex w-full justify-start gap-2" style={{ display: "flex", width: "100%", justifyContent: "flex-start" }}>
+                    <Play className="h-4 w-4 shrink-0" />
+                    Start Game
+                  </span>
                 </Button>
               </div>
             ))}
@@ -298,7 +297,6 @@ export default function GameModes() {
         </>
       )}
 
-      {/* Placeholder -- Call-to-action for creating custom game */}
       <div className="bg-theme-purple/10 rounded-xl p-6 md:p-8">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row"></div>
       </div>

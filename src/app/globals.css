@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* IBM VGA 9x16 – DOS/VGA style pixel font (best around 13–16px) */
+@font-face {
+  font-family: "IBM VGA 9x16";
+  src: url("https://db.onlinewebfonts.com/t/41d1138e4488305b45cde450540c6824.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --breakpoint-xs: 475px;
   --color-border: hsl(var(--border));
@@ -37,47 +46,57 @@
   --color-theme-orange: hsl(var(--theme-orange));
   --color-theme-blue: hsl(var(--theme-blue));
 
-  --font-sans: var(--font-space-mono);
+  --font-sans: "IBM VGA 9x16", ui-monospace, monospace;
 }
 :root {
-  --theme-purple-light: 251, 85%, 75%;
-  --theme-purple: 259, 28%, 54%;
-  --theme-purple-dark: 258, 26%, 39%;
+  /* Highlight #B6C2ED (soft periwinkle) */
+  --theme-purple-light: 227 65% 90%;
+  --theme-purple: 227 60% 82%;
+  --theme-purple-dark: 227 55% 72%;
 
-  --theme-orange: 25, 95%, 53%;
-  --theme-blue: 194, 86%, 57%;
+  --theme-orange: 227 60% 82%;
+  --theme-blue: 227 60% 82%;
 
-  --background: 258 100% 98%;
-  --foreground: 260 10% 20%;
+  /* Cream #FDF9F3 */
+  --background: 36 70% 97%;
+  --foreground: 0 0% 8%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 260 10% 20%;
+  /* Cream windows/cards */
+  --card: 36 60% 99%;
+  --card-foreground: 0 0% 8%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 260 10% 20%;
+  --popover: 36 60% 99%;
+  --popover-foreground: 0 0% 8%;
 
-  --primary: 258 80% 74%;
-  --primary-foreground: 0 0% 100%;
+  /* Saturated mint */
+  /* Highlight #B6C2ED */
+  --primary: 227 60% 82%;
+  --primary-foreground: 0 0% 8%;
 
-  --secondary: 260 28% 54%;
-  --secondary-foreground: 0 0% 100%;
+  --secondary: 227 55% 86%;
+  --secondary-foreground: 0 0% 8%;
 
-  --muted: 260 20% 94%;
-  --muted-foreground: 260 10% 50%;
+  --muted: 36 55% 95%;
+  --muted-foreground: 0 0% 35%;
 
-  --accent: 24 94% 53%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 227 60% 82%;
+  --accent-foreground: 0 0% 8%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 260 20% 86%;
-  --input: 260 20% 86%;
-  --ring: 258 80% 74%;
+  --border: 0 0% 12%;
+  --input: 0 0% 12%;
+  --ring: 227 55% 70%;
 }
 
+/* Cards: same OS style as buttons (white, black border, right/bottom shadow) */
 .game-card {
-  @apply bg-card border-border relative overflow-hidden rounded-xl border p-6 shadow-md transition-all hover:shadow-lg;
+  @apply relative overflow-hidden border border-black bg-white p-6 text-black shadow-[2px_2px_0_0_black] transition-shadow;
+}
+
+.game-card:hover {
+  @apply shadow-[1px_1px_0_0_black];
 }
 
 .game-card::before {
@@ -86,15 +105,15 @@
 }
 
 .game-button {
-  @apply bg-theme-purple hover:bg-theme-purple-dark flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-semibold text-white transition-all;
+  @apply flex items-center justify-center gap-2 rounded-lg bg-black px-6 py-3 font-semibold text-white transition-all hover:bg-neutral-800;
 }
 
 .orange-highlight {
-  @apply text-theme-orange font-bold;
+  @apply font-bold text-black;
 }
 
 .blue-highlight {
-  @apply text-theme-blue font-bold;
+  @apply font-bold text-black;
 }
 
 .health-bar {
@@ -102,11 +121,11 @@
 }
 
 .health-bar-fill {
-  @apply bg-theme-purple h-2.5 rounded-full transition-all duration-300;
+  @apply h-2.5 rounded-full bg-black transition-all duration-300;
 }
 
 .health-bar-fill-orange {
-  @apply bg-theme-orange h-2.5 rounded-full transition-all duration-300;
+  @apply h-2.5 rounded-full bg-black transition-all duration-300;
 }
 /* 3. Define Keyframes directly in CSS */
 @keyframes accordion-down {
@@ -195,10 +214,32 @@
   }
 }
 
-/* Mobile navbar scrolling styles */
+/* Body and titles: IBM VGA 9x16 */
 body {
   overflow-x: hidden;
-  font-family: var(--font-space-mono) !important;
+  font-family: "IBM VGA 9x16", ui-monospace, monospace;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "IBM VGA 9x16", ui-monospace, monospace;
+}
+
+/* Hollow/outline text – pixel font with only letter outlines (no fill) */
+.font-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px black;
+  paint-order: stroke fill;
+}
+.font-outline-accent {
+  color: transparent;
+  -webkit-text-stroke: 1.5px hsl(var(--primary));
+  paint-order: stroke fill;
+}
+
+/* Radix Theme – IBM VGA 9x16 */
+.radix-themes {
+  --default-font-family: "IBM VGA 9x16", ui-monospace, monospace;
+  --heading-font-family: "IBM VGA 9x16", ui-monospace, monospace;
 }
 
 /* Ensure navbar scrolls horizontally on mobile without causing page overflow */
@@ -223,14 +264,23 @@ body {
   }
 }
 
-/* Button hover effects - underline and shift right */
+/* OS-style buttons: white bg, black border, shadow on right and bottom only */
 button {
-  transition: text-decoration 0.2s ease-in-out;
+  background: white !important;
+  border: 1px solid black !important;
+  box-shadow: 2px 2px 0 black;
+  color: black;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: text-decoration-style 0.2s ease-in-out, box-shadow 0.15s ease;
 }
 
 button:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  text-decoration-style: double;
+}
+
+button:active {
+  box-shadow: 1px 1px 0 black;
 }
 
 /* Shift button content to the right on hover */
@@ -238,7 +288,6 @@ button:hover > * {
   transform: translateX(4px);
 }
 
-/* Ensure transition is smooth for button content */
 button > * {
   transition: transform 0.2s ease-in-out;
   display: inline-block;

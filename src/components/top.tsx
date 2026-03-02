@@ -19,7 +19,7 @@ export default function Header() {
       <div className="flex flex-row items-center gap-4">
         <Bell className="h-6 w-6" />
         <Image
-          src="/profile.jpg" // path to your profile image
+          src="/profile.jpg"
           alt="Profile"
           width={40}
           height={40}

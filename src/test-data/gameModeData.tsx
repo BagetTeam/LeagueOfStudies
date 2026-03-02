@@ -9,7 +9,7 @@ export const subjects = [
   {
     id: 4,
     name: "Physics",
-    topics: ["Mechanics", "Thermodynamics", "Electricity"],
+    topics: ["Classical Mechanics", "Thermodynamics", "Electricity"],
   },
   {
     id: 5,

@@ -17,7 +17,7 @@ export function TeamStatus({
       {players.map((player, index) => (
         <div
           key={player.playerId}
-          className={`bg-card rounded-xl border p-4 ${getBossAttackClass(index)} ${player.health <= 0 ? "bg-muted/50 text-muted-foreground" : ""}`}
+          className={`game-card p-4 ${getBossAttackClass(index)} ${player.health <= 0 ? "bg-gray-200 text-gray-500" : ""}`}
         >
           <h3
             className={`mb-2 font-semibold ${player.playerId === currentId ? "text-theme-blue" : ""}`}

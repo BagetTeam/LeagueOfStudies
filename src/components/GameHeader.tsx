@@ -3,12 +3,11 @@ import { Users, ArrowLeft, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface GameHeaderProps {
-  subject: string;
   topic: string;
   roundNumber: number;
 }
 
-export function GameHeader({ subject, topic, roundNumber }: GameHeaderProps) {
+export function GameHeader({ topic, roundNumber }: GameHeaderProps) {
   const router = useRouter();
 
   return (
@@ -27,7 +26,7 @@ export function GameHeader({ subject, topic, roundNumber }: GameHeaderProps) {
         <div>
           <h1 className="flex items-center gap-2 text-xl font-semibold">
             <Users className="text-theme-blue h-5 w-5" />
-            Boss Fight: {subject}
+            Boss Fight
           </h1>
           <p className="text-muted-foreground text-sm">Topic: {topic}</p>
         </div>

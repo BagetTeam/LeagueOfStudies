@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import { Shield } from "lucide-react";
+import { getRandomBossTitle } from "@/test-data/bossNames";
 
 interface BossStatusProps {
   bossName: string;
@@ -17,6 +21,7 @@ export function BossStatus({
   feedback,
   showFeedback,
 }: BossStatusProps) {
+  const [title] = useState(() => getRandomBossTitle());
   return (
     <div
       className={`game-card ${
@@ -30,7 +35,7 @@ export function BossStatus({
           </div>
           <div>
             <h2 className="text-xl font-semibold">{bossName}</h2>
-            <p className="text-sm text-muted-foreground">The History Teacher</p>
+            <p className="text-sm text-muted-foreground">{title}</p>
           </div>
         </div>
 

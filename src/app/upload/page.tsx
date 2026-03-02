@@ -34,7 +34,6 @@ export default function Upload() {
   function handleUpload() {
     if (!file) return;
 
-    // Validate before starting upload
     if (!subject.trim()) {
       setSubjectError(true);
       return;
@@ -44,13 +43,11 @@ export default function Upload() {
       return;
     }
 
-    // Clear any previous errors
     setSubjectError(false);
     setTitleError(false);
     setUploading(true);
 
     async function uploadFile() {
-      // Type guard: ensure file is not null
       if (!file) {
         setUploading(false);
         return;
@@ -67,12 +64,10 @@ export default function Upload() {
         const { error: uploadError } = await supabase.storage
           .from("notes")
           .upload(file_path, file, {
-            upsert: false, // Don't overwrite, create new file
+            upsert: false,
           });
 
         if (uploadError) {
-          console.error("Storage upload error:", uploadError);
-          console.error("Error details:", JSON.stringify(uploadError, null, 2));
           setUploading(false);
           router.push("/upload/error");
           return;
@@ -83,20 +78,9 @@ export default function Upload() {
         const key = crypto.randomUUID();
 
         if (!email || !noteId) {
-          console.error("User email or id is missing");
           router.push("/upload/error");
           return;
         }
-
-        console.log("Inserting note with data:", {
-          prim: key,
-          id: noteId,
-          title: title,
-          email: email,
-          path: file_path,
-          subject: subject || null,
-          tags: tags.length > 0 ? tags : null,
-        });
 
         const { error } = await supabase
           .from("notes")
@@ -112,29 +96,14 @@ export default function Upload() {
           })
           .select();
         if (error) {
-          console.error("Database insert error:", error);
-          console.error("Error details:", JSON.stringify(error, null, 2));
           router.push("/upload/error");
           setUploading(false);
           return;
         }
-        // if (error) {
-        //   console.error("Database insert error:", error);
-        //   console.error("Error details:", JSON.stringify(error, null, 2));
-        //   console.error("Error code:", error.code);
-        //   console.error("Error message:", error.message);
-        //   console.error("Error hint:", error.hint);
-        // } else {
-        //   console.log("Upload successful:", uploadData);
-        //   console.log("Note inserted:", data);
-        //   setUploadSuccess(true);
-        // }
-
         setUploadSuccess(true);
         setSubjectError(false);
         setTitleError(false);
-      } catch (err) {
-        console.error("Upload failed:", err);
+      } catch {
         router.push("/upload/error");
       } finally {
         setUploading(false);

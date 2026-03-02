@@ -3,7 +3,6 @@
 export default function Stats() {
   return (
     <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 md:grid-cols-4">
-      {/* Your Rank */}
       <div className="shadow- flex flex-col gap-2 rounded-lg bg-white p-6 shadow-lg">
         <div className="flex items-center gap-2 font-semibold text-gray-600">
           🏆 Your Rank
@@ -12,7 +11,6 @@ export default function Stats() {
         <div className="text-sm text-gray-500">Top 15%</div>
       </div>
 
-      {/* Level Progress */}
       <div className="flex flex-col gap-2 rounded-lg bg-white p-6 shadow-md">
         <div className="flex items-center gap-2 font-semibold text-gray-600">
           👤 Level Progress
@@ -23,7 +21,6 @@ export default function Stats() {
         </div>
       </div>
 
-      {/* Questions Answered */}
       <div className="flex flex-col gap-2 rounded-lg bg-white p-6 shadow-md">
         <div className="flex items-center gap-2 font-semibold text-gray-600">
           📈 Questions Answered
@@ -32,7 +29,6 @@ export default function Stats() {
         <div className="text-sm text-gray-500">86% correct</div>
       </div>
 
-      {/* Games Played */}
       <div className="flex flex-col gap-2 rounded-lg bg-white p-6 shadow-md">
         <div className="flex items-center gap-2 font-semibold text-gray-600">
           👥 Games Played

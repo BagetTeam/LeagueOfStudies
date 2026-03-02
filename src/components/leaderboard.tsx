@@ -15,25 +15,20 @@ export default function Leaderboard() {
       <div className="flex flex-col gap-4 rounded-xl bg-white p-6 shadow-md">
         {players.map((player, index) => (
           <div key={index} className="flex items-center justify-between">
-            {/* Left side: Rank and Name */}
             <div className="flex items-center gap-4">
-              {/* Rank Circle */}
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${player.color}`}
               >
                 {index + 1}
               </div>
 
-              {/* Name */}
               <span className="text-lg font-medium">{player.name}</span>
             </div>
 
-            {/* Right side: Score */}
             <div className="text-lg font-bold">{player.score}</div>
           </div>
         ))}
 
-        {/* Full Leaderboard Link */}
         <div className="pt-4 text-center">
           <a
             href="/leaderboard"

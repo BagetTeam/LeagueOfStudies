@@ -10,11 +10,8 @@ export default function LogoutPage() {
   const supabase = createSupClient();
 
   const handleLogout = async () => {
-    // Sign out immediately
     await supabase.auth.signOut();
-    // Update user state immediately for instant UI feedback
     setUser(null);
-    // Redirect after auth state has been cleared
     router.push("/");
   };
 
