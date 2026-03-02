@@ -36,6 +36,16 @@ type BroadcastEventType = keyof BroadcastingPayloads;
 // export type BroadcastEventType =
 //   (typeof BROADCAST_EVENTS)[keyof typeof BROADCAST_EVENTS];
 
+/**
+ * Three ways to mutate / communicate state:
+ *  - dispatch:             local-only reducer update (no network)
+ *  - sendBroadcast:        send to other clients via Supabase Realtime (no local update)
+ *  - broadcastAndDispatch: do both — update locally AND broadcast to peers
+ *
+ * Use `broadcastAndDispatch` for actions the sender also needs to apply
+ * (e.g. submitting an answer). Use `sendBroadcast` when only remote peers
+ * should react (e.g. host syncing lobby state to a new joiner).
+ */
 type GameContextType = {
   gameState: GameState;
   dispatch: React.Dispatch<GameStateActions>;
@@ -61,10 +71,14 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
   const { player, lobby } = gameState;
 
+  // Manages the Supabase Realtime channel lifecycle:
+  // 1. Tears down any existing channel when lobbyId changes
+  // 2. Creates a new channel with presence (player tracking) and broadcast (game events)
+  // 3. Registers handlers for presence sync/join/leave and all broadcast event types
+  // 4. Subscribes and tracks this player's presence once connected
   useEffect(() => {
     console.log(lobby.lobbyId);
 
-    // remove channel is already existent
     if (channelRef.current) {
       console.log(
         `Unsubscribing from previous channel: ${channelRef.current.topic}`,
@@ -87,7 +101,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       });
       channelRef.current = channel;
 
-      // --- Presence Handlers ---
       channel.on("presence", { event: "sync" }, () => {
         const presenceState = channel.presenceState<{ playerInfo: Player }>();
         const updatedPlayers = Object.values(presenceState)
@@ -100,12 +113,13 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         dispatch({ type: "setPlayers", payload: { players: updatedPlayers } });
       });
 
+      // When a new player joins, the host broadcasts the updated lobby so
+      // the joiner receives the full current state (questions, game mode, etc.)
       channel.on("presence", { event: "join" }, ({ key, newPresences }) => {
         console.log("Presence join:", key, newPresences);
         const joinedPlayerInfo = newPresences[0]?.playerInfo as
           | Player
           | undefined;
-        // Ensure valid player joined
         if (joinedPlayerInfo && joinedPlayerInfo.playerId !== "") {
           const currentPlayers = lobby.players;
           if (
@@ -147,7 +161,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       });
 
-      // --- Broadcast Handlers ---
+      // Broadcast listeners: each game event type dispatches into the local
+      // reducer so all clients converge on the same state.
       channel.on(
         "broadcast",
         { event: BROADCAST_EVENTS.setLobby },

@@ -60,6 +60,9 @@ type TeamDamagePayload = {
   playerHealths: { [playerId: string]: number };
 };
 
+// Actions that are sent over Supabase Realtime broadcast to all peers.
+// This is a subset of GameStateActionPayloads — some actions (e.g. joinLobby,
+// setName) are local-only and never broadcast.
 export type BroadcastingPayloads = {
   setLobby: SetLobbyPayload;
   setStartGame: StartGamePayload;
@@ -76,6 +79,7 @@ export type BroadcastingPayloads = {
   teamDamage: TeamDamagePayload;
 };
 
+// Full set of actions the local reducer can handle (superset of BroadcastingPayloads).
 export type GameStateActionPayloads = {
   joinLobby: { lobby: Lobby; player: Player };
   exitLobby: Record<string, never>;
@@ -103,6 +107,8 @@ export type GameStateActionPayloads = {
   restartGame: RestartGamePayload;
 };
 
+// Exhaustive list of actions that get broadcast — used to auto-register
+// Supabase Realtime listeners in GameContext.
 export const BROADCASTING_ACTION_KEYS = [
   "setLobby",
   "setStartGame",

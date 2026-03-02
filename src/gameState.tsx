@@ -40,11 +40,24 @@ export type GameStateActions = {
 
 export type GameStateActionsType = keyof GameStateActionPayloads;
 
+/**
+ * Central reducer for all game state transitions.
+ *
+ * Actions fall into four groups:
+ *  1. Lobby setup — creating/joining/leaving lobbies, configuring game settings
+ *  2. Player attributes — name, score, health, per-player state
+ *  3. Game lifecycle — starting, restarting, game-over
+ *  4. Gameplay — turn advancement, answer submission & health resolution (mode-specific)
+ *
+ * Most actions update both the local player and the lobby-wide player list
+ * to keep them in sync (the lobby list is the multiplayer source of truth).
+ */
 export function gameStatereducer(
   state: GameState,
   action: GameStateActions,
 ): GameState {
   switch (action.type) {
+    // --- Lobby setup ---
     case "setLobby":
       return { ...state, lobby: action.payload.lobby };
     case "joinLobby": {
@@ -114,6 +127,7 @@ export function gameStatereducer(
         },
       };
 
+    // --- Player attributes ---
     case "setName":
       return {
         ...state,
@@ -193,6 +207,7 @@ export function gameStatereducer(
         lobby: { ...state.lobby, questions: action.payload.questions },
       };
 
+    // --- Game lifecycle ---
     case "setStartGame": {
       const initialPlayersWithHealth = action.payload.initialPlayers.map(
         (p) => ({
@@ -272,6 +287,7 @@ export function gameStatereducer(
         },
       };
 
+    // --- Gameplay: answer tracking & turn management ---
     case "recordPlayerAnswer":
       // Only record if the answer is for the current question index state
       if (action.payload.questionIndex !== state.lobby.currentQuestionIndex) {
@@ -326,6 +342,9 @@ export function gameStatereducer(
         },
       };
 
+    // Deathmatch answer resolution: if a non-active player answers correctly,
+    // the active (turn-holding) player loses a heart; if anyone answers wrong,
+    // they lose their own heart. Then advance to the next alive player.
     case "submitAnswerDeathmatch": {
       const {
         optionIndex,
@@ -408,6 +427,7 @@ export function gameStatereducer(
       };
     }
 
+    // Boss fight: apply damage to all players who answered incorrectly this round
     case "teamDamage": {
       const newPlayers = state.lobby.players.map((p) =>
         action.payload.playerHealths.hasOwnProperty(p.playerId)

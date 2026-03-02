@@ -13,6 +13,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Topic is required" }, { status: 400 });
     }
 
+    // Uses Gemini's structured-output mode: responseMimeType forces JSON output and
+    // responseSchema constrains it to our exact question shape, so the LLM returns
+    // well-formed data without needing fragile output parsing.
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash",
       contents: `Generate 10 questions about this study material: ${topic}. For each question, find the correct answer, then come up with 3 other potential answer that the player might think of. There should be 4 options to choose from where 1 of them is the correct answer. Return the index of the answer among the array of options.`,
@@ -55,6 +58,8 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+    // Validate with Zod as a safety net — the schema-constrained output can still
+    // have edge cases (e.g. null text). Re-index IDs to guarantee 0..N ordering.
     const ret = z
       .array(QuestionSchema)
       .parse(JSON.parse(response.text ?? "[]"));
