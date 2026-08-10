@@ -1,4 +1,4 @@
-name: Keep Supabase alive
+name: Keep alive
 
 on:
   schedule:
@@ -9,10 +9,4 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      # ponytail: hits the Supabase REST API directly, not /leaderboard —
-      # that page is a client component, so curling it never touches the DB.
-      - run: |
-          curl -fsS --max-time 30 \
-            "${{ secrets.NEXT_PUBLIC_URL }}/rest/v1/stats?select=email&limit=1" \
-            -H "apikey: ${{ secrets.NEXT_PUBLIC_ANONKEY }}" \
-            -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_ANONKEY }}"
+      - run: curl -fsS --max-time 30 "${{ vars.SITE_URL }}/leaderboard"
