@@ -2,7 +2,7 @@
 
 Welcome to **League of Studies** — where studying feels less like a chore and more like a challenge you actually want to win.
 
-🌐 Visit the site: [ihatestudying.study](https://ihatestudying.study)
+🌐 Visit the site: [ihateto.study](https://ihateto.study)
 
 ---
 
